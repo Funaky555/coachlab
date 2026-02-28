@@ -232,11 +232,19 @@ export function drawPlayers(
 
     // Name below pin
     if (showNames && name) {
-      ctx.fillStyle = 'rgba(255,255,255,0.88)';
-      ctx.font = `${Math.max(7, fontSize * 0.78)}px Inter, system-ui, sans-serif`;
+      const nameFontSize = Math.max(8, fontSize * 0.88);
+      ctx.font = `700 ${nameFontSize}px 'Barlow Condensed', 'Inter', system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
+      // Shadow for contrast against the green pitch
+      ctx.shadowColor = 'rgba(0,0,0,0.85)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 1;
+      ctx.fillStyle = '#ffffff';
       ctx.fillText(name, x, y + R + 3);
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
       ctx.textBaseline = 'alphabetic';
     }
 
