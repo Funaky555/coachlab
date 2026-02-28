@@ -48,10 +48,10 @@ const FORMATIONS: Record<FormationName, Array<{ x: number; y: number }>> = {
 };
 
 const FORMATION_GROUPS = [
-  { label: "4 Defenders", formations: ["1-4-3-3","1-4-4-2","1-4-2-3-1","1-4-5-1","1-4-1-4-1","1-4-3-2-1","1-4-1-2-3","1-4-4-1-1","1-4-2-2-2","1-4-6-0","1-4-3-1-2","1-4-1-3-2"] as FormationName[] },
-  { label: "3 Defenders", formations: ["1-3-5-2","1-3-6-1","1-3-4-3","1-3-4-2-1","1-3-3-4","1-3-4-1-2","1-3-1-4-2","1-3-2-4-1"] as FormationName[] },
-  { label: "5 Defenders", formations: ["1-5-4-1","1-5-3-2","1-5-2-3"] as FormationName[] },
-  { label: "Historical", formations: ["1-2-3-5"] as FormationName[] },
+  { label: "4 Def", formations: ["1-4-3-3","1-4-4-2","1-4-2-3-1","1-4-5-1","1-4-1-4-1","1-4-3-2-1","1-4-1-2-3","1-4-4-1-1","1-4-2-2-2","1-4-6-0","1-4-3-1-2","1-4-1-3-2"] as FormationName[] },
+  { label: "3 Def", formations: ["1-3-5-2","1-3-6-1","1-3-4-3","1-3-4-2-1","1-3-3-4","1-3-4-1-2","1-3-1-4-2","1-3-2-4-1"] as FormationName[] },
+  { label: "5 Def", formations: ["1-5-4-1","1-5-3-2","1-5-2-3"] as FormationName[] },
+  { label: "2 Def", formations: ["1-2-3-5"] as FormationName[] },
 ];
 
 // [PREMIUM] FIELD_FORMATS — different field views for pro subscribers
@@ -548,43 +548,70 @@ export function CoachLabApp() {
           </button>
         </div>
 
-        {/* Tactical Systems accordion */}
-        <button
-          onClick={() => setOpenTacticTeam(isOpenTactic ? null : team)}
-          className="w-full flex items-center justify-between text-[10px] px-2 py-1 rounded bg-secondary/50 border border-border/30 mb-1 hover:bg-secondary/80 transition-colors"
-        >
-          <span className="font-semibold">Tactical Systems</span>
-          <ChevronDown className={`h-3 w-3 transition-transform ${isOpenTactic ? "rotate-180" : ""}`} />
-        </button>
+        {/* Tactical Systems */}
+        <div className="mb-2">
+          <button
+            onClick={() => { setOpenTacticTeam(isOpenTactic ? null : team); setOpenTacticGroup(null); }}
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-md bg-secondary/60 border border-border/40 hover:bg-secondary transition-colors mb-1"
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-black" style={{ color }}>⬡</span>
+              <span className="text-[9px] font-bold text-foreground tracking-widest uppercase">Formations</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-mono text-muted-foreground/60">
+                {FORMATION_GROUPS.reduce((n, g) => n + g.formations.length, 0)}
+              </span>
+              <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${isOpenTactic ? "rotate-180" : ""}`} />
+            </div>
+          </button>
 
-        {isOpenTactic && (
-          <div className="mb-1 rounded border border-border/30 bg-secondary/20 overflow-hidden">
-            {FORMATION_GROUPS.map(grp => (
-              <div key={grp.label}>
-                <button
-                  onClick={() => setOpenTacticGroup(v => v === grp.label ? null : grp.label)}
-                  className="w-full flex items-center justify-between text-[10px] px-2 py-1 text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
-                >
-                  <span>{grp.label}</span>
-                  <ChevronRight className={`h-2.5 w-2.5 transition-transform ${openTacticGroup === grp.label ? "rotate-90" : ""}`} />
-                </button>
-                {openTacticGroup === grp.label && (
-                  <div className="px-1 pb-1 flex flex-wrap gap-0.5">
+          {isOpenTactic && (
+            <div className="rounded-md border border-border/40 overflow-hidden" style={{ background: "rgba(0,0,0,0.25)" }}>
+              {/* Group tabs */}
+              <div className="flex gap-0.5 p-1" style={{ background: "rgba(0,0,0,0.15)" }}>
+                {FORMATION_GROUPS.map(grp => {
+                  const isActive = openTacticGroup === grp.label;
+                  return (
+                    <button
+                      key={grp.label}
+                      onClick={() => setOpenTacticGroup(isActive ? null : grp.label)}
+                      className="flex-1 text-[9px] py-1 rounded font-bold transition-all duration-150"
+                      style={isActive
+                        ? { background: `${color}28`, border: `1px solid ${color}55`, color }
+                        : { color: "var(--muted-foreground)", border: "1px solid transparent" }
+                      }
+                    >
+                      {grp.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Formation grid */}
+              {openTacticGroup && (() => {
+                const grp = FORMATION_GROUPS.find(g => g.label === openTacticGroup);
+                if (!grp) return null;
+                return (
+                  <div className="p-1.5 grid grid-cols-2 gap-0.5">
                     {grp.formations.map(f => (
                       <button
                         key={f}
                         onClick={() => applyFormation(team, f)}
-                        className="text-[9px] px-1.5 py-0.5 rounded border border-border hover:border-muted-foreground/50 bg-card/50 font-mono transition-colors hover:bg-secondary"
+                        className="text-[9px] py-1 px-0.5 rounded font-mono text-center text-muted-foreground border border-border/40 bg-card/20 transition-all duration-150 hover:text-white"
+                        style={{ lineHeight: 1.2 }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${color}1a`; (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}55`; (e.currentTarget as HTMLButtonElement).style.color = color; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = ""; (e.currentTarget as HTMLButtonElement).style.borderColor = ""; (e.currentTarget as HTMLButtonElement).style.color = ""; }}
                       >
-                        {f}
+                        {f.replace(/^1-/, "")}
                       </button>
                     ))}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+                );
+              })()}
+            </div>
+          )}
+        </div>
 
         {/* Player list */}
         <div className="space-y-0.5">
