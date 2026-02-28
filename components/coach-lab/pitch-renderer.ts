@@ -76,9 +76,9 @@ export function getPlayerRadius(canvas: HTMLCanvasElement, view: FieldView): num
   const { viewW } = getViewBounds(view);
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const displayW = canvas.width / dpr;
-  // Base size ~14px at full pitch; scales up in zoomed views (corner/area)
+  // Base size ~20px at full pitch; scales up in zoomed views (corner/area)
   // so players are visually proportional to the field area shown.
-  return Math.max(5, (14 * viewW) / displayW);
+  return Math.max(6, (20 * viewW) / displayW);
 }
 
 // ─── Pitch drawing ────────────────────────────────────────────────────────────
@@ -204,8 +204,8 @@ export function drawPlayers(
     ctx.save();
     ctx.beginPath();
     ctx.arc(x, y, R, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = Math.max(0.8, R * 0.08);
+    ctx.strokeStyle = 'rgba(255,255,255,0.70)';
+    ctx.lineWidth = Math.max(1.5, R * 0.12);
     ctx.stroke();
     ctx.restore();
 
