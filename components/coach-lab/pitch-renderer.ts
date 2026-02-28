@@ -82,10 +82,13 @@ export function logicalToCanvas(lx: number, ly: number, canvas: HTMLCanvasElemen
   };
 }
 
-// ─── Player radius — scales with view so pins stay proportional to field ─────
-export function getPlayerRadius(_canvas: HTMLCanvasElement, view: FieldView): number {
-  const { viewH } = getViewBounds(view);
-  return Math.max(6, viewH * 0.026);
+// ─── Player radius — scales with view zoom so pins stay easy to grab ─────────
+export function getPlayerRadius(canvas: HTMLCanvasElement, view: FieldView): number {
+  const { viewW, viewH } = getViewBounds(view);
+  // sqrt of zoom factor gives a moderate, natural size increase in zoomed views
+  // full (viewW=1050): zoom=1.0 → unchanged; half (viewW=525): zoom≈1.41 → 41% bigger
+  const zoom = Math.sqrt(PITCH_W / viewW);
+  return Math.max(6, viewH * 0.026 * zoom);
 }
 
 // ─── Pitch drawing ────────────────────────────────────────────────────────────
@@ -186,10 +189,11 @@ export function drawPlayers(
   imageCache: Map<string, HTMLImageElement>,
   setPieceMode = false,
 ) {
-  // R in canvas pixels — always a perfect circle regardless of view aspect ratio
-  const R = Math.max(8, canvas.height * 0.026);
-  const fontSize = Math.max(9, R * 0.82);
   const { viewX, viewY, viewW, viewH } = getViewBounds(view);
+  // Scale pin size with zoom so pins feel proportional in all views
+  const zoom = Math.sqrt(PITCH_W / viewW);
+  const R = Math.max(8, canvas.height * 0.026 * zoom);
+  const fontSize = Math.max(9, R * 0.82);
 
   for (const player of players) {
     if (!player.visible) continue;
