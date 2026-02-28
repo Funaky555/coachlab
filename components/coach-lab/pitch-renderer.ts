@@ -56,38 +56,50 @@ export function getViewBounds(view: FieldView): ViewBounds {
   }
 }
 
-export function setupTransform(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, view: FieldView) {
+// ─── Uniform transform helper ─────────────────────────────────────────────────
+// Computes scale + letterbox offsets so the view fills the canvas while
+// preserving the field's true aspect ratio (no horizontal/vertical stretching).
+function getUniformTransform(canvas: HTMLCanvasElement, view: FieldView) {
   const { viewX, viewY, viewW, viewH } = getViewBounds(view);
-  const w = canvas.width;
-  const h = canvas.height;
-  ctx.setTransform(w / viewW, 0, 0, h / viewH, -viewX * (w / viewW), -viewY * (h / viewH));
+  const scale = Math.min(canvas.width / viewW, canvas.height / viewH);
+  const ox = (canvas.width  - viewW * scale) / 2;
+  const oy = (canvas.height - viewH * scale) / 2;
+  return { scale, ox, oy, viewX, viewY, viewW, viewH };
+}
+
+export function setupTransform(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, view: FieldView) {
+  const { scale, ox, oy, viewX, viewY } = getUniformTransform(canvas, view);
+  ctx.setTransform(scale, 0, 0, scale, ox - viewX * scale, oy - viewY * scale);
 }
 
 // ─── Coordinate conversion ────────────────────────────────────────────────────
 export function canvasToLogical(clientX: number, clientY: number, canvas: HTMLCanvasElement, view: FieldView): Point {
   const rect = canvas.getBoundingClientRect();
-  const { viewX, viewY, viewW, viewH } = getViewBounds(view);
+  const dpr = canvas.width / rect.width;
+  const { scale, ox, oy, viewX, viewY } = getUniformTransform(canvas, view);
   return {
-    x: viewX + ((clientX - rect.left) / rect.width) * viewW,
-    y: viewY + ((clientY - rect.top) / rect.height) * viewH,
+    x: viewX + ((clientX - rect.left) * dpr - ox) / scale,
+    y: viewY + ((clientY - rect.top)  * dpr - oy) / scale,
   };
 }
 
 export function logicalToCanvas(lx: number, ly: number, canvas: HTMLCanvasElement, view: FieldView): Point {
-  const { viewX, viewY, viewW, viewH } = getViewBounds(view);
   const rect = canvas.getBoundingClientRect();
+  const dpr = canvas.width / rect.width;
+  const { scale, ox, oy, viewX, viewY } = getUniformTransform(canvas, view);
   return {
-    x: ((lx - viewX) / viewW) * rect.width,
-    y: ((ly - viewY) / viewH) * rect.height,
+    x: ((lx - viewX) * scale + ox) / dpr,
+    y: ((ly - viewY) * scale + oy) / dpr,
   };
 }
 
-// ─── Player radius — scales with view so pins stay proportional to field ─────
-export function getPlayerRadius(_canvas: HTMLCanvasElement, view: FieldView): number {
-  const { viewH } = getViewBounds(view);
-  // Pin size = 2.6% of the view height — always proportional to the field shown.
-  // Scales naturally with zoom: full pitch (680) → R≈18, corner view → R≈9.
-  return Math.max(6, viewH * 0.026);
+// ─── Player radius — logical units for hit detection ─────────────────────────
+export function getPlayerRadius(canvas: HTMLCanvasElement, view: FieldView): number {
+  const { viewW, viewH } = getViewBounds(view);
+  const scale = Math.min(canvas.width / viewW, canvas.height / viewH);
+  const rPx = Math.max(8, canvas.height * 0.026);
+  // Convert canvas-pixel radius to logical units for hit detection
+  return rPx / scale;
 }
 
 // ─── Pitch drawing ────────────────────────────────────────────────────────────
@@ -191,16 +203,17 @@ export function drawPlayers(
   // R in canvas pixels — always a perfect circle regardless of view aspect ratio
   const R = Math.max(8, canvas.height * 0.026);
   const fontSize = Math.max(9, R * 0.82);
-  const { viewX, viewY, viewW, viewH } = getViewBounds(view);
+  // Use uniform transform so pin positions match the field lines exactly
+  const { scale, ox, oy, viewX, viewY } = getUniformTransform(canvas, view);
 
   for (const player of players) {
     if (!player.visible) continue;
     const { x, y, team, type, number, name, id, photo } = player;
     const isSelected = id === selectedId;
 
-    // Convert logical position → canvas internal pixels
-    const cx = ((x - viewX) / viewW) * canvas.width;
-    const cy = ((y - viewY) / viewH) * canvas.height;
+    // Convert logical position → canvas internal pixels (uniform scale, letterboxed)
+    const cx = (x - viewX) * scale + ox;
+    const cy = (y - viewY) * scale + oy;
 
     const fillColor = type === 'goalkeeper'
       ? (team === 'A' ? BORDEAUX_GK : OCEAN_GK)

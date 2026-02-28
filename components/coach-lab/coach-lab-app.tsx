@@ -255,14 +255,14 @@ export function CoachLabApp() {
   const toLogical = useCallback((clientX: number, clientY: number): Point => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
-    return canvasToLogical(clientX, clientY, canvas, "full");
-  }, []);
+    return canvasToLogical(clientX, clientY, canvas, fieldView);
+  }, [fieldView]);
 
   const getR = useCallback((): number => {
     const canvas = canvasRef.current;
     if (!canvas) return 14;
-    return getPlayerRadius(canvas, "full");
-  }, []);
+    return getPlayerRadius(canvas, fieldView);
+  }, [fieldView]);
 
   // ─── Pointer handlers ────────────────────────────────────────────────────────
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -479,14 +479,18 @@ export function CoachLabApp() {
   };
 
   const updatePlayerName = (id: string, name: string) => {
+    captureHistory();
     setPlayers(prev => prev.map(p => p.id === id ? { ...p, name } : p));
+    commitHistory();
   };
 
   const handlePhotoUpload = (id: string, file: File) => {
+    captureHistory();
     const reader = new FileReader();
     reader.onload = (ev) => {
       const data = ev.target?.result as string;
       setPlayers(prev => prev.map(p => p.id === id ? { ...p, photo: data } : p));
+      commitHistory();
       const img = new Image();
       img.src = data;
       img.onload = () => imageCache.current.set(id, img);
