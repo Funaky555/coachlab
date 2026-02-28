@@ -245,10 +245,17 @@ export function CoachLabApp() {
     const h = historyRef.current;
     if (h.length === 0) return;
     const last = h[h.length - 1];
+    const next = h.slice(0, -1);
+    // Atualizar refs imediatamente para evitar estado stale em captureHistory
+    // e para suportar múltiplos undos rápidos sem esperar pelo render
+    historyRef.current = next;
+    playersRef.current = last.players;
+    ballRef.current = last.ball;
+    drawingsRef.current = last.drawings;
     setPlayers(last.players);
     setBall(last.ball);
     setDrawings(last.drawings);
-    setHistory(prev => prev.slice(0, -1));
+    setHistory(next);
   }, []);
 
   // ─── Coord helper ────────────────────────────────────────────────────────────
@@ -471,10 +478,12 @@ export function CoachLabApp() {
   };
 
   const resetAllNames = () => {
+    setHistory(prev => [...prev.slice(-49), { players, ball, drawings }]);
     setPlayers(prev => prev.map(p => ({ ...p, name: "" })));
   };
 
   const togglePlayerVisibility = (id: string) => {
+    setHistory(prev => [...prev.slice(-49), { players, ball, drawings }]);
     setPlayers(prev => prev.map(p => p.id === id ? { ...p, visible: !p.visible } : p));
   };
 
@@ -762,21 +771,6 @@ export function CoachLabApp() {
         >
           <MousePointer2 className="h-4 w-4" />
         </Button>
-
-        {/* ── Field view — free: Full / Left Half / Right Half ─────────── */}
-        {/* [FUTURE PREMIUM] Use VIEW_GROUPS dropdown for cantos, lançamentos, livres, etc. */}
-        <div className="flex items-center gap-0.5 px-1 py-0.5 rounded-lg shrink-0" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-          {([ ["full", "Full Field"], ["half-left", "Left Half"], ["half-right", "Right Half"] ] as [FieldView, string][]).map(([v, label]) => (
-            <button key={v} onClick={() => setFieldView(v)}
-              className="h-6 px-2.5 rounded-md text-[10px] font-semibold tracking-wide transition-all duration-150"
-              style={{
-                color: fieldView === v ? "#00D66C" : "rgba(255,255,255,0.5)",
-                background: fieldView === v ? "rgba(0,214,108,0.15)" : "transparent",
-                border: fieldView === v ? "1px solid rgba(0,214,108,0.35)" : "1px solid transparent",
-              }}
-            >{label}</button>
-          ))}
-        </div>
 
         <div className="w-px h-5 bg-border mx-1 shrink-0" />
 
