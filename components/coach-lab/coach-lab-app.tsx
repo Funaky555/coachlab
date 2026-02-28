@@ -497,87 +497,101 @@ export function CoachLabApp() {
   function TeamPanel({ team }: { team: "A" | "B" }) {
     const list = team === "A" ? teamA : teamB;
     const color = team === "A" ? BORDEAUX : OCEAN;
+    const uiAccent = team === "A" ? "#FF4D88" : "#4D9BFF";
     const label = team === "A" ? teamAName : teamBName;
     const isOpenTactic = openTacticTeam === team;
     const isEditingTeam = editingTeamId === team;
 
     return (
       <div className="mb-3">
-        {/* Team header */}
-        <div className="flex items-center gap-1 mb-1 px-1">
-          {isEditingTeam ? (
-            <input
-              autoFocus
-              value={editingTeamValue}
-              onChange={e => setEditingTeamValue(e.target.value)}
-              onBlur={() => {
-                const v = editingTeamValue.trim() || (team === "A" ? "Team A" : "Team B");
-                team === "A" ? setTeamAName(v) : setTeamBName(v);
-                setEditingTeamId(null);
-              }}
-              onKeyDown={e => {
-                if (e.key === "Enter") {
+        {/* Team header card */}
+        <div className="rounded-lg mb-2 px-2 py-1.5" style={{
+          background: `linear-gradient(135deg, ${uiAccent}18, ${uiAccent}06)`,
+          border: `1px solid ${uiAccent}35`,
+        }}>
+          <div className="flex items-center justify-between gap-1">
+            {isEditingTeam ? (
+              <input
+                autoFocus
+                value={editingTeamValue}
+                onChange={e => setEditingTeamValue(e.target.value)}
+                onBlur={() => {
                   const v = editingTeamValue.trim() || (team === "A" ? "Team A" : "Team B");
                   team === "A" ? setTeamAName(v) : setTeamBName(v);
                   setEditingTeamId(null);
-                }
-                if (e.key === "Escape") setEditingTeamId(null);
-              }}
-              className="flex-1 min-w-0 text-xs font-bold px-1 py-0 rounded bg-card border border-primary outline-none"
-              style={{ color }}
-              placeholder={team === "A" ? "Team A" : "Team B"}
-            />
-          ) : (
+                }}
+                onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    const v = editingTeamValue.trim() || (team === "A" ? "Team A" : "Team B");
+                    team === "A" ? setTeamAName(v) : setTeamBName(v);
+                    setEditingTeamId(null);
+                  }
+                  if (e.key === "Escape") setEditingTeamId(null);
+                }}
+                className="flex-1 min-w-0 text-xs font-bold px-1 py-0 rounded outline-none"
+                style={{ color: uiAccent, background: "transparent", borderBottom: `1px solid ${uiAccent}60` }}
+                placeholder={team === "A" ? "Team A" : "Team B"}
+              />
+            ) : (
+              <button
+                className="text-xs font-bold text-left transition-opacity hover:opacity-80 truncate"
+                style={{ color: uiAccent, textShadow: `0 0 12px ${uiAccent}60` }}
+                title="Click to rename"
+                onClick={() => { setEditingTeamId(team); setEditingTeamValue(label); }}
+              >
+                {label} <span className="opacity-50 text-[9px]">✎</span>
+              </button>
+            )}
             <button
-              className="text-xs font-bold hover:opacity-70 transition-opacity text-left"
-              style={{ color }}
-              title="Click to rename"
-              onClick={() => { setEditingTeamId(team); setEditingTeamValue(label); }}
+              onClick={() => resetToBorder(team)}
+              className="flex-none text-[8px] px-1.5 py-0.5 rounded-md transition-all duration-150 font-medium tracking-wide"
+              style={{ color: uiAccent, opacity: 0.5, border: `1px solid ${uiAccent}30` }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 8px ${uiAccent}40`; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.5"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "none"; }}
+              title="Reset to border"
             >
-              {label} ✎
+              ↩ Reset
             </button>
-          )}
-          <button
-            onClick={() => resetToBorder(team)}
-            className="ml-auto text-[9px] px-1 py-0.5 rounded bg-secondary/40 text-muted-foreground hover:text-foreground border border-border/30 transition-colors"
-            title="Reset to border"
-          >
-            ← Border
-          </button>
+          </div>
         </div>
 
-        {/* Tactical Systems */}
+        {/* Formations */}
         <div className="mb-2">
           <button
             onClick={() => { setOpenTacticTeam(isOpenTactic ? null : team); setOpenTacticGroup(null); }}
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-md bg-secondary/60 border border-border/40 hover:bg-secondary transition-colors mb-1"
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg transition-all duration-200 mb-1"
+            style={{
+              background: isOpenTactic ? `linear-gradient(135deg, ${uiAccent}20, ${uiAccent}08)` : `linear-gradient(135deg, ${uiAccent}10, ${uiAccent}03)`,
+              border: `1px solid ${uiAccent}${isOpenTactic ? "55" : "28"}`,
+              boxShadow: isOpenTactic ? `0 0 14px ${uiAccent}25` : "none",
+            }}
           >
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-black" style={{ color }}>⬡</span>
-              <span className="text-[9px] font-bold text-foreground tracking-widest uppercase">Formations</span>
+              <span className="text-[11px] font-black" style={{ color: uiAccent, filter: `drop-shadow(0 0 4px ${uiAccent}80)` }}>⬡</span>
+              <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: uiAccent }}>Formations</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[9px] font-mono text-muted-foreground/60">
+              <span className="text-[8px] font-mono px-1 py-0.5 rounded" style={{ color: uiAccent, background: `${uiAccent}18` }}>
                 {FORMATION_GROUPS.reduce((n, g) => n + g.formations.length, 0)}
               </span>
-              <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${isOpenTactic ? "rotate-180" : ""}`} />
+              <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isOpenTactic ? "rotate-180" : ""}`} style={{ color: uiAccent }} />
             </div>
           </button>
 
           {isOpenTactic && (
-            <div className="rounded-md border border-border/40 overflow-hidden" style={{ background: "rgba(0,0,0,0.25)" }}>
+            <div className="rounded-lg overflow-hidden" style={{ background: "rgba(0,0,0,0.35)", border: `1px solid ${uiAccent}20` }}>
               {/* Group tabs */}
-              <div className="flex gap-0.5 p-1" style={{ background: "rgba(0,0,0,0.15)" }}>
+              <div className="flex gap-0.5 p-1" style={{ background: "rgba(0,0,0,0.2)" }}>
                 {FORMATION_GROUPS.map(grp => {
                   const isActive = openTacticGroup === grp.label;
                   return (
                     <button
                       key={grp.label}
                       onClick={() => setOpenTacticGroup(isActive ? null : grp.label)}
-                      className="flex-1 text-[9px] py-1 rounded font-bold transition-all duration-150"
+                      className="flex-1 text-[8px] py-1 rounded-md font-bold transition-all duration-150"
                       style={isActive
-                        ? { background: `${color}28`, border: `1px solid ${color}55`, color }
-                        : { color: "var(--muted-foreground)", border: "1px solid transparent" }
+                        ? { background: `${uiAccent}28`, border: `1px solid ${uiAccent}65`, color: uiAccent, boxShadow: `0 0 8px ${uiAccent}35` }
+                        : { color: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.06)" }
                       }
                     >
                       {grp.label}
@@ -596,10 +610,22 @@ export function CoachLabApp() {
                       <button
                         key={f}
                         onClick={() => applyFormation(team, f)}
-                        className="text-[9px] py-1 px-0.5 rounded font-mono text-center text-muted-foreground border border-border/40 bg-card/20 transition-all duration-150 hover:text-white"
-                        style={{ lineHeight: 1.2 }}
-                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${color}1a`; (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}55`; (e.currentTarget as HTMLButtonElement).style.color = color; }}
-                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = ""; (e.currentTarget as HTMLButtonElement).style.borderColor = ""; (e.currentTarget as HTMLButtonElement).style.color = ""; }}
+                        className="text-[8px] py-1 px-0.5 rounded-md font-mono text-center transition-all duration-150"
+                        style={{ lineHeight: 1.2, color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}
+                        onMouseEnter={e => {
+                          const el = e.currentTarget as HTMLButtonElement;
+                          el.style.background = `${uiAccent}22`;
+                          el.style.borderColor = `${uiAccent}60`;
+                          el.style.color = uiAccent;
+                          el.style.boxShadow = `0 0 6px ${uiAccent}30`;
+                        }}
+                        onMouseLeave={e => {
+                          const el = e.currentTarget as HTMLButtonElement;
+                          el.style.background = "rgba(255,255,255,0.02)";
+                          el.style.borderColor = "rgba(255,255,255,0.08)";
+                          el.style.color = "rgba(255,255,255,0.35)";
+                          el.style.boxShadow = "none";
+                        }}
                       >
                         {f}
                       </button>
@@ -612,22 +638,34 @@ export function CoachLabApp() {
         </div>
 
         {/* Player list */}
-        <div className="space-y-0.5">
+        <div className="space-y-px">
           {list.map(p => (
             <div key={p.id}>
-              <div className="flex items-center gap-1 group">
+              <div
+                className="flex items-center gap-1 group px-1 py-0.5 rounded-md transition-all duration-100"
+                style={{ background: "transparent" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = `${uiAccent}0a`; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
+              >
                 {/* Visibility */}
-                <button onClick={() => togglePlayerVisibility(p.id)} className="flex-none opacity-50 hover:opacity-100 transition-opacity">
-                  {p.visible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3 opacity-30" />}
+                <button onClick={() => togglePlayerVisibility(p.id)} className="flex-none transition-opacity" style={{ opacity: p.visible ? 0.4 : 0.2 }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = p.visible ? "0.4" : "0.2"; }}>
+                  {p.visible ? <Eye className="h-3 w-3" style={{ color: uiAccent }} /> : <EyeOff className="h-3 w-3" />}
                 </button>
                 {/* Number badge */}
                 <span
                   className="flex-none w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"
-                  style={{ background: p.type === "goalkeeper" ? (team === "A" ? "#4A0F22" : "#051E3E") : color }}
+                  style={{
+                    background: p.type === "goalkeeper"
+                      ? (team === "A" ? "#4A0F22" : "#051E3E")
+                      : color,
+                    boxShadow: `0 0 6px ${uiAccent}55`,
+                  }}
                 >
                   {p.number}
                 </span>
-                {/* Name input */}
+                {/* Name */}
                 {editingNameId === p.id ? (
                   <input
                     autoFocus
@@ -635,21 +673,23 @@ export function CoachLabApp() {
                     onChange={e => setEditingNameValue(e.target.value)}
                     onBlur={() => { updatePlayerName(p.id, editingNameValue); setEditingNameId(null); }}
                     onKeyDown={e => { if (e.key === "Enter") { updatePlayerName(p.id, editingNameValue); setEditingNameId(null); } if (e.key === "Escape") setEditingNameId(null); }}
-                    className="flex-1 min-w-0 text-[10px] px-1 py-0.5 rounded bg-card border border-primary text-foreground outline-none"
+                    className="flex-1 min-w-0 text-[10px] px-1 py-0.5 rounded outline-none"
+                    style={{ background: `${uiAccent}15`, border: `1px solid ${uiAccent}50`, color: "white" }}
                     placeholder="Player name"
                   />
                 ) : (
                   <button
                     onClick={() => { setEditingNameId(p.id); setEditingNameValue(p.name); }}
-                    className="flex-1 min-w-0 text-left text-[10px] text-muted-foreground hover:text-foreground truncate transition-colors"
+                    className="flex-1 min-w-0 text-left text-[10px] truncate transition-colors"
+                    style={{ color: p.name ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.2)" }}
                     title="Click to edit name"
                   >
-                    {p.name || <span className="italic opacity-40">Name...</span>}
+                    {p.name || <span className="italic">Name…</span>}
                   </button>
                 )}
                 {/* Photo upload */}
-                <label className="flex-none cursor-pointer opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity">
-                  <ImagePlus className="h-3 w-3" />
+                <label className="flex-none cursor-pointer opacity-0 group-hover:opacity-50 hover:!opacity-100 transition-opacity">
+                  <ImagePlus className="h-3 w-3" style={{ color: uiAccent }} />
                   <input
                     type="file"
                     accept="image/*"
@@ -711,18 +751,22 @@ export function CoachLabApp() {
       <div className="flex-1 flex overflow-hidden min-h-0">
 
         {/* ── Left panel ─────────────────────────────────────────────────────── */}
-        <div className={`flex-none bg-card border-r border-border overflow-y-auto transition-all duration-200 ${leftOpen ? "w-48" : "w-0 overflow-hidden"}`}>
+        <div className={`flex-none border-r overflow-y-auto transition-all duration-200 ${leftOpen ? "w-48" : "w-0 overflow-hidden"}`}
+          style={{ background: "linear-gradient(180deg, #0d1117 0%, #0a0e0c 100%)", borderColor: "rgba(255,255,255,0.06)" }}>
           <div className="p-2 min-w-[12rem]">
             {/* Reset names */}
             <button
               onClick={resetAllNames}
-              className="w-full text-[10px] px-2 py-1 rounded bg-secondary/40 border border-border/30 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors mb-2"
+              className="w-full flex items-center justify-center gap-1.5 text-[10px] px-2 py-1.5 rounded-lg font-medium tracking-wide transition-all duration-150 mb-3"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.3)" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.3)"; }}
             >
               ↺ Reset All Names
             </button>
 
             <TeamPanel team="A" />
-            <div className="w-full h-px bg-border/50 my-2" />
+            <div className="w-full h-px my-2" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)" }} />
             <TeamPanel team="B" />
           </div>
         </div>
