@@ -681,7 +681,7 @@ export function CoachLabApp() {
                   <button
                     onClick={() => { setEditingNameId(p.id); setEditingNameValue(p.name); }}
                     className="flex-1 min-w-0 text-left text-[10px] truncate transition-colors"
-                    style={{ color: p.name ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.2)" }}
+                    style={{ color: p.name ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.5)" }}
                     title="Click to edit name"
                   >
                     {p.name || <span className="italic">Name…</span>}
@@ -758,9 +758,9 @@ export function CoachLabApp() {
             <button
               onClick={resetAllNames}
               className="w-full flex items-center justify-center gap-1.5 text-[10px] px-2 py-1.5 rounded-lg font-medium tracking-wide transition-all duration-150 mb-3"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.3)" }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.3)"; }}
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.65)" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.12)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.95)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.65)"; }}
             >
               ↺ Reset All Names
             </button>
