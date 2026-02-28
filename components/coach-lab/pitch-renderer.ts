@@ -80,16 +80,24 @@ export function getPlayerRadius(_canvas: HTMLCanvasElement, view: FieldView): nu
 }
 
 // ─── Pitch drawing ────────────────────────────────────────────────────────────
-export function drawPitch(ctx: CanvasRenderingContext2D, lightMode: boolean, showZones: boolean) {
-  const green1 = lightMode ? '#4db35a' : '#1a7a40';
-  const green2 = lightMode ? '#3da04a' : '#166535';
+export function drawPitch(ctx: CanvasRenderingContext2D, lightMode: boolean, showZones: boolean, bgImage?: HTMLImageElement | null) {
   const lineColor = 'rgba(255,255,255,0.95)';
   const lw = 2.5;
 
-  // Faixas horizontais — aspeto moderno de estádio
-  for (let i = 0; i < 10; i++) {
-    ctx.fillStyle = i % 2 === 0 ? green1 : green2;
-    ctx.fillRect(0, i * (PITCH_H / 10), PITCH_W, PITCH_H / 10);
+  if (bgImage) {
+    // Foto real de relva como fundo
+    ctx.drawImage(bgImage, 0, 0, PITCH_W, PITCH_H);
+    // Overlay subtil para realçar as linhas brancas
+    ctx.fillStyle = 'rgba(0,0,0,0.10)';
+    ctx.fillRect(0, 0, PITCH_W, PITCH_H);
+  } else {
+    // Faixas procedurais (fallback)
+    const green1 = lightMode ? '#4db35a' : '#1a7a40';
+    const green2 = lightMode ? '#3da04a' : '#166535';
+    for (let i = 0; i < 10; i++) {
+      ctx.fillStyle = i % 2 === 0 ? green1 : green2;
+      ctx.fillRect(0, i * (PITCH_H / 10), PITCH_W, PITCH_H / 10);
+    }
   }
 
   // Linhas com leve glow
@@ -620,7 +628,7 @@ export function renderBoard(
 
   const R = getPlayerRadius(canvas, view);
 
-  drawPitch(ctx, lightField, showZones);
+  drawPitch(ctx, lightField, showZones, options.pitchBgImage);
 
   for (const d of drawings) {
     drawShape(ctx, d.tool, d.start, d.end, d.color, d.filled, d.strokeWidth, d.text, d.points);

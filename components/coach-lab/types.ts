@@ -99,4 +99,5 @@ export interface RenderOptions {
   activeMovePiece: string | null;
   animMode: boolean;
   setPieceMode: boolean;
+  pitchBgImage?: HTMLImageElement | null;
 }

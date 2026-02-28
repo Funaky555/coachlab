@@ -105,6 +105,15 @@ export function CoachLabApp() {
   // Image cache for player photos
   const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
 
+  // Pitch background image
+  const pitchBgRef = useRef<HTMLImageElement | null>(null);
+  const [pitchBgLoaded, setPitchBgLoaded] = useState(false);
+  useEffect(() => {
+    const img = new Image();
+    img.src = '/pitch-grass.jpg';
+    img.onload = () => { pitchBgRef.current = img; setPitchBgLoaded(true); };
+  }, []);
+
   // ─── State ──────────────────────────────────────────────────────────────────
   const [players, setPlayers]             = useState<Player[]>(getInitialPlayers);
   const [ball, setBall]                   = useState<Ball>({ x: PITCH_W / 2, y: PITCH_H / 2 });
@@ -168,9 +177,10 @@ export function CoachLabApp() {
       currentDraw, selectedPlayerId, selectedDrawingId,
       imageCache: imageCache.current,
       movements: [], activeMovePiece: null, animMode: false, setPieceMode: false,
+      pitchBgImage: pitchBgRef.current,
     };
     renderBoard(ctx, canvas, players, ball, drawings, options);
-  }, [players, ball, drawings, currentDraw, selectedPlayerId, selectedDrawingId, canvasSize]);
+  }, [players, ball, drawings, currentDraw, selectedPlayerId, selectedDrawingId, canvasSize, pitchBgLoaded]);
 
   // [PREMIUM] Close dropdowns on outside click — removed (no dropdowns in free version)
 
