@@ -68,7 +68,7 @@ function makeTeamOnBorder(team: "A" | "B"): Player[] {
     number: i + 1,
     name: "",
     x,
-    y: PT + i * ((PB - PT) / 10),
+    y: (PT + 25) + i * ((PB - PT - 50) / 10),
     visible: true,
     photo: null,
   } as Player));
@@ -297,7 +297,7 @@ export function CoachLabApp() {
 
     if (draggingRef.current) {
       hasMovedRef.current = true;
-      const clamped = { x: Math.max(0, Math.min(PITCH_W, x - draggingRef.current.offsetX)), y: Math.max(0, Math.min(PITCH_H, y - draggingRef.current.offsetY)) };
+      const clamped = { x: Math.max(PL, Math.min(PR, x - draggingRef.current.offsetX)), y: Math.max(PT, Math.min(PB, y - draggingRef.current.offsetY)) };
       if (draggingRef.current.type === "player") {
         const id = draggingRef.current.id;
         setPlayers(prev => prev.map(p => p.id === id ? { ...p, ...clamped } : p));
