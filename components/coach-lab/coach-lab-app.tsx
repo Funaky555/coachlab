@@ -153,7 +153,6 @@ export function CoachLabApp() {
   const [selectedDrawingId, setSelectedDrawingId] = useState<string | null>(null);
   const [canvasSize, setCanvasSize]       = useState({ w: 0, h: 0 });
   const [fieldView, setFieldView]         = useState<FieldView>("full");
-  const [viewMenuOpen, setViewMenuOpen]   = useState(false);
   const [leftOpen, setLeftOpen]           = useState(true);
   const [rightOpen, setRightOpen]         = useState(true);
   const [openTacticTeam, setOpenTacticTeam] = useState<"A" | "B" | null>(null);
@@ -334,7 +333,8 @@ export function CoachLabApp() {
 
     if (draggingRef.current) {
       hasMovedRef.current = true;
-      const clamped = { x: Math.max(PL, Math.min(PR, x - draggingRef.current.offsetX)), y: Math.max(PT, Math.min(PB, y - draggingRef.current.offsetY)) };
+      const M = 20; // margin so pins stay inside field lines
+      const clamped = { x: Math.max(PL + M, Math.min(PR - M, x - draggingRef.current.offsetX)), y: Math.max(PT + M, Math.min(PB - M, y - draggingRef.current.offsetY)) };
       if (draggingRef.current.type === "player") {
         const id = draggingRef.current.id;
         setPlayers(prev => prev.map(p => p.id === id ? { ...p, ...clamped } : p));
@@ -759,40 +759,19 @@ export function CoachLabApp() {
           <MousePointer2 className="h-4 w-4" />
         </Button>
 
-        {/* ── Vista do campo ─────────────────────────────── */}
-        <div className="relative shrink-0">
-          <button
-            onClick={() => setViewMenuOpen(v => !v)}
-            className="flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs font-medium transition-colors"
-            style={{ background: viewMenuOpen ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)" }}
-          >
-            <span className="max-w-[110px] truncate">{VIEW_LABELS[fieldView]}</span>
-            <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
-          </button>
-          {viewMenuOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setViewMenuOpen(false)} />
-              <div className="absolute top-full left-0 mt-1 z-50 rounded-xl overflow-hidden py-1 min-w-[190px]"
-                style={{ background: "rgba(13,17,23,0.97)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
-                {VIEW_GROUPS.map((group, gi) => (
-                  <div key={group.label}>
-                    {gi > 0 && <div className="mx-2 my-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />}
-                    <div className="px-3 py-0.5 text-[10px] font-semibold tracking-wider uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>{group.label}</div>
-                    {group.views.map(v => (
-                      <button key={v} onClick={() => { setFieldView(v); setViewMenuOpen(false); }}
-                        className="w-full text-left px-3 py-1.5 text-xs transition-colors"
-                        style={{ color: fieldView === v ? "#00D66C" : "rgba(255,255,255,0.75)", background: fieldView === v ? "rgba(0,214,108,0.1)" : "transparent" }}
-                        onMouseEnter={e => { if (fieldView !== v) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.07)"; }}
-                        onMouseLeave={e => { if (fieldView !== v) (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
-                      >
-                        {VIEW_LABELS[v]}
-                      </button>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+        {/* ── Field view — free: Full / Left Half / Right Half ─────────── */}
+        {/* [FUTURE PREMIUM] Use VIEW_GROUPS dropdown for cantos, lançamentos, livres, etc. */}
+        <div className="flex items-center gap-0.5 px-1 py-0.5 rounded-lg shrink-0" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          {([ ["full", "Full Field"], ["half-left", "Left Half"], ["half-right", "Right Half"] ] as [FieldView, string][]).map(([v, label]) => (
+            <button key={v} onClick={() => setFieldView(v)}
+              className="h-6 px-2.5 rounded-md text-[10px] font-semibold tracking-wide transition-all duration-150"
+              style={{
+                color: fieldView === v ? "#00D66C" : "rgba(255,255,255,0.5)",
+                background: fieldView === v ? "rgba(0,214,108,0.15)" : "transparent",
+                border: fieldView === v ? "1px solid rgba(0,214,108,0.35)" : "1px solid transparent",
+              }}
+            >{label}</button>
+          ))}
         </div>
 
         <div className="w-px h-5 bg-border mx-1 shrink-0" />

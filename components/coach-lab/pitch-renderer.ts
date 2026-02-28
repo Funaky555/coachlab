@@ -188,17 +188,27 @@ export function drawPlayers(
   imageCache: Map<string, HTMLImageElement>,
   setPieceMode = false,
 ) {
-  const R = getPlayerRadius(canvas, view);
+  // R in canvas pixels — always a perfect circle regardless of view aspect ratio
+  const R = Math.max(8, canvas.height * 0.026);
   const fontSize = Math.max(9, R * 0.82);
+  const { viewX, viewY, viewW, viewH } = getViewBounds(view);
 
   for (const player of players) {
     if (!player.visible) continue;
     const { x, y, team, type, number, name, id, photo } = player;
     const isSelected = id === selectedId;
 
+    // Convert logical position → canvas internal pixels
+    const cx = ((x - viewX) / viewW) * canvas.width;
+    const cy = ((y - viewY) / viewH) * canvas.height;
+
     const fillColor = type === 'goalkeeper'
       ? (team === 'A' ? BORDEAUX_GK : OCEAN_GK)
       : (team === 'A' ? BORDEAUX : OCEAN);
+
+    // Draw in canvas-pixel space so circles never distort under non-uniform transforms
+    ctx.save();
+    ctx.resetTransform();
 
     // Selection glow ring
     if (isSelected) {
@@ -206,54 +216,55 @@ export function drawPlayers(
       ctx.shadowColor = SELECTED_GLOW;
       ctx.shadowBlur = R * 2.2;
       ctx.beginPath();
-      ctx.arc(x, y, R + 2, 0, Math.PI * 2);
+      ctx.arc(cx, cy, R + 2, 0, Math.PI * 2);
       ctx.fillStyle = SELECTED_GLOW;
       ctx.globalAlpha = 0.5;
       ctx.fill();
       ctx.restore();
     }
 
-    // Drop shadow + fill + crisp outline
+    // Drop shadow + fill
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,0.55)';
     ctx.shadowBlur = R * 0.5;
     ctx.shadowOffsetX = R * 0.15;
     ctx.shadowOffsetY = R * 0.18;
     ctx.beginPath();
-    ctx.arc(x, y, R, 0, Math.PI * 2);
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.fillStyle = fillColor;
     ctx.fill();
     ctx.restore();
-    // Crisp border for sharpness
+
+    // Crisp border
     ctx.save();
     ctx.beginPath();
-    ctx.arc(x, y, R, 0, Math.PI * 2);
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.70)';
     ctx.lineWidth = Math.max(1.5, R * 0.12);
     ctx.stroke();
     ctx.restore();
 
-    // Photo or number text
+    // Photo or number
     const img = photo ? imageCache.get(id) : null;
     if (img && img.complete && img.naturalWidth > 0) {
       ctx.save();
       ctx.beginPath();
-      ctx.arc(x, y, R, 0, Math.PI * 2);
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
       ctx.clip();
-      ctx.drawImage(img, x - R, y - R, R * 2, R * 2);
+      ctx.drawImage(img, cx - R, cy - R, R * 2, R * 2);
       ctx.restore();
     } else {
       if (type === 'goalkeeper') {
         ctx.fillStyle = 'rgba(255,255,255,0.45)';
         ctx.beginPath();
-        ctx.arc(x, y - R * 0.52, R * 0.22, 0, Math.PI * 2);
+        ctx.arc(cx, cy - R * 0.52, R * 0.22, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.fillStyle = 'rgba(255,255,255,0.92)';
       ctx.font = `bold ${fontSize}px Inter, system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(String(number), x, type === 'goalkeeper' ? y + R * 0.18 : y);
+      ctx.fillText(String(number), cx, type === 'goalkeeper' ? cy + R * 0.18 : cy);
     }
 
     // Name below pin
@@ -262,32 +273,30 @@ export function drawPlayers(
       ctx.font = `700 ${nameFontSize}px 'Barlow Condensed', 'Inter', system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      // Shadow for contrast against the green pitch
       ctx.shadowColor = 'rgba(0,0,0,0.85)';
       ctx.shadowBlur = 4;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 1;
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(name, x, y + R + 3);
+      ctx.fillText(name, cx, cy + R + 3);
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
       ctx.textBaseline = 'alphabetic';
     }
 
-    // Set piece instruction label
+    // [FUTURE PREMIUM] Set piece instruction label
     if (setPieceMode && player.instruction) {
       const label = player.instruction.slice(0, 24);
       const instrFontSize = Math.max(6, R * 0.52);
       ctx.font = `bold ${instrFontSize}px Inter, system-ui, sans-serif`;
       ctx.textAlign = 'center';
       const tw = ctx.measureText(label).width;
-      const labelY = y + R + (showNames && name ? instrFontSize * 1.6 + 4 : 4);
-      // background pill
+      const labelY = cy + R + (showNames && name ? instrFontSize * 1.6 + 4 : 4);
       ctx.save();
       ctx.fillStyle = 'rgba(0,0,0,0.75)';
       const padX = 4, padY = 2;
       ctx.beginPath();
-      const bx = x - tw / 2 - padX;
+      const bx = cx - tw / 2 - padX;
       const by = labelY - padY;
       const bw = tw + padX * 2;
       const bh = instrFontSize + padY * 2;
@@ -304,12 +313,13 @@ export function drawPlayers(
       ctx.closePath();
       ctx.fill();
       ctx.restore();
-      // text
       ctx.fillStyle = '#fff';
       ctx.textBaseline = 'top';
-      ctx.fillText(label, x, labelY);
+      ctx.fillText(label, cx, labelY);
       ctx.textBaseline = 'alphabetic';
     }
+
+    ctx.restore(); // restore view transform
   }
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
