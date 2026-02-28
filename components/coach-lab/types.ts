@@ -24,7 +24,15 @@ export type FieldView =
   | 'corner-right'
   | 'penalty'
   | 'seven-aside'
-  | 'five-aside';
+  | 'five-aside'
+  | 'canto-esq-sup'
+  | 'canto-esq-inf'
+  | 'canto-dir-sup'
+  | 'canto-dir-inf'
+  | 'lancamento-sup'
+  | 'lancamento-inf'
+  | 'livre-esq'
+  | 'livre-dir';
 
 export type FormationName =
   | '1-4-3-3' | '1-4-4-2' | '1-4-2-3-1' | '1-3-5-2' | '1-3-6-1' | '1-3-4-3'

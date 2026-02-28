@@ -54,8 +54,33 @@ const FORMATION_GROUPS = [
   { label: "2 Def", formations: ["1-2-3-5"] as FormationName[] },
 ];
 
-// [PREMIUM] FIELD_FORMATS — different field views for pro subscribers
-// const FIELD_FORMATS = [full, half-left, half-right, corner-left, corner-right, penalty, seven-aside, five-aside]
+const VIEW_LABELS: Record<FieldView, string> = {
+  'full':           'Campo Completo',
+  'half-left':      'Meio Esq.',
+  'half-right':     'Meio Dir.',
+  'corner-left':    'Canto Esq.',
+  'corner-right':   'Canto Dir.',
+  'penalty':        'Penálti',
+  'seven-aside':    'Fut-7',
+  'five-aside':     'Fut-5 / Futsal',
+  'canto-esq-sup':  '↖ Canto Esq. Sup.',
+  'canto-esq-inf':  '↙ Canto Esq. Inf.',
+  'canto-dir-sup':  '↗ Canto Dir. Sup.',
+  'canto-dir-inf':  '↘ Canto Dir. Inf.',
+  'lancamento-sup': '↑ Lançamento Sup.',
+  'lancamento-inf': '↓ Lançamento Inf.',
+  'livre-esq':      '◀ Livre Esq.',
+  'livre-dir':      '▶ Livre Dir.',
+};
+
+const VIEW_GROUPS: { label: string; views: FieldView[] }[] = [
+  { label: 'Campo', views: ['full'] },
+  { label: 'Meios-Campos', views: ['half-left', 'half-right', 'penalty'] },
+  { label: 'Futebol Reduzido', views: ['seven-aside', 'five-aside'] },
+  { label: 'Cantos', views: ['canto-esq-sup', 'canto-esq-inf', 'canto-dir-sup', 'canto-dir-inf'] },
+  { label: 'Lançamentos Laterais', views: ['lancamento-sup', 'lancamento-inf'] },
+  { label: 'Livres / Bola Parada', views: ['livre-esq', 'livre-dir'] },
+];
 
 function genId() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36); }
 
@@ -100,7 +125,7 @@ export function CoachLabApp() {
   const playersRef     = useRef<Player[]>([]);
   const ballRef        = useRef<Ball>({ x: PITCH_W / 2, y: PITCH_H / 2 });
   const drawingsRef    = useRef<Drawing[]>([]);
-  // [PREMIUM] fieldViewRef, showNamesRef, showZonesRef, lightFieldRef, movementsRef, animModeRef, activeMovePieceRef, setPieceModeRef
+  // [PREMIUM] showNamesRef, showZonesRef, lightFieldRef, movementsRef, animModeRef, activeMovePieceRef, setPieceModeRef
 
   // Image cache for player photos
   const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
@@ -127,6 +152,8 @@ export function CoachLabApp() {
   const [selectedPlayerId, setSelectedPlayerId]   = useState<string | null>(null);
   const [selectedDrawingId, setSelectedDrawingId] = useState<string | null>(null);
   const [canvasSize, setCanvasSize]       = useState({ w: 0, h: 0 });
+  const [fieldView, setFieldView]         = useState<FieldView>("full");
+  const [viewMenuOpen, setViewMenuOpen]   = useState(false);
   const [leftOpen, setLeftOpen]           = useState(true);
   const [rightOpen, setRightOpen]         = useState(true);
   const [openTacticTeam, setOpenTacticTeam] = useState<"A" | "B" | null>(null);
@@ -139,7 +166,7 @@ export function CoachLabApp() {
   const [teamBName, setTeamBName]         = useState("Team B");
   const [editingTeamId, setEditingTeamId] = useState<"A" | "B" | null>(null);
   const [editingTeamValue, setEditingTeamValue] = useState("");
-  // [PREMIUM] movements, fieldView, showNames, showZones, lightField, isPlaying, isRecording, playProgress
+  // [PREMIUM] movements, showNames, showZones, lightField, isPlaying, isRecording, playProgress
   // [PREMIUM] openDropdown, animMode, activeMovePiece, downloadUrl, setPieceMode, editingInstrId, editingInstrValue
 
   // Sync refs
@@ -173,14 +200,14 @@ export function CoachLabApp() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const options: RenderOptions = {
-      view: "full", showNames: true, showZones: false, lightField: false,
+      view: fieldView, showNames: true, showZones: false, lightField: false,
       currentDraw, selectedPlayerId, selectedDrawingId,
       imageCache: imageCache.current,
       movements: [], activeMovePiece: null, animMode: false, setPieceMode: false,
       pitchBgImage: pitchBgRef.current,
     };
     renderBoard(ctx, canvas, players, ball, drawings, options);
-  }, [players, ball, drawings, currentDraw, selectedPlayerId, selectedDrawingId, canvasSize, pitchBgLoaded]);
+  }, [players, ball, drawings, currentDraw, selectedPlayerId, selectedDrawingId, canvasSize, pitchBgLoaded, fieldView]);
 
   // [PREMIUM] Close dropdowns on outside click — removed (no dropdowns in free version)
 
@@ -732,7 +759,41 @@ export function CoachLabApp() {
           <MousePointer2 className="h-4 w-4" />
         </Button>
 
-        {/* [PREMIUM] Pitch Size dropdown — hardcoded to Full Pitch in free version */}
+        {/* ── Vista do campo ─────────────────────────────── */}
+        <div className="relative shrink-0">
+          <button
+            onClick={() => setViewMenuOpen(v => !v)}
+            className="flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs font-medium transition-colors"
+            style={{ background: viewMenuOpen ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)" }}
+          >
+            <span className="max-w-[110px] truncate">{VIEW_LABELS[fieldView]}</span>
+            <ChevronDown className="h-3 w-3 opacity-60 shrink-0" />
+          </button>
+          {viewMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setViewMenuOpen(false)} />
+              <div className="absolute top-full left-0 mt-1 z-50 rounded-xl overflow-hidden py-1 min-w-[190px]"
+                style={{ background: "rgba(13,17,23,0.97)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
+                {VIEW_GROUPS.map((group, gi) => (
+                  <div key={group.label}>
+                    {gi > 0 && <div className="mx-2 my-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />}
+                    <div className="px-3 py-0.5 text-[10px] font-semibold tracking-wider uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>{group.label}</div>
+                    {group.views.map(v => (
+                      <button key={v} onClick={() => { setFieldView(v); setViewMenuOpen(false); }}
+                        className="w-full text-left px-3 py-1.5 text-xs transition-colors"
+                        style={{ color: fieldView === v ? "#00D66C" : "rgba(255,255,255,0.75)", background: fieldView === v ? "rgba(0,214,108,0.1)" : "transparent" }}
+                        onMouseEnter={e => { if (fieldView !== v) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.07)"; }}
+                        onMouseLeave={e => { if (fieldView !== v) (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+                      >
+                        {VIEW_LABELS[v]}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
 
         <div className="w-px h-5 bg-border mx-1 shrink-0" />
 

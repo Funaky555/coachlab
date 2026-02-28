@@ -42,6 +42,17 @@ export function getViewBounds(view: FieldView): ViewBounds {
     case 'penalty':      return { viewX: 450, viewY: 0, viewW: 600, viewH: PITCH_H };
     case 'five-aside':   return { viewX: 260, viewY: 140, viewW: 530, viewH: 400 };
     case 'seven-aside':  return { viewX: 130, viewY: 60,  viewW: 790, viewH: 560 };
+    // Cantos — cada canto da bandeirola com área penalti
+    case 'canto-esq-sup': return { viewX: 0,   viewY: 0,   viewW: 310, viewH: 370 };
+    case 'canto-esq-inf': return { viewX: 0,   viewY: 310, viewW: 310, viewH: 370 };
+    case 'canto-dir-sup': return { viewX: 740, viewY: 0,   viewW: 310, viewH: 370 };
+    case 'canto-dir-inf': return { viewX: 740, viewY: 310, viewW: 310, viewH: 370 };
+    // Lançamentos — linha lateral superior e inferior, zona central
+    case 'lancamento-sup': return { viewX: 175, viewY: 0,   viewW: 700, viewH: 360 };
+    case 'lancamento-inf': return { viewX: 175, viewY: 320, viewW: 700, viewH: 360 };
+    // Livres / Bola parada — zona de ataque esquerda e direita
+    case 'livre-esq': return { viewX: 0,   viewY: 80, viewW: 490, viewH: 520 };
+    case 'livre-dir': return { viewX: 560, viewY: 80, viewW: 490, viewH: 520 };
   }
 }
 
