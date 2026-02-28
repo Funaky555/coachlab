@@ -81,23 +81,30 @@ export function getPlayerRadius(_canvas: HTMLCanvasElement, view: FieldView): nu
 
 // ─── Pitch drawing ────────────────────────────────────────────────────────────
 export function drawPitch(ctx: CanvasRenderingContext2D, lightMode: boolean, showZones: boolean, bgImage?: HTMLImageElement | null) {
+  if (bgImage) {
+    // Foto real — só a imagem, sem linhas programáticas duplicadas
+    ctx.drawImage(bgImage, 0, 0, PITCH_W, PITCH_H);
+    if (showZones) {
+      ctx.fillStyle = 'rgba(255,255,255,0.20)';
+      ctx.font = 'bold 28px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('DEF', CENTER_X * 0.4, CENTER_Y);
+      ctx.fillText('MID', CENTER_X, CENTER_Y);
+      ctx.fillText('ATK', CENTER_X * 1.6, CENTER_Y);
+      ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    }
+    return;
+  }
+
   const lineColor = 'rgba(255,255,255,0.95)';
   const lw = 2.5;
 
-  if (bgImage) {
-    // Foto real de relva como fundo
-    ctx.drawImage(bgImage, 0, 0, PITCH_W, PITCH_H);
-    // Overlay subtil para realçar as linhas brancas
-    ctx.fillStyle = 'rgba(0,0,0,0.10)';
-    ctx.fillRect(0, 0, PITCH_W, PITCH_H);
-  } else {
-    // Faixas procedurais (fallback)
-    const green1 = lightMode ? '#4db35a' : '#1a7a40';
-    const green2 = lightMode ? '#3da04a' : '#166535';
-    for (let i = 0; i < 10; i++) {
-      ctx.fillStyle = i % 2 === 0 ? green1 : green2;
-      ctx.fillRect(0, i * (PITCH_H / 10), PITCH_W, PITCH_H / 10);
-    }
+  // Faixas horizontais — aspeto moderno de estádio
+  const green1 = lightMode ? '#4db35a' : '#1a7a40';
+  const green2 = lightMode ? '#3da04a' : '#166535';
+  for (let i = 0; i < 10; i++) {
+    ctx.fillStyle = i % 2 === 0 ? green1 : green2;
+    ctx.fillRect(0, i * (PITCH_H / 10), PITCH_W, PITCH_H / 10);
   }
 
   // Linhas com leve glow
