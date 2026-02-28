@@ -72,13 +72,11 @@ export function logicalToCanvas(lx: number, ly: number, canvas: HTMLCanvasElemen
 }
 
 // ─── Player radius — scales with view so pins stay proportional to field ─────
-export function getPlayerRadius(canvas: HTMLCanvasElement, view: FieldView): number {
-  const { viewW } = getViewBounds(view);
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const displayW = canvas.width / dpr;
-  // Base size ~20px at full pitch; scales up in zoomed views (corner/area)
-  // so players are visually proportional to the field area shown.
-  return Math.max(6, (20 * viewW) / displayW);
+export function getPlayerRadius(_canvas: HTMLCanvasElement, view: FieldView): number {
+  const { viewH } = getViewBounds(view);
+  // Pin size = 2.6% of the view height — always proportional to the field shown.
+  // Scales naturally with zoom: full pitch (680) → R≈18, corner view → R≈9.
+  return Math.max(6, viewH * 0.026);
 }
 
 // ─── Pitch drawing ────────────────────────────────────────────────────────────
