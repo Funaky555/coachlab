@@ -48,9 +48,9 @@ const FORMATIONS: Record<FormationName, Array<{ x: number; y: number }>> = {
 };
 
 const FORMATION_GROUPS = [
+  { label: "5 Def", formations: ["1-5-4-1","1-5-3-2","1-5-2-3"] as FormationName[] },
   { label: "4 Def", formations: ["1-4-3-3","1-4-4-2","1-4-2-3-1","1-4-5-1","1-4-1-4-1","1-4-3-2-1","1-4-1-2-3","1-4-4-1-1","1-4-2-2-2","1-4-6-0","1-4-3-1-2","1-4-1-3-2"] as FormationName[] },
   { label: "3 Def", formations: ["1-3-5-2","1-3-6-1","1-3-4-3","1-3-4-2-1","1-3-3-4","1-3-4-1-2","1-3-1-4-2","1-3-2-4-1"] as FormationName[] },
-  { label: "5 Def", formations: ["1-5-4-1","1-5-3-2","1-5-2-3"] as FormationName[] },
   { label: "2 Def", formations: ["1-2-3-5"] as FormationName[] },
 ];
 
@@ -603,7 +603,7 @@ export function CoachLabApp() {
                         onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${color}1a`; (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}55`; (e.currentTarget as HTMLButtonElement).style.color = color; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = ""; (e.currentTarget as HTMLButtonElement).style.borderColor = ""; (e.currentTarget as HTMLButtonElement).style.color = ""; }}
                       >
-                        {f.replace(/^1-/, "")}
+                        {f}
                       </button>
                     ))}
                   </div>
@@ -688,27 +688,8 @@ export function CoachLabApp() {
 
         <div className="w-px h-5 bg-border mx-1 shrink-0" />
 
-        {/* ── Grupo Actions (laranja) ────────────────────────── */}
-        <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/25 shrink-0">
-          <Button size="sm" variant="ghost" className="h-7 px-2 gap-1 text-xs text-orange-400 hover:bg-orange-500/15 hover:text-orange-300 shrink-0" title="Undo (Ctrl+Z)"
-            onClick={undo} disabled={history.length === 0}>
-            <Undo2 className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Undo</span>
-          </Button>
-          {/* [PREMIUM] Clear drawings button */}
-          <Button size="sm" variant="ghost" className="h-7 px-2 gap-1 text-xs text-orange-400 hover:bg-orange-500/15 hover:text-orange-300 shrink-0" title="Reset everything"
-            onClick={clearAll}>
-            <Trash2 className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Reset</span>
-          </Button>
-        </div>
-
-        <div className="w-px h-5 bg-border mx-1 shrink-0" />
-
         {/* ── Grupo Camera (verde) ───────────────────────────── */}
         <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-green-500/10 border border-green-500/25 shrink-0">
-          <Button size="sm" variant="ghost" className="h-7 px-2 gap-1 text-xs text-green-400 hover:bg-green-500/15 hover:text-green-300 shrink-0" title="Screenshot (PNG)"
-            onClick={takeScreenshot}>
-            <Camera className="h-3.5 w-3.5" />
-          </Button>
           <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-green-400 hover:bg-green-500/15 hover:text-green-300 shrink-0" title="Ball to center" onClick={ballToCenter}>
             ⚽
           </Button>
@@ -749,7 +730,31 @@ export function CoachLabApp() {
         </div>
 
         {/* ── Canvas ─────────────────────────────────────────────────────────── */}
-        <div ref={containerRef} className="flex-1 relative overflow-hidden min-w-0">
+        <div ref={containerRef} className="flex-1 flex flex-col overflow-hidden min-w-0">
+
+          {/* ── Action bar above field ───────────────────────────────────────── */}
+          <div className="flex-none flex justify-center items-center gap-1 py-1 bg-card/70 border-b border-border/40">
+            <Button size="sm" variant="ghost"
+              className="h-7 px-2 gap-1 text-xs text-orange-400 hover:bg-orange-500/15 hover:text-orange-300"
+              title="Undo (Ctrl+Z)" onClick={undo} disabled={history.length === 0}>
+              <Undo2 className="h-3.5 w-3.5" /><span>Undo</span>
+            </Button>
+            <div className="w-px h-4 bg-border/50" />
+            <Button size="sm" variant="ghost"
+              className="h-7 px-2 gap-1 text-xs text-orange-400 hover:bg-orange-500/15 hover:text-orange-300"
+              title="Reset everything" onClick={clearAll}>
+              <Trash2 className="h-3.5 w-3.5" /><span>Reset</span>
+            </Button>
+            <div className="w-px h-4 bg-border/50" />
+            <Button size="sm" variant="ghost"
+              className="h-7 px-2 gap-1 text-xs text-green-400 hover:bg-green-500/15 hover:text-green-300"
+              title="Screenshot (PNG)" onClick={takeScreenshot}>
+              <Camera className="h-3.5 w-3.5" /><span>Foto</span>
+            </Button>
+          </div>
+
+          {/* ── Field ─────────────────────────────────────────────────────────── */}
+          <div className="flex-1 relative overflow-hidden">
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full"
@@ -776,7 +781,8 @@ export function CoachLabApp() {
 
           {/* [PREMIUM] Set piece instruction overlay */}
           {/* [PREMIUM] Playing progress overlay */}
-        </div>
+          </div>{/* end field */}
+        </div>{/* end containerRef */}
 
         {/* ── Right panel ────────────────────────────────────────────────────── */}
         <div className={`flex-none bg-card border-l border-border overflow-y-auto transition-all duration-200 ${rightOpen ? "w-52" : "w-0 overflow-hidden"}`}>
