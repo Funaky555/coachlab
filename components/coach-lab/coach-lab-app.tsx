@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Camera, ChevronDown, ChevronLeft, ChevronRight,
   Eye, EyeOff, ImagePlus, MousePointer2, Trash2, Undo2,
@@ -168,11 +168,12 @@ export function CoachLabApp() {
   // [PREMIUM] movements, showNames, showZones, lightField, isPlaying, isRecording, playProgress
   // [PREMIUM] openDropdown, animMode, activeMovePiece, downloadUrl, setPieceMode, editingInstrId, editingInstrValue
 
-  // Sync refs
-  useEffect(() => { playersRef.current = players; }, [players]);
-  useEffect(() => { ballRef.current = ball; }, [ball]);
-  useEffect(() => { drawingsRef.current = drawings; }, [drawings]);
-  useEffect(() => { historyRef.current = history; }, [history]);
+  // Sync refs — useLayoutEffect garante que os refs estão atualizados
+  // antes do paint e do próximo evento de input (evita captureHistory stale)
+  useLayoutEffect(() => { playersRef.current = players; }, [players]);
+  useLayoutEffect(() => { ballRef.current = ball; }, [ball]);
+  useLayoutEffect(() => { drawingsRef.current = drawings; }, [drawings]);
+  useLayoutEffect(() => { historyRef.current = history; }, [history]);
   // [PREMIUM] movements, animMode, activeMovePiece, setPieceMode syncs removed
 
   // ─── Canvas resize ──────────────────────────────────────────────────────────
