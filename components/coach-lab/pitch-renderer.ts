@@ -361,12 +361,13 @@ export function drawBall(
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
-    // Clip to circle so white background of photo is hidden
+    // Clip to circle — zoom in 1.25× so photo background edges are hidden
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, pxR, 0, Math.PI * 2);
     ctx.clip();
-    ctx.drawImage(ballImage, cx - pxR, cy - pxR, pxR * 2, pxR * 2);
+    const zr = pxR * 1.25;
+    ctx.drawImage(ballImage, cx - zr, cy - zr, zr * 2, zr * 2);
     ctx.restore();
     // Thin border
     ctx.beginPath();

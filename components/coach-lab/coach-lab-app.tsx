@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Camera, ChevronDown, ChevronLeft, ChevronRight,
-  Eye, EyeOff, ImagePlus, MousePointer2, Trash2, Undo2,
+  Eye, EyeOff, ImagePlus, MousePointer2, Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type {
@@ -791,25 +791,6 @@ export function CoachLabApp() {
 
       {/* ── Toolbar ─────────────────────────────────────────────────────────── */}
       <div className="flex-none bg-card border-b border-border flex flex-wrap items-center gap-0.5 px-2 py-1 shrink-0">
-
-        {/* Select */}
-        <Button
-          size="sm" variant={activeTool === "select" ? "default" : "ghost"}
-          className="h-8 w-8 p-0 shrink-0" title="Select / Move"
-          onClick={() => changeTool("select")}
-        >
-          <MousePointer2 className="h-4 w-4" />
-        </Button>
-
-        <div className="w-px h-5 bg-border mx-1 shrink-0" />
-
-        {/* ── Grupo Camera (verde) ───────────────────────────── */}
-        <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-green-500/10 border border-green-500/25 shrink-0">
-          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-green-400 hover:bg-green-500/15 hover:text-green-300 shrink-0" title="Ball to center" onClick={ballToCenter}>
-            ⚽
-          </Button>
-        </div>
-
         {/* [PREMIUM] Names/Zone/Light toggles — pro only */}
         {/* [PREMIUM] Individual Instruction (set piece mode) — pro only */}
 
@@ -855,14 +836,20 @@ export function CoachLabApp() {
           <div className="flex-none flex justify-center items-center gap-1 py-1 bg-card/70 border-b border-border/40">
             <Button size="sm" variant="ghost"
               className="h-7 px-2 gap-1 text-xs text-orange-400 hover:bg-orange-500/15 hover:text-orange-300"
-              title="Undo (Ctrl+Z)" onClick={undo} disabled={history.length === 0}>
-              <Undo2 className="h-3.5 w-3.5" /><span>Undo</span>
+              title="Reset everything" onClick={clearAll}>
+              <Trash2 className="h-3.5 w-3.5" /><span>Reset</span>
+            </Button>
+            <div className="w-px h-4 bg-border/50" />
+            <Button size="sm" variant={activeTool === "select" ? "default" : "ghost"}
+              className="h-7 px-2 gap-1 text-xs"
+              title="Select / Move" onClick={() => changeTool("select")}>
+              <MousePointer2 className="h-3.5 w-3.5" /><span>Cursor</span>
             </Button>
             <div className="w-px h-4 bg-border/50" />
             <Button size="sm" variant="ghost"
-              className="h-7 px-2 gap-1 text-xs text-orange-400 hover:bg-orange-500/15 hover:text-orange-300"
-              title="Reset everything" onClick={clearAll}>
-              <Trash2 className="h-3.5 w-3.5" /><span>Reset</span>
+              className="h-7 px-2 gap-1 text-xs text-green-400 hover:bg-green-500/15 hover:text-green-300"
+              title="Ball to center" onClick={ballToCenter}>
+              ⚽<span>Bola</span>
             </Button>
             <div className="w-px h-4 bg-border/50" />
             <Button size="sm" variant="ghost"
