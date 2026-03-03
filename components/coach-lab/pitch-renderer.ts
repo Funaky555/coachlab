@@ -342,25 +342,12 @@ export function drawBall(
   const cx = ((x - viewX) / viewW) * canvas.width;
   const cy = ((y - viewY) / viewH) * canvas.height;
   const zoom = Math.sqrt(PITCH_W / viewW);
-  const pxR = Math.max(10, canvas.height * 0.022 * zoom);
+  const pxR = Math.max(8, canvas.height * 0.018 * zoom);
 
   ctx.save();
   ctx.resetTransform();
 
   if (ballImage && ballImage.complete && ballImage.naturalWidth > 0) {
-    // Drop shadow via transparent circle fill
-    ctx.shadowColor = 'rgba(0,0,0,0.70)';
-    ctx.shadowBlur = pxR * 0.7;
-    ctx.shadowOffsetX = pxR * 0.22;
-    ctx.shadowOffsetY = pxR * 0.30;
-    ctx.beginPath();
-    ctx.arc(cx, cy, pxR, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.01)';
-    ctx.fill();
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
     // Clip to circle — zoom in 1.25× so photo background edges are hidden
     ctx.save();
     ctx.beginPath();
@@ -369,12 +356,6 @@ export function drawBall(
     const zr = pxR * 1.25;
     ctx.drawImage(ballImage, cx - zr, cy - zr, zr * 2, zr * 2);
     ctx.restore();
-    // Thin border
-    ctx.beginPath();
-    ctx.arc(cx, cy, pxR, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
     ctx.restore();
     return;
   }
