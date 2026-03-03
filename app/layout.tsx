@@ -14,7 +14,6 @@ export const metadata: Metadata = {
   title: "Coach Lab — Tactical Board",
   description: "Interactive tactical board for football coaching — formations, drawings, keyframes and set piece planning. By Daniel de Sousa, UEFA B Coach.",
   keywords: ["football coaching", "tactical board", "formations", "set pieces", "treino futebol"],
-  icons: { icon: "/logo.png", apple: "/logo.png" },
 };
 
 export default function RootLayout({
