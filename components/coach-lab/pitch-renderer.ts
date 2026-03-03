@@ -348,12 +348,32 @@ export function drawBall(
   ctx.resetTransform();
 
   if (ballImage && ballImage.complete && ballImage.naturalWidth > 0) {
-    // Draw SVG ball image — drop shadow first
+    // Drop shadow via transparent circle fill
     ctx.shadowColor = 'rgba(0,0,0,0.70)';
-    ctx.shadowBlur = pxR * 0.65;
+    ctx.shadowBlur = pxR * 0.7;
     ctx.shadowOffsetX = pxR * 0.22;
-    ctx.shadowOffsetY = pxR * 0.28;
+    ctx.shadowOffsetY = pxR * 0.30;
+    ctx.beginPath();
+    ctx.arc(cx, cy, pxR, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.01)';
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    // Clip to circle so white background of photo is hidden
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, pxR, 0, Math.PI * 2);
+    ctx.clip();
     ctx.drawImage(ballImage, cx - pxR, cy - pxR, pxR * 2, pxR * 2);
+    ctx.restore();
+    // Thin border
+    ctx.beginPath();
+    ctx.arc(cx, cy, pxR, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
     ctx.restore();
     return;
   }

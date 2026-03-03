@@ -144,7 +144,7 @@ export function CoachLabApp() {
   const [ballImgLoaded, setBallImgLoaded] = useState(false);
   useEffect(() => {
     const img = new Image();
-    img.src = '/ball.svg';
+    img.src = '/ball.png';
     img.onload = () => { ballImgRef.current = img; setBallImgLoaded(true); };
   }, []);
 
