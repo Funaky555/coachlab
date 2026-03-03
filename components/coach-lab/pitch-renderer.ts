@@ -327,36 +327,87 @@ export function drawPlayers(
   ctx.textAlign = 'left';
 }
 
+// ─── Ball helpers ─────────────────────────────────────────────────────────────
+function drawPentagon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, rotation = -Math.PI / 2) {
+  ctx.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const angle = rotation + (i * 2 * Math.PI) / 5;
+    const px = cx + r * Math.cos(angle);
+    const py = cy + r * Math.sin(angle);
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
 // ─── Ball ─────────────────────────────────────────────────────────────────────
 export function drawBall(ctx: CanvasRenderingContext2D, ball: Ball) {
   const { x, y } = ball;
+  const R = BALL_R;
+
   ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.7)';
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetX = 2;
-  ctx.shadowOffsetY = 2;
+
+  // Drop shadow
+  ctx.shadowColor = 'rgba(0,0,0,0.75)';
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 4;
+
+  // Base sphere — radial gradient for 3D effect
+  const baseGrad = ctx.createRadialGradient(x - R * 0.28, y - R * 0.32, R * 0.08, x, y, R);
+  baseGrad.addColorStop(0,   '#ffffff');
+  baseGrad.addColorStop(0.55, '#e8e8e8');
+  baseGrad.addColorStop(1,   '#a0a0a0');
+
   ctx.beginPath();
-  ctx.arc(x, y, BALL_R, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffffff';
+  ctx.arc(x, y, R, 0, Math.PI * 2);
+  ctx.fillStyle = baseGrad;
   ctx.fill();
-  ctx.strokeStyle = '#111111';
-  ctx.lineWidth = 1.2;
+
+  // Reset shadow before patches
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Clip to ball for patches
+  ctx.beginPath();
+  ctx.arc(x, y, R, 0, Math.PI * 2);
+  ctx.clip();
+
+  // Black pentagon patches — classic Telstar pattern
+  ctx.fillStyle = '#1a1a1a';
+  const ps = R * 0.40;
+  drawPentagon(ctx, x,            y - R * 0.44, ps);
+  drawPentagon(ctx, x - R * 0.67, y + R * 0.22, ps * 0.86);
+  drawPentagon(ctx, x + R * 0.67, y + R * 0.22, ps * 0.86);
+  drawPentagon(ctx, x - R * 0.40, y - R * 0.72, ps * 0.72);
+  drawPentagon(ctx, x + R * 0.40, y - R * 0.72, ps * 0.72);
+  drawPentagon(ctx, x,            y + R * 0.88, ps * 0.72);
+
+  ctx.restore();
+
+  // Outer border
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, R, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(40,40,40,0.9)';
+  ctx.lineWidth = 1.0;
   ctx.stroke();
   ctx.restore();
 
-  ctx.fillStyle = '#111111';
-  const patches: [number, number, number][] = [
-    [x,       y - 4.5, 3.2],
-    [x + 6,   y + 3,   2.4],
-    [x - 6,   y + 3,   2.4],
-    [x + 3.8, y - 6.5, 1.8],
-    [x - 3.8, y - 6.5, 1.8],
-  ];
-  for (const [px, py, pr] of patches) {
-    ctx.beginPath();
-    ctx.arc(px, py, pr, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  // Gloss highlight
+  ctx.save();
+  const glossGrad = ctx.createRadialGradient(x - R * 0.28, y - R * 0.32, 0, x - R * 0.18, y - R * 0.22, R * 0.52);
+  glossGrad.addColorStop(0, 'rgba(255,255,255,0.70)');
+  glossGrad.addColorStop(0.6, 'rgba(255,255,255,0.12)');
+  glossGrad.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.beginPath();
+  ctx.arc(x, y, R, 0, Math.PI * 2);
+  ctx.fillStyle = glossGrad;
+  ctx.fill();
+  ctx.restore();
 }
 
 // ─── Shape helpers ────────────────────────────────────────────────────────────
