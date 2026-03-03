@@ -10,7 +10,7 @@ export default function Home() {
           <img src="/logo.png" width={54} height={54} alt="Coach Lab" className="shrink-0 rounded-full" />
         </div>
         <a
-          href="https://danieldesousa.pt"
+          href="https://danieldesousa-portfolio.vercel.app/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-muted-foreground hover:text-foreground transition-colors"
