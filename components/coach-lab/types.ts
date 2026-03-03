@@ -108,4 +108,5 @@ export interface RenderOptions {
   animMode: boolean;
   setPieceMode: boolean;
   pitchBgImage?: HTMLImageElement | null;
+  ballImage?: HTMLImageElement | null;
 }

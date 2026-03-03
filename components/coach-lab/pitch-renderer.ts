@@ -327,86 +327,59 @@ export function drawPlayers(
   ctx.textAlign = 'left';
 }
 
-// ─── Ball helpers ─────────────────────────────────────────────────────────────
-function drawPentagon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, rotation = -Math.PI / 2) {
-  ctx.beginPath();
-  for (let i = 0; i < 5; i++) {
-    const angle = rotation + (i * 2 * Math.PI) / 5;
-    const px = cx + r * Math.cos(angle);
-    const py = cy + r * Math.sin(angle);
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
-  }
-  ctx.closePath();
-  ctx.fill();
-}
-
 // ─── Ball ─────────────────────────────────────────────────────────────────────
-export function drawBall(ctx: CanvasRenderingContext2D, ball: Ball) {
+export function drawBall(
+  ctx: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement,
+  ball: Ball,
+  view: FieldView,
+  ballImage?: HTMLImageElement | null,
+) {
   const { x, y } = ball;
-  const R = BALL_R;
+  const { viewX, viewY, viewW, viewH } = getViewBounds(view);
+
+  // Convert logical → canvas pixels (handles non-uniform scale correctly)
+  const cx = ((x - viewX) / viewW) * canvas.width;
+  const cy = ((y - viewY) / viewH) * canvas.height;
+  const zoom = Math.sqrt(PITCH_W / viewW);
+  const pxR = Math.max(10, canvas.height * 0.022 * zoom);
 
   ctx.save();
+  ctx.resetTransform();
 
-  // Drop shadow
+  if (ballImage && ballImage.complete && ballImage.naturalWidth > 0) {
+    // Draw SVG ball image — drop shadow first
+    ctx.shadowColor = 'rgba(0,0,0,0.70)';
+    ctx.shadowBlur = pxR * 0.65;
+    ctx.shadowOffsetX = pxR * 0.22;
+    ctx.shadowOffsetY = pxR * 0.28;
+    ctx.drawImage(ballImage, cx - pxR, cy - pxR, pxR * 2, pxR * 2);
+    ctx.restore();
+    return;
+  }
+
+  // Fallback — programmatic ball (used before image loads)
   ctx.shadowColor = 'rgba(0,0,0,0.75)';
-  ctx.shadowBlur = 10;
-  ctx.shadowOffsetX = 3;
-  ctx.shadowOffsetY = 4;
-
-  // Base sphere — radial gradient for 3D effect
-  const baseGrad = ctx.createRadialGradient(x - R * 0.28, y - R * 0.32, R * 0.08, x, y, R);
+  ctx.shadowBlur = pxR * 0.7;
+  ctx.shadowOffsetX = pxR * 0.22;
+  ctx.shadowOffsetY = pxR * 0.28;
+  const baseGrad = ctx.createRadialGradient(cx - pxR * 0.28, cy - pxR * 0.32, pxR * 0.08, cx, cy, pxR);
   baseGrad.addColorStop(0,   '#ffffff');
   baseGrad.addColorStop(0.55, '#e8e8e8');
   baseGrad.addColorStop(1,   '#a0a0a0');
-
   ctx.beginPath();
-  ctx.arc(x, y, R, 0, Math.PI * 2);
+  ctx.arc(cx, cy, pxR, 0, Math.PI * 2);
   ctx.fillStyle = baseGrad;
   ctx.fill();
-
-  // Reset shadow before patches
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
-
-  // Clip to ball for patches
   ctx.beginPath();
-  ctx.arc(x, y, R, 0, Math.PI * 2);
-  ctx.clip();
-
-  // Black pentagon patches — classic Telstar pattern
-  ctx.fillStyle = '#1a1a1a';
-  const ps = R * 0.40;
-  drawPentagon(ctx, x,            y - R * 0.44, ps);
-  drawPentagon(ctx, x - R * 0.67, y + R * 0.22, ps * 0.86);
-  drawPentagon(ctx, x + R * 0.67, y + R * 0.22, ps * 0.86);
-  drawPentagon(ctx, x - R * 0.40, y - R * 0.72, ps * 0.72);
-  drawPentagon(ctx, x + R * 0.40, y - R * 0.72, ps * 0.72);
-  drawPentagon(ctx, x,            y + R * 0.88, ps * 0.72);
-
-  ctx.restore();
-
-  // Outer border
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(x, y, R, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(40,40,40,0.9)';
-  ctx.lineWidth = 1.0;
+  ctx.arc(cx, cy, pxR, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(40,40,40,0.8)';
+  ctx.lineWidth = 1;
   ctx.stroke();
-  ctx.restore();
-
-  // Gloss highlight
-  ctx.save();
-  const glossGrad = ctx.createRadialGradient(x - R * 0.28, y - R * 0.32, 0, x - R * 0.18, y - R * 0.22, R * 0.52);
-  glossGrad.addColorStop(0, 'rgba(255,255,255,0.70)');
-  glossGrad.addColorStop(0.6, 'rgba(255,255,255,0.12)');
-  glossGrad.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.beginPath();
-  ctx.arc(x, y, R, 0, Math.PI * 2);
-  ctx.fillStyle = glossGrad;
-  ctx.fill();
   ctx.restore();
 }
 
@@ -702,6 +675,7 @@ export function renderBoard(
     view, showNames, showZones, lightField,
     currentDraw, selectedPlayerId, selectedDrawingId,
     imageCache, movements, activeMovePiece, animMode, setPieceMode,
+    ballImage,
   } = options;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -725,7 +699,7 @@ export function renderBoard(
   }
 
   drawPlayers(ctx, canvas, view, players, selectedPlayerId, showNames, imageCache, setPieceMode);
-  drawBall(ctx, ball);
+  drawBall(ctx, canvas, ball, view, ballImage);
 
   ctx.resetTransform();
 }

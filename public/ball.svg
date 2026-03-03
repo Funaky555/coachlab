@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <!-- 3D sphere gradient — light from top-left -->
+    <radialGradient id="g" cx="36%" cy="28%" r="68%" fx="36%" fy="28%">
+      <stop offset="0%"   stop-color="#ffffff"/>
+      <stop offset="42%"  stop-color="#e8e8e8"/>
+      <stop offset="100%" stop-color="#787878"/>
+    </radialGradient>
+    <!-- Gloss highlight -->
+    <radialGradient id="hl" cx="35%" cy="26%" r="43%">
+      <stop offset="0%"   stop-color="rgba(255,255,255,0.92)"/>
+      <stop offset="55%"  stop-color="rgba(255,255,255,0.12)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+    <!-- Drop shadow filter -->
+    <filter id="sh" x="-25%" y="-25%" width="180%" height="180%">
+      <feDropShadow dx="4" dy="6" stdDeviation="10" flood-color="rgba(0,0,0,0.55)"/>
+    </filter>
+    <clipPath id="bc">
+      <circle cx="100" cy="100" r="92"/>
+    </clipPath>
+  </defs>
+
+  <!-- Ground shadow -->
+  <ellipse cx="104" cy="193" rx="58" ry="10" fill="rgba(0,0,0,0.22)"/>
+
+  <!-- Sphere base -->
+  <circle cx="100" cy="100" r="92" fill="url(#g)" filter="url(#sh)"/>
+
+  <!-- Black patches — 7 large angular shapes (Telstar-inspired) -->
+  <g clip-path="url(#bc)" fill="#111111">
+    <!-- Top-center pentagon -->
+    <polygon points="100,14 117,33 112,55 88,55 83,33"/>
+
+    <!-- Top-right patch -->
+    <polygon points="128,20 150,40 153,66 135,74 118,60 123,37"/>
+
+    <!-- Right patch -->
+    <polygon points="172,88 180,112 166,138 145,130 141,106 156,83"/>
+
+    <!-- Bottom-right patch -->
+    <polygon points="138,154 152,174 130,185 100,181 101,161 122,150"/>
+
+    <!-- Bottom-left patch -->
+    <polygon points="62,154 78,150 99,161 100,181 70,185 48,174"/>
+
+    <!-- Left patch -->
+    <polygon points="28,88 44,83 59,106 55,130 34,138 20,112"/>
+
+    <!-- Top-left patch -->
+    <polygon points="72,20 77,37 60,60 42,66 47,40 68,20"/>
+  </g>
+
+  <!-- Seam lines — connect patch edges, subtle grey -->
+  <g clip-path="url(#bc)" stroke="rgba(160,160,160,0.50)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="88,55 100,14 117,33"/>
+    <polyline points="112,55 118,60 123,37 128,20"/>
+    <polyline points="135,74 141,106 156,83 172,88"/>
+    <polyline points="138,154 122,150 101,161 99,161 78,150 62,154"/>
+    <polyline points="55,130 34,138 20,112 28,88"/>
+    <polyline points="44,83 59,106"/>
+    <polyline points="47,40 42,66 60,60 77,37"/>
+    <line x1="88" y1="55" x2="83" y2="33"/>
+    <line x1="112" y1="55" x2="117" y2="33"/>
+    <line x1="135" y1="74" x2="153" y2="66"/>
+    <line x1="166" y1="138" x2="152" y2="174"/>
+    <line x1="48" y1="174" x2="34" y2="138"/>
+  </g>
+
+  <!-- Outer border -->
+  <circle cx="100" cy="100" r="92" fill="none" stroke="#222" stroke-width="2"/>
+
+  <!-- Gloss overlay -->
+  <circle cx="100" cy="100" r="92" fill="url(#hl)"/>
+</svg>
