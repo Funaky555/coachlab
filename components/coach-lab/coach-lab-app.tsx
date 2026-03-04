@@ -330,12 +330,11 @@ export function CoachLabApp() {
         const px = hit.type === "player" ? playersRef.current.find(p => p.id === hit.id)!.x : ballRef.current.x;
         const py = hit.type === "player" ? playersRef.current.find(p => p.id === hit.id)!.y : ballRef.current.y;
         draggingRef.current = { id: hit.type === "player" ? hit.id : "__ball__", type: hit.type, offsetX: x - px, offsetY: y - py };
-        if (canvasRef.current) canvasRef.current.style.cursor = "none";
-        const bc = ballCursorDivRef.current;
-        if (bc && hit.type === "player") bc.style.opacity = "1";
+        if (canvasRef.current) {
+          canvasRef.current.style.cursor = hit.type === "player" ? "grabbing" : "none";
+        }
         if (hit.type === "ball") {
           isDraggingBallRef.current = true;
-          if (bc) { bc.style.transition = "none"; bc.style.opacity = "0"; }
         }
       } else {
         setSelectedPlayerId(null);

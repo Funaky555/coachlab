@@ -346,6 +346,10 @@ export function drawBall(
 
   ctx.save();
   ctx.resetTransform();
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
 
   if (ballImage && ballImage.complete && ballImage.naturalWidth > 0) {
     // Clip to circle — zoom in 1.25× so photo background edges are hidden
