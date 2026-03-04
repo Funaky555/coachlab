@@ -126,7 +126,8 @@ export function CoachLabApp() {
   const playersRef     = useRef<Player[]>([]);
   const ballRef        = useRef<Ball>({ x: PITCH_W / 2, y: PITCH_H / 2 });
   const drawingsRef    = useRef<Drawing[]>([]);
-  const renderOptsRef  = useRef<RenderOptions | null>(null);
+  const renderOptsRef      = useRef<RenderOptions | null>(null);
+  const isDraggingBallRef  = useRef(false);
   // [PREMIUM] showNamesRef, showZonesRef, lightFieldRef, movementsRef, animModeRef, activeMovePieceRef, setPieceModeRef
 
   // Image cache for player photos
@@ -206,6 +207,7 @@ export function CoachLabApp() {
 
   // ─── Canvas render ──────────────────────────────────────────────────────────
   useEffect(() => {
+    if (isDraggingBallRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas || canvas.width === 0) return;
     const ctx = canvas.getContext("2d");
@@ -331,6 +333,10 @@ export function CoachLabApp() {
         if (canvasRef.current) canvasRef.current.style.cursor = "none";
         const bc = ballCursorDivRef.current;
         if (bc && hit.type === "player") bc.style.opacity = "1";
+        if (hit.type === "ball") {
+          isDraggingBallRef.current = true;
+          if (bc) { bc.style.transition = "none"; bc.style.opacity = "0"; }
+        }
       } else {
         setSelectedPlayerId(null);
         setSelectedDrawingId(null);
@@ -426,6 +432,7 @@ export function CoachLabApp() {
         bc.style.transform = "translate(-200px, -200px) translate(-50%, -50%)";
       }
       if (draggingRef.current?.type === "ball") {
+        isDraggingBallRef.current = false;
         setBall({ ...ballRef.current });
       }
     }
