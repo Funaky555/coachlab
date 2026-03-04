@@ -100,7 +100,7 @@ function makeTeamOnBorder(team: "A" | "B"): Player[] {
 }
 
 function getInitialPlayers(): Player[] {
-  return [...makeTeamOnBorder("A"), ...makeTeamOnBorder("B")];
+  return [];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -123,7 +123,7 @@ export function CoachLabApp() {
   const drawColorRef   = useRef("#ffffff");
   const drawFilledRef  = useRef(false);
   const playersRef     = useRef<Player[]>([]);
-  const ballRef        = useRef<Ball>({ x: PITCH_W / 2, y: PITCH_H / 2 });
+  const ballRef        = useRef<Ball>({ x: -500, y: -500 });
   const drawingsRef    = useRef<Drawing[]>([]);
   const renderOptsRef      = useRef<RenderOptions | null>(null);
   const isDraggingBallRef  = useRef(false);
@@ -152,7 +152,7 @@ export function CoachLabApp() {
 
   // ─── State ──────────────────────────────────────────────────────────────────
   const [players, setPlayers]             = useState<Player[]>(getInitialPlayers);
-  const [ball, setBall]                   = useState<Ball>({ x: PITCH_W / 2, y: PITCH_H / 2 });
+  const [ball, setBall]                   = useState<Ball>({ x: -500, y: -500 });
   const [drawings, setDrawings]           = useState<Drawing[]>([]);
   const [currentDraw, setCurrentDraw]     = useState<RenderOptions["currentDraw"]>(null);
   const [history, setHistory]             = useState<BoardSnapshot[]>([]);
@@ -331,7 +331,6 @@ export function CoachLabApp() {
         draggingRef.current = { id: hit.type === "player" ? hit.id : "__ball__", type: hit.type, offsetX: x - px, offsetY: y - py };
         if (hit.type === "ball") {
           isDraggingBallRef.current = true;
-          if (canvasRef.current) canvasRef.current.style.cursor = "none";
         }
       } else {
         setSelectedPlayerId(null);
@@ -484,7 +483,7 @@ export function CoachLabApp() {
     setHistory(prev => [...prev.slice(-49), { players, ball, drawings }]);
     setDrawings([]);
     setPlayers(getInitialPlayers());
-    setBall({ x: PITCH_W / 2, y: PITCH_H / 2 });
+    setBall({ x: -500, y: -500 });
   };
   const ballToCenter = () => { setHistory(prev => [...prev.slice(-49), { players, ball, drawings }]); setBall({ x: PITCH_W / 2, y: PITCH_H / 2 }); };
 
