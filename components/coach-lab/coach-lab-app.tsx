@@ -328,7 +328,7 @@ export function CoachLabApp() {
         draggingRef.current = { id: hit.type === "player" ? hit.id : "__ball__", type: hit.type, offsetX: x - px, offsetY: y - py };
         if (canvasRef.current) canvasRef.current.style.cursor = "none";
         const bc = ballCursorDivRef.current;
-        if (bc) bc.style.opacity = "1";
+        if (bc && hit.type === "player") bc.style.opacity = "1";
       } else {
         setSelectedPlayerId(null);
         setSelectedDrawingId(null);
