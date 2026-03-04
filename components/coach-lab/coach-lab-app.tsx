@@ -126,6 +126,7 @@ export function CoachLabApp() {
   const playersRef     = useRef<Player[]>([]);
   const ballRef        = useRef<Ball>({ x: PITCH_W / 2, y: PITCH_H / 2 });
   const drawingsRef    = useRef<Drawing[]>([]);
+  const renderOptsRef  = useRef<RenderOptions | null>(null);
   // [PREMIUM] showNamesRef, showZonesRef, lightFieldRef, movementsRef, animModeRef, activeMovePieceRef, setPieceModeRef
 
   // Image cache for player photos
@@ -217,6 +218,7 @@ export function CoachLabApp() {
       pitchBgImage: pitchBgRef.current,
       ballImage: ballImgRef.current,
     };
+    renderOptsRef.current = options;
     renderBoard(ctx, canvas, players, ball, drawings, options);
   }, [players, ball, drawings, currentDraw, selectedPlayerId, selectedDrawingId, canvasSize, pitchBgLoaded, ballImgLoaded, fieldView]);
 
@@ -366,7 +368,13 @@ export function CoachLabApp() {
         const id = draggingRef.current.id;
         setPlayers(prev => prev.map(p => p.id === id ? { ...p, ...clamped } : p));
       } else {
-        setBall(clamped);
+        ballRef.current = clamped;
+        const cvs = canvasRef.current;
+        const opts = renderOptsRef.current;
+        if (cvs && opts) {
+          const ctx = cvs.getContext("2d");
+          if (ctx) renderBoard(ctx, cvs, playersRef.current, clamped, drawingsRef.current, opts);
+        }
       }
     }
 
@@ -416,6 +424,9 @@ export function CoachLabApp() {
       if (bc) {
         bc.style.opacity = "0";
         bc.style.transform = "translate(-200px, -200px) translate(-50%, -50%)";
+      }
+      if (draggingRef.current?.type === "ball") {
+        setBall({ ...ballRef.current });
       }
     }
 
