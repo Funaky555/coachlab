@@ -111,7 +111,6 @@ export function CoachLabApp() {
   // [PREMIUM] isPlayingRef — animation
   const textInputRef   = useRef<HTMLInputElement>(null);
 
-  const ballCursorDivRef = useRef<HTMLDivElement>(null);
   const draggingRef      = useRef<{ id: string; type: "player" | "ball"; offsetX: number; offsetY: number } | null>(null);
   const draggingHandleRef = useRef<{ drawingId: string; handleIdx: number } | null>(null);
   const isDrawingRef     = useRef(false);
@@ -358,11 +357,6 @@ export function CoachLabApp() {
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = toLogical(e.clientX, e.clientY);
 
-    const bc = ballCursorDivRef.current;
-    if (bc && draggingRef.current) {
-      bc.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-    }
-
     if (draggingRef.current) {
       hasMovedRef.current = true;
       const M = 20; // margin so pins stay inside field lines
@@ -423,11 +417,6 @@ export function CoachLabApp() {
 
     if (wasDragging) {
       if (canvasRef.current) canvasRef.current.style.cursor = getCursor();
-      const bc = ballCursorDivRef.current;
-      if (bc) {
-        bc.style.opacity = "0";
-        bc.style.transform = "translate(-200px, -200px) translate(-50%, -50%)";
-      }
       if (draggingRef.current?.type === "ball") {
         isDraggingBallRef.current = false;
         setBall({ ...ballRef.current });
@@ -886,26 +875,6 @@ export function CoachLabApp() {
             onPointerCancel={handlePointerUp}
           />
 
-          {/* Ball cursor — shown when dragging pins/ball */}
-          <div
-            ref={ballCursorDivRef}
-            aria-hidden
-            style={{
-              position:      "fixed",
-              left:          0,
-              top:           0,
-              transform:     "translate(-200px, -200px) translate(-50%, -50%)",
-              pointerEvents: "none",
-              zIndex:        99999,
-              opacity:       0,
-              transition:    "opacity 0.1s ease",
-              userSelect:    "none",
-              willChange:    "transform",
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/ball.svg" alt="" width={32} height={32} style={{ display: "block", width: 32, height: 32, objectFit: "contain" }} />
-          </div>
 
           {/* Text input overlay */}
           {pendingText && textPos && (
