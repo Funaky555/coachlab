@@ -821,26 +821,6 @@ export function CoachLabApp() {
       {/* ── Main area ──────────────────────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden min-h-0">
 
-        {/* ── Left panel ─────────────────────────────────────────────────────── */}
-        <div className={`flex-none border-r overflow-y-auto transition-all duration-200 ${leftOpen ? "w-48" : "w-0 overflow-hidden"}`}
-          style={{ background: "linear-gradient(180deg, #0d1117 0%, #0a0e0c 100%)", borderColor: "rgba(255,255,255,0.06)" }}>
-          <div className="p-2 min-w-[12rem]">
-            {/* Reset names */}
-            <button
-              onClick={resetAllNames}
-              className="w-full flex items-center justify-center gap-1.5 text-[10px] px-2 py-1.5 rounded-lg font-medium tracking-wide transition-all duration-150 mb-3"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.65)" }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.12)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.95)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.65)"; }}
-            >
-              ↺ Reset All Names
-            </button>
-
-            <TeamPanel team="A" />
-            <div className="w-full h-px my-2" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)" }} />
-            <TeamPanel team="B" />
-          </div>
-        </div>
 
         {/* ── Canvas ─────────────────────────────────────────────────────────── */}
         <div ref={containerRef} className="flex-1 flex flex-col overflow-hidden min-w-0">
@@ -851,12 +831,6 @@ export function CoachLabApp() {
               className="h-7 px-2 gap-1 text-xs text-orange-400 hover:bg-orange-500/15 hover:text-orange-300"
               title="Reset everything" onClick={clearAll}>
               <Trash2 className="h-3.5 w-3.5" /><span>Reset</span>
-            </Button>
-            <div className="w-px h-4 bg-border/50" />
-            <Button size="sm" variant={activeTool === "select" ? "default" : "ghost"}
-              className="h-7 px-2 gap-1 text-xs"
-              title="Select / Move" onClick={() => changeTool("select")}>
-              <MousePointer2 className="h-3.5 w-3.5" /><span>Cursor</span>
             </Button>
             <div className="w-px h-4 bg-border/50" />
             <Button size="sm" variant="ghost"
