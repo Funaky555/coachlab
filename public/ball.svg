@@ -12,20 +12,13 @@
       <stop offset="55%"  stop-color="rgba(255,255,255,0.12)"/>
       <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
     </radialGradient>
-    <!-- Drop shadow filter -->
-    <filter id="sh" x="-25%" y="-25%" width="180%" height="180%">
-      <feDropShadow dx="4" dy="6" stdDeviation="10" flood-color="rgba(0,0,0,0.55)"/>
-    </filter>
     <clipPath id="bc">
       <circle cx="100" cy="100" r="92"/>
     </clipPath>
   </defs>
 
-  <!-- Ground shadow -->
-  <ellipse cx="104" cy="193" rx="58" ry="10" fill="rgba(0,0,0,0.22)"/>
-
   <!-- Sphere base -->
-  <circle cx="100" cy="100" r="92" fill="url(#g)" filter="url(#sh)"/>
+  <circle cx="100" cy="100" r="92" fill="url(#g)"/>
 
   <!-- Black patches — 7 large angular shapes (Telstar-inspired) -->
   <g clip-path="url(#bc)" fill="#111111">

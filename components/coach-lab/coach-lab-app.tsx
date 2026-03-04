@@ -145,7 +145,7 @@ export function CoachLabApp() {
   const [ballImgLoaded, setBallImgLoaded] = useState(false);
   useEffect(() => {
     const img = new Image();
-    img.src = '/ball.png';
+    img.src = '/ball.svg';
     img.onload = () => { ballImgRef.current = img; setBallImgLoaded(true); };
   }, []);
 
@@ -889,7 +889,7 @@ export function CoachLabApp() {
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/ball.png" alt="" width={32} height={32} style={{ display: "block", width: 32, height: 32, objectFit: "contain" }} />
+            <img src="/ball.svg" alt="" width={32} height={32} style={{ display: "block", width: 32, height: 32, objectFit: "contain" }} />
           </div>
 
           {/* Text input overlay */}
