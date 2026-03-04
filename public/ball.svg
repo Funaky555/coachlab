@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
   <defs>
     <!-- 3D sphere gradient — light from top-left -->
     <radialGradient id="g" cx="36%" cy="28%" r="68%" fx="36%" fy="28%">

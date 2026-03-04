@@ -361,10 +361,6 @@ export function drawBall(
   }
 
   // Fallback — programmatic ball (used before image loads)
-  ctx.shadowColor = 'rgba(0,0,0,0.75)';
-  ctx.shadowBlur = pxR * 0.7;
-  ctx.shadowOffsetX = pxR * 0.22;
-  ctx.shadowOffsetY = pxR * 0.28;
   const baseGrad = ctx.createRadialGradient(cx - pxR * 0.28, cy - pxR * 0.32, pxR * 0.08, cx, cy, pxR);
   baseGrad.addColorStop(0,   '#ffffff');
   baseGrad.addColorStop(0.55, '#e8e8e8');
