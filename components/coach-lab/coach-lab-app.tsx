@@ -490,23 +490,33 @@ export function CoachLabApp() {
   const applyFormation = (team: "A" | "B", formation: FormationName) => {
     setHistory(prev => [...prev.slice(-49), { players, ball, drawings }]);
     const positions = FORMATIONS[formation];
-    setPlayers(prev => prev.map(p => {
-      if (p.team !== team) return p;
-      const pos = positions[p.number - 1];
-      if (!pos) return p;
-      const rawX = PL + pos.x * (PR - PL);
-      const rawY = PT + pos.y * (PB - PT);
-      return { ...p, x: team === "A" ? rawX : PITCH_W - rawX, y: rawY };
-    }));
+    setPlayers(prev => {
+      const others = prev.filter(p => p.team !== team);
+      const base = prev.some(p => p.team === team) ? prev.filter(p => p.team === team) : makeTeamOnBorder(team);
+      const updated = base.map(p => {
+        const pos = positions[p.number - 1];
+        if (!pos) return p;
+        const rawX = PL + pos.x * (PR - PL);
+        const rawY = PT + pos.y * (PB - PT);
+        return { ...p, x: team === "A" ? rawX : PITCH_W - rawX, y: rawY };
+      });
+      return [...others, ...updated];
+    });
   };
 
   const resetToBorder = (team: "A" | "B") => {
     setHistory(prev => [...prev.slice(-49), { players, ball, drawings }]);
-    setPlayers(prev => prev.map(p => {
-      if (p.team !== team) return p;
-      const idx = p.number - 1;
-      return { ...p, x: team === "A" ? PL + 22 : PR - 22, y: PT + idx * ((PB - PT) / 10) };
-    }));
+    setPlayers(prev => {
+      const others = prev.filter(p => p.team !== team);
+      const teamPlayers = prev.some(p => p.team === team)
+        ? prev.filter(p => p.team === team).map(p => ({
+            ...p,
+            x: team === "A" ? PL + 22 : PR - 22,
+            y: PT + (p.number - 1) * ((PB - PT) / 10),
+          }))
+        : makeTeamOnBorder(team);
+      return [...others, ...teamPlayers];
+    });
   };
 
   const resetAllNames = () => {
