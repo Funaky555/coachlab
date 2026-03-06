@@ -109,4 +109,6 @@ export interface RenderOptions {
   setPieceMode: boolean;
   pitchBgImage?: HTMLImageElement | null;
   ballImage?: HTMLImageElement | null;
+  showPositions?: boolean;
+  playerLabels?: Map<string, string>; // player id → position label (e.g. "GK", "RB")
 }

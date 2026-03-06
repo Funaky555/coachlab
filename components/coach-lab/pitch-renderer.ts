@@ -23,10 +23,10 @@ const GOAL_HALF = 35;
 const GOAL_DEPTH = 15;
 
 // ─── Team colors ─────────────────────────────────────────────────────────────
-export const BORDEAUX      = '#7B1E3C';
-export const BORDEAUX_GK   = '#4A0F22';
-export const OCEAN         = '#0A3060';
-export const OCEAN_GK      = '#051E3E';
+export const BORDEAUX      = '#CC0000';
+export const BORDEAUX_GK   = '#7F0000';
+export const OCEAN         = '#0277BD';
+export const OCEAN_GK      = '#01579B';
 export const SELECTED_GLOW = '#FFD700';
 
 // ─── View bounds ─────────────────────────────────────────────────────────────
@@ -188,6 +188,8 @@ export function drawPlayers(
   showNames: boolean,
   imageCache: Map<string, HTMLImageElement>,
   setPieceMode = false,
+  showPositions = false,
+  playerLabels?: Map<string, string>,
 ) {
   const { viewX, viewY, viewW, viewH } = getViewBounds(view);
   // Scale pin size with zoom so pins feel proportional in all views
@@ -241,8 +243,8 @@ export function drawPlayers(
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255,255,255,0.70)';
-    ctx.lineWidth = Math.max(1.5, R * 0.12);
+    ctx.strokeStyle = 'rgba(0,0,0,0.85)';
+    ctx.lineWidth = Math.max(1.5, R * 0.14);
     ctx.stroke();
     ctx.restore();
 
@@ -262,11 +264,14 @@ export function drawPlayers(
         ctx.arc(cx, cy - R * 0.52, R * 0.22, 0, Math.PI * 2);
         ctx.fill();
       }
+      const pinLabel = (showPositions && playerLabels?.get(id)) || String(number);
+      const posMode = showPositions && playerLabels?.get(id);
+      const pinFontSize = posMode ? Math.max(7, fontSize * 0.72) : fontSize;
       ctx.fillStyle = 'rgba(255,255,255,0.92)';
-      ctx.font = `bold ${fontSize}px Inter, system-ui, sans-serif`;
+      ctx.font = `bold ${pinFontSize}px Inter, system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(String(number), cx, type === 'goalkeeper' ? cy + R * 0.18 : cy);
+      ctx.fillText(pinLabel, cx, type === 'goalkeeper' ? cy + R * 0.18 : cy);
     }
 
     // Name below pin
@@ -677,7 +682,7 @@ export function renderBoard(
     view, showNames, showZones, lightField,
     currentDraw, selectedPlayerId, selectedDrawingId,
     imageCache, movements, activeMovePiece, animMode, setPieceMode,
-    ballImage,
+    ballImage, showPositions, playerLabels,
   } = options;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -700,7 +705,7 @@ export function renderBoard(
     drawAnimPaths(ctx, players, ball, movements, activeMovePiece, R);
   }
 
-  drawPlayers(ctx, canvas, view, players, selectedPlayerId, showNames, imageCache, setPieceMode);
+  drawPlayers(ctx, canvas, view, players, selectedPlayerId, showNames, imageCache, setPieceMode, showPositions, playerLabels);
   drawBall(ctx, canvas, ball, view, ballImage);
 
   ctx.resetTransform();

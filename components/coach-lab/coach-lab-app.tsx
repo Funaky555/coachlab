@@ -47,6 +47,38 @@ const FORMATIONS: Record<FormationName, Array<{ x: number; y: number }>> = {
   "1-3-2-4-1": [{ x:0.04,y:.50 },{ x:.20,y:.22 },{ x:.20,y:.50 },{ x:.20,y:.78 },{ x:.36,y:.38 },{ x:.36,y:.62 },{ x:.52,y:.15 },{ x:.53,y:.38 },{ x:.53,y:.62 },{ x:.52,y:.85 },{ x:.68,y:.50 }],
 };
 
+// Position labels per formation (player numbers 1–11 in order)
+const POSITION_LABELS: Record<FormationName, string[]> = {
+  // 5 defenders
+  "1-5-4-1":   ["GK","RWB","CB","CB","CB","LWB","RM","CM","CM","LM","ST"],
+  "1-5-3-2":   ["GK","RWB","CB","CB","CB","LWB","CM","CM","CM","ST","ST"],
+  "1-5-2-3":   ["GK","RWB","CB","CB","CB","LWB","CM","CM","RW","ST","LW"],
+  // 4 defenders
+  "1-4-3-3":   ["GK","RB","CB","CB","LB","CM","CM","CM","RW","ST","LW"],
+  "1-4-4-2":   ["GK","RB","CB","CB","LB","RM","CM","CM","LM","ST","ST"],
+  "1-4-2-3-1": ["GK","RB","CB","CB","LB","CDM","CDM","RW","CAM","LW","ST"],
+  "1-4-5-1":   ["GK","RB","CB","CB","LB","RM","CM","CM","CM","LM","ST"],
+  "1-4-1-4-1": ["GK","RB","CB","CB","LB","CDM","RM","CM","CM","LM","ST"],
+  "1-4-3-2-1": ["GK","RB","CB","CB","LB","CM","CM","CM","SS","SS","ST"],
+  "1-4-1-2-3": ["GK","RB","CB","CB","LB","CDM","CM","CM","RW","ST","LW"],
+  "1-4-4-1-1": ["GK","RB","CB","CB","LB","RM","CM","CM","LM","SS","ST"],
+  "1-4-2-2-2": ["GK","RB","CB","CB","LB","CDM","CDM","CM","CM","ST","ST"],
+  "1-4-6-0":   ["GK","RB","CB","CB","LB","RM","CM","CM","CM","CM","LM"],
+  "1-4-3-1-2": ["GK","RB","CB","CB","LB","CM","CM","CM","CAM","ST","ST"],
+  "1-4-1-3-2": ["GK","RB","CB","CB","LB","CDM","CM","CAM","CM","ST","ST"],
+  // 3 defenders
+  "1-3-5-2":   ["GK","CB","CB","CB","RWB","CM","CM","CM","LWB","ST","ST"],
+  "1-3-6-1":   ["GK","CB","CB","CB","RWB","CM","CM","CM","CM","LWB","ST"],
+  "1-3-4-3":   ["GK","CB","CB","CB","RM","CM","CM","LM","RW","ST","LW"],
+  "1-3-4-2-1": ["GK","CB","CB","CB","RM","CM","CM","LM","SS","SS","ST"],
+  "1-3-3-4":   ["GK","CB","CB","CB","CM","CM","CM","RW","SS","ST","LW"],
+  "1-3-4-1-2": ["GK","CB","CB","CB","RM","CM","CM","LM","CAM","ST","ST"],
+  "1-3-1-4-2": ["GK","CB","CB","CB","CDM","RM","CM","CM","LM","ST","ST"],
+  "1-3-2-4-1": ["GK","CB","CB","CB","CDM","CDM","RM","CM","LM","CAM","ST"],
+  // 2 defenders
+  "1-2-3-5":   ["GK","CB","CB","CM","CM","CM","RW","SS","ST","SS","LW"],
+};
+
 const FORMATION_GROUPS = [
   { label: "5 Def", formations: ["1-5-4-1","1-5-3-2","1-5-2-3"] as FormationName[] },
   { label: "4 Def", formations: ["1-4-3-3","1-4-4-2","1-4-2-3-1","1-4-5-1","1-4-1-4-1","1-4-3-2-1","1-4-1-2-3","1-4-4-1-1","1-4-2-2-2","1-4-6-0","1-4-3-1-2","1-4-1-3-2"] as FormationName[] },
@@ -85,7 +117,7 @@ const VIEW_GROUPS: { label: string; views: FieldView[] }[] = [
 function genId() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36); }
 
 function makeTeamOnBorder(team: "A" | "B"): Player[] {
-  const x = team === "A" ? PL + 22 : PR - 22;
+  const x = team === "A" ? PL + 20 : PR - 20;
   return Array.from({ length: 11 }, (_, i) => ({
     id: `${team}${i + 1}`,
     team,
@@ -93,14 +125,14 @@ function makeTeamOnBorder(team: "A" | "B"): Player[] {
     number: i + 1,
     name: "",
     x,
-    y: (PT + 25) + i * ((PB - PT - 50) / 10),
+    y: (PT + 20) + i * ((PB - PT - 40) / 10),
     visible: true,
     photo: null,
   } as Player));
 }
 
 function getInitialPlayers(): Player[] {
-  return [];
+  return [...makeTeamOnBorder("A"), ...makeTeamOnBorder("B")];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -146,7 +178,7 @@ export function CoachLabApp() {
   const [ballImgLoaded, setBallImgLoaded] = useState(false);
   useEffect(() => {
     const img = new Image();
-    img.src = '/ball.svg';
+    img.src = '/ball.png';
     img.onload = () => { ballImgRef.current = img; setBallImgLoaded(true); };
   }, []);
 
@@ -167,13 +199,20 @@ export function CoachLabApp() {
   const [leftOpen, setLeftOpen]           = useState(true);
   const [rightOpen, setRightOpen]         = useState(true);
   const [openTacticTeam, setOpenTacticTeam] = useState<"A" | "B" | null>(null);
-  const [openTacticGroup, setOpenTacticGroup] = useState<string | null>(null);
+  const [openTacticGroup, setOpenTacticGroup] = useState<string | null>(FORMATION_GROUPS[1].label);
+  const [showPositions, setShowPositions]   = useState(false);
+  const [teamAFormation, setTeamAFormation] = useState<FormationName | null>(null);
+  const [teamBFormation, setTeamBFormation] = useState<FormationName | null>(null);
   const [pendingText, setPendingText]     = useState<Point | null>(null);
   const [pendingTextValue, setPendingTextValue] = useState("");
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
   const [editingNameValue, setEditingNameValue] = useState("");
   const [teamAName, setTeamAName]         = useState("Team A");
   const [teamBName, setTeamBName]         = useState("Team B");
+  const [scoreA, setScoreA]               = useState(0);
+  const [scoreB, setScoreB]               = useState(0);
+  const [teamABadge, setTeamABadge]       = useState<string | null>(null);
+  const [teamBBadge, setTeamBBadge]       = useState<string | null>(null);
   const [editingTeamId, setEditingTeamId] = useState<"A" | "B" | null>(null);
   const [editingTeamValue, setEditingTeamValue] = useState("");
   // [PREMIUM] movements, showNames, showZones, lightField, isPlaying, isRecording, playProgress
@@ -211,6 +250,15 @@ export function CoachLabApp() {
     if (!canvas || canvas.width === 0) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    // Build playerLabels map from current formations
+    const playerLabels = new Map<string, string>();
+    for (const p of players) {
+      const formation = p.team === "A" ? teamAFormation : teamBFormation;
+      if (formation && POSITION_LABELS[formation]) {
+        const label = POSITION_LABELS[formation][p.number - 1];
+        if (label) playerLabels.set(p.id, label);
+      }
+    }
     const options: RenderOptions = {
       view: fieldView, showNames: true, showZones: false, lightField: false,
       currentDraw, selectedPlayerId, selectedDrawingId,
@@ -218,10 +266,12 @@ export function CoachLabApp() {
       movements: [], activeMovePiece: null, animMode: false, setPieceMode: false,
       pitchBgImage: pitchBgRef.current,
       ballImage: ballImgRef.current,
+      showPositions,
+      playerLabels,
     };
     renderOptsRef.current = options;
     renderBoard(ctx, canvas, players, ball, drawings, options);
-  }, [players, ball, drawings, currentDraw, selectedPlayerId, selectedDrawingId, canvasSize, pitchBgLoaded, ballImgLoaded, fieldView]);
+  }, [players, ball, drawings, currentDraw, selectedPlayerId, selectedDrawingId, canvasSize, pitchBgLoaded, ballImgLoaded, fieldView, showPositions, teamAFormation, teamBFormation]);
 
   // [PREMIUM] Close dropdowns on outside click — removed (no dropdowns in free version)
 
@@ -362,7 +412,14 @@ export function CoachLabApp() {
       const clamped = { x: Math.max(PL + M, Math.min(PR - M, x - draggingRef.current.offsetX)), y: Math.max(PT + M, Math.min(PB - M, y - draggingRef.current.offsetY)) };
       if (draggingRef.current.type === "player") {
         const id = draggingRef.current.id;
-        setPlayers(prev => prev.map(p => p.id === id ? { ...p, ...clamped } : p));
+        // Update ref directly — same fast path as ball drag (no React re-render cycle)
+        playersRef.current = playersRef.current.map(p => p.id === id ? { ...p, ...clamped } : p);
+        const cvs = canvasRef.current;
+        const opts = renderOptsRef.current;
+        if (cvs && opts) {
+          const ctx = cvs.getContext("2d");
+          if (ctx) renderBoard(ctx, cvs, playersRef.current, ballRef.current, drawingsRef.current, opts);
+        }
       } else {
         ballRef.current = clamped;
         const cvs = canvasRef.current;
@@ -419,6 +476,9 @@ export function CoachLabApp() {
       if (draggingRef.current?.type === "ball") {
         isDraggingBallRef.current = false;
         setBall({ ...ballRef.current });
+      } else if (draggingRef.current?.type === "player") {
+        // Sync ref → React state now that drag ended (for history/undo)
+        setPlayers([...playersRef.current]);
       }
     }
 
@@ -485,10 +545,12 @@ export function CoachLabApp() {
     setPlayers(getInitialPlayers());
     setBall({ x: -500, y: -500 });
   };
-  const ballToCenter = () => { setHistory(prev => [...prev.slice(-49), { players, ball, drawings }]); setBall({ x: PITCH_W / 2, y: PITCH_H / 2 }); };
+  const ballToCenter = () => { setHistory(prev => [...prev.slice(-49), { players, ball, drawings }]); setBall(ball.x === -500 ? { x: PITCH_W / 2, y: PITCH_H / 2 } : { x: -500, y: -500 }); };
 
   const applyFormation = (team: "A" | "B", formation: FormationName) => {
     setHistory(prev => [...prev.slice(-49), { players, ball, drawings }]);
+    if (team === "A") setTeamAFormation(formation);
+    else setTeamBFormation(formation);
     const positions = FORMATIONS[formation];
     setPlayers(prev => {
       const others = prev.filter(p => p.team !== team);
@@ -511,8 +573,8 @@ export function CoachLabApp() {
       const teamPlayers = prev.some(p => p.team === team)
         ? prev.filter(p => p.team === team).map(p => ({
             ...p,
-            x: team === "A" ? PL + 22 : PR - 22,
-            y: PT + (p.number - 1) * ((PB - PT) / 10),
+            x: team === "A" ? PL + 20 : PR - 20,
+            y: (PT + 20) + (p.number - 1) * ((PB - PT - 40) / 10),
           }))
         : makeTeamOnBorder(team);
       return [...others, ...teamPlayers];
@@ -559,6 +621,92 @@ export function CoachLabApp() {
     link.click();
   }, []);
 
+  const takeScreenshotWithScore = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const scoreBarH = 54;
+    const combined = document.createElement("canvas");
+    combined.width = canvas.width;
+    combined.height = canvas.height + scoreBarH;
+    const ctx = combined.getContext("2d")!;
+
+    // Score bar background
+    const grad = ctx.createLinearGradient(0, 0, combined.width, 0);
+    grad.addColorStop(0, "#0d1117");
+    grad.addColorStop(0.5, "#0f172a");
+    grad.addColorStop(1, "#0d1117");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, combined.width, scoreBarH);
+
+    // Separator line
+    ctx.strokeStyle = "rgba(255,255,255,0.07)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, scoreBarH); ctx.lineTo(combined.width, scoreBarH); ctx.stroke();
+
+    const midY = scoreBarH / 2;
+
+    // Draw field canvas
+    ctx.drawImage(canvas, 0, scoreBarH);
+
+    const doRender = () => {
+      // Team A name
+      ctx.fillStyle = "#CC0000";
+      ctx.font = "bold 16px Inter, system-ui, sans-serif";
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "left";
+      const badgePadA = teamABadge ? 32 : 0;
+      ctx.fillText(teamAName, 24 + badgePadA, midY);
+
+      // Score A
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 28px Inter, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(String(scoreA), combined.width / 2 - 30, midY);
+
+      // VS
+      ctx.fillStyle = "rgba(255,255,255,0.22)";
+      ctx.font = "10px monospace";
+      ctx.fillText("vs", combined.width / 2, midY);
+
+      // Score B
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 28px Inter, system-ui, sans-serif";
+      ctx.fillText(String(scoreB), combined.width / 2 + 30, midY);
+
+      // Team B name
+      ctx.fillStyle = "#0277BD";
+      ctx.font = "bold 16px Inter, system-ui, sans-serif";
+      ctx.textAlign = "right";
+      const badgePadB = teamBBadge ? 32 : 0;
+      ctx.fillText(teamBName, combined.width - 24 - badgePadB, midY);
+
+      const link = document.createElement("a");
+      link.download = `coach-lab-score-${Date.now()}.png`;
+      link.href = combined.toDataURL("image/png");
+      link.click();
+    };
+
+    // Draw badges then render text
+    const promises: Promise<void>[] = [];
+    if (teamABadge) {
+      promises.push(new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => { ctx.drawImage(img, 24, midY - 12, 24, 24); resolve(); };
+        img.src = teamABadge;
+      }));
+    }
+    if (teamBBadge) {
+      const badgePadB = teamBBadge ? 32 : 0;
+      promises.push(new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => { ctx.drawImage(img, combined.width - 48 - badgePadB, midY - 12, 24, 24); resolve(); };
+        img.src = teamBBadge;
+      }));
+    }
+    Promise.all(promises).then(doRender);
+  }, [teamAName, teamBName, scoreA, scoreB, teamABadge, teamBBadge]);
+
   // [PREMIUM] playAnimation, stopAnimation, clearPath, clearAllPaths — reserved for pro subscribers
 
   // ─── Cursor ──────────────────────────────────────────────────────────────────
@@ -591,17 +739,49 @@ export function CoachLabApp() {
     const color = team === "A" ? BORDEAUX : OCEAN;
     const uiAccent = team === "A" ? "#FF4D88" : "#4D9BFF";
     const label = team === "A" ? teamAName : teamBName;
+    const badge = team === "A" ? teamABadge : teamBBadge;
     const isOpenTactic = openTacticTeam === team;
     const isEditingTeam = editingTeamId === team;
 
+    const uploadBadge = () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const result = ev.target?.result as string;
+          if (team === "A") setTeamABadge(result);
+          else setTeamBBadge(result);
+        };
+        reader.readAsDataURL(file);
+      };
+      input.click();
+    };
+
     return (
-      <div className="mb-3">
+      <div className="mb-0.5">
         {/* Team header card */}
-        <div className="rounded-lg mb-2 px-2 py-1.5" style={{
+        <div className="rounded-md mb-1 px-2 py-1" style={{
           background: `linear-gradient(135deg, ${uiAccent}18, ${uiAccent}06)`,
           border: `1px solid ${uiAccent}35`,
         }}>
           <div className="flex items-center justify-between gap-1">
+            {/* Badge upload */}
+            <button
+              onClick={uploadBadge}
+              className="flex-none w-6 h-6 rounded overflow-hidden flex items-center justify-center transition-all shrink-0"
+              style={{ border: `1px dashed ${uiAccent}50`, background: "rgba(0,0,0,0.3)" }}
+              title="Upload escudo do clube"
+            >
+              {badge ? (
+                <img src={badge} className="w-full h-full object-contain" alt="" />
+              ) : (
+                <span className="text-[9px]" style={{ color: `${uiAccent}80` }}>⬆</span>
+              )}
+            </button>
             {isEditingTeam ? (
               <input
                 autoFocus
@@ -647,86 +827,58 @@ export function CoachLabApp() {
           </div>
         </div>
 
-        {/* Formations */}
-        <div className="mb-2">
-          <button
-            onClick={() => { setOpenTacticTeam(isOpenTactic ? null : team); setOpenTacticGroup(null); }}
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg transition-all duration-200 mb-1"
-            style={{
-              background: isOpenTactic ? `linear-gradient(135deg, ${uiAccent}20, ${uiAccent}08)` : `linear-gradient(135deg, ${uiAccent}10, ${uiAccent}03)`,
-              border: `1px solid ${uiAccent}${isOpenTactic ? "55" : "28"}`,
-              boxShadow: isOpenTactic ? `0 0 14px ${uiAccent}25` : "none",
-            }}
-          >
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-black" style={{ color: uiAccent, filter: `drop-shadow(0 0 4px ${uiAccent}80)` }}>⬡</span>
-              <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: uiAccent }}>Formations</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[8px] font-mono px-1 py-0.5 rounded" style={{ color: uiAccent, background: `${uiAccent}18` }}>
-                {FORMATION_GROUPS.reduce((n, g) => n + g.formations.length, 0)}
-              </span>
-              <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isOpenTactic ? "rotate-180" : ""}`} style={{ color: uiAccent }} />
-            </div>
-          </button>
-
-          {isOpenTactic && (
-            <div className="rounded-lg overflow-hidden" style={{ background: "rgba(0,0,0,0.35)", border: `1px solid ${uiAccent}20` }}>
-              {/* Group tabs */}
-              <div className="flex gap-0.5 p-1" style={{ background: "rgba(0,0,0,0.2)" }}>
-                {FORMATION_GROUPS.map(grp => {
-                  const isActive = openTacticGroup === grp.label;
-                  return (
-                    <button
-                      key={grp.label}
-                      onClick={() => setOpenTacticGroup(isActive ? null : grp.label)}
-                      className="flex-1 text-[8px] py-1 rounded-md font-bold transition-all duration-150"
-                      style={isActive
-                        ? { background: `${uiAccent}28`, border: `1px solid ${uiAccent}65`, color: uiAccent, boxShadow: `0 0 8px ${uiAccent}35` }
-                        : { color: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.06)" }
-                      }
-                    >
-                      {grp.label}
-                    </button>
-                  );
-                })}
+        {/* Formations — always visible */}
+        <div className="mb-1 rounded-md overflow-hidden" style={{ background: "rgba(0,0,0,0.35)", border: `1px solid ${uiAccent}20` }}>
+          <div className="flex gap-0.5 p-1" style={{ background: "rgba(0,0,0,0.2)" }}>
+            {FORMATION_GROUPS.map(grp => {
+              const isActive = openTacticGroup === grp.label;
+              return (
+                <button
+                  key={grp.label}
+                  onClick={() => setOpenTacticGroup(isActive ? null : grp.label)}
+                  className="flex-1 text-[9px] py-0.5 rounded font-bold transition-all duration-150"
+                  style={isActive
+                    ? { background: `${uiAccent}28`, border: `1px solid ${uiAccent}65`, color: uiAccent, boxShadow: `0 0 8px ${uiAccent}35` }
+                    : { color: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.06)" }
+                  }
+                >
+                  {grp.label}
+                </button>
+              );
+            })}
+          </div>
+          {openTacticGroup && (() => {
+            const grp = FORMATION_GROUPS.find(g => g.label === openTacticGroup);
+            if (!grp) return null;
+            return (
+              <div className="p-1 grid grid-cols-2 gap-0.5">
+                {grp.formations.map(f => (
+                  <button
+                    key={f}
+                    onClick={() => applyFormation(team, f)}
+                    className="text-[9px] py-0.5 px-0.5 rounded font-mono text-center transition-all duration-150"
+                    style={{ lineHeight: 1.2, color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}
+                    onMouseEnter={e => {
+                      const el = e.currentTarget as HTMLButtonElement;
+                      el.style.background = `${uiAccent}22`;
+                      el.style.borderColor = `${uiAccent}60`;
+                      el.style.color = uiAccent;
+                      el.style.boxShadow = `0 0 6px ${uiAccent}30`;
+                    }}
+                    onMouseLeave={e => {
+                      const el = e.currentTarget as HTMLButtonElement;
+                      el.style.background = "rgba(255,255,255,0.02)";
+                      el.style.borderColor = "rgba(255,255,255,0.08)";
+                      el.style.color = "rgba(255,255,255,0.35)";
+                      el.style.boxShadow = "none";
+                    }}
+                  >
+                    {f}
+                  </button>
+                ))}
               </div>
-
-              {/* Formation grid */}
-              {openTacticGroup && (() => {
-                const grp = FORMATION_GROUPS.find(g => g.label === openTacticGroup);
-                if (!grp) return null;
-                return (
-                  <div className="p-1.5 grid grid-cols-2 gap-0.5">
-                    {grp.formations.map(f => (
-                      <button
-                        key={f}
-                        onClick={() => applyFormation(team, f)}
-                        className="text-[8px] py-1 px-0.5 rounded-md font-mono text-center transition-all duration-150"
-                        style={{ lineHeight: 1.2, color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}
-                        onMouseEnter={e => {
-                          const el = e.currentTarget as HTMLButtonElement;
-                          el.style.background = `${uiAccent}22`;
-                          el.style.borderColor = `${uiAccent}60`;
-                          el.style.color = uiAccent;
-                          el.style.boxShadow = `0 0 6px ${uiAccent}30`;
-                        }}
-                        onMouseLeave={e => {
-                          const el = e.currentTarget as HTMLButtonElement;
-                          el.style.background = "rgba(255,255,255,0.02)";
-                          el.style.borderColor = "rgba(255,255,255,0.08)";
-                          el.style.color = "rgba(255,255,255,0.35)";
-                          el.style.boxShadow = "none";
-                        }}
-                      >
-                        {f}
-                      </button>
-                    ))}
-                  </div>
-                );
-              })()}
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         {/* Player list */}
@@ -734,7 +886,7 @@ export function CoachLabApp() {
           {list.map(p => (
             <div key={p.id}>
               <div
-                className="flex items-center gap-1 group px-1 py-0.5 rounded-md transition-all duration-100"
+                className="flex items-center gap-1 group px-1 py-0.5 rounded transition-all duration-100"
                 style={{ background: "transparent" }}
                 onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = `${uiAccent}0a`; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
@@ -745,18 +897,24 @@ export function CoachLabApp() {
                   onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = p.visible ? "0.4" : "0.2"; }}>
                   {p.visible ? <Eye className="h-3 w-3" style={{ color: uiAccent }} /> : <EyeOff className="h-3 w-3" />}
                 </button>
-                {/* Number badge */}
-                <span
-                  className="flex-none w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"
-                  style={{
-                    background: p.type === "goalkeeper"
-                      ? (team === "A" ? "#4A0F22" : "#051E3E")
-                      : color,
-                    boxShadow: `0 0 6px ${uiAccent}55`,
-                  }}
-                >
-                  {p.number}
-                </span>
+                {/* Number / position badge */}
+                {(() => {
+                  const formation = team === "A" ? teamAFormation : teamBFormation;
+                  const posLabel = showPositions && formation ? POSITION_LABELS[formation]?.[p.number - 1] : null;
+                  return (
+                    <span
+                      className={`flex-none rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 ${posLabel ? "text-[7px] px-1 h-4" : "w-4 h-4 text-[8px]"}`}
+                      style={{
+                        background: p.type === "goalkeeper"
+                          ? (team === "A" ? "#4A0F22" : "#051E3E")
+                          : color,
+                        boxShadow: `0 0 6px ${uiAccent}55`,
+                      }}
+                    >
+                      {posLabel ?? p.number}
+                    </span>
+                  );
+                })()}
                 {/* Name */}
                 {editingNameId === p.id ? (
                   <input
@@ -822,22 +980,11 @@ export function CoachLabApp() {
       <div className="flex-1 flex overflow-hidden min-h-0">
 
         {/* ── Left panel ─────────────────────────────────────────────────────── */}
-        <div className={`flex-none border-r overflow-y-auto transition-all duration-200 ${leftOpen ? "w-48" : "w-0 overflow-hidden"}`}
+        <div className={`flex-none border-r overflow-hidden transition-all duration-200 ${leftOpen ? "w-52" : "w-0"}`}
           style={{ background: "linear-gradient(180deg, #0d1117 0%, #0a0e0c 100%)", borderColor: "rgba(255,255,255,0.06)" }}>
-          <div className="p-2 min-w-[12rem]">
-            {/* Reset names */}
-            <button
-              onClick={resetAllNames}
-              className="w-full flex items-center justify-center gap-1.5 text-[10px] px-2 py-1.5 rounded-lg font-medium tracking-wide transition-all duration-150 mb-3"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.65)" }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.12)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.95)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.65)"; }}
-            >
-              ↺ Reset All Names
-            </button>
-
+          <div className="p-1 min-w-[13rem]">
             <TeamPanel team="A" />
-            <div className="w-full h-px my-2" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)" }} />
+            <div className="w-full h-px my-0.5" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)" }} />
             <TeamPanel team="B" />
           </div>
         </div>
@@ -846,7 +993,7 @@ export function CoachLabApp() {
         <div ref={containerRef} className="flex-1 flex flex-col overflow-hidden min-w-0">
 
           {/* ── Action bar above field ───────────────────────────────────────── */}
-          <div className="flex-none flex justify-center items-center gap-1 py-1 bg-card/70 border-b border-border/40">
+          <div className="flex-none flex justify-center items-center gap-1 py-1 border-b" style={{ background: "#000", borderColor: "rgba(255,255,255,0.08)" }}>
             <Button size="sm" variant="ghost"
               className="h-7 px-2 gap-1 text-xs text-orange-400 hover:bg-orange-500/15 hover:text-orange-300"
               title="Reset everything" onClick={clearAll}>
@@ -854,16 +1001,78 @@ export function CoachLabApp() {
             </Button>
             <div className="w-px h-4 bg-border/50" />
             <Button size="sm" variant="ghost"
-              className="h-7 px-2 gap-1 text-xs text-green-400 hover:bg-green-500/15 hover:text-green-300"
-              title="Ball to center" onClick={ballToCenter}>
+              className={`h-7 px-2 gap-1 text-xs transition-all ${ball.x !== -500 ? "text-green-300 bg-green-500/20 ring-1 ring-green-500/40" : "text-green-400 hover:bg-green-500/15 hover:text-green-300"}`}
+              title="Toggle ball" onClick={ballToCenter}>
               ⚽<span>Bola</span>
             </Button>
             <div className="w-px h-4 bg-border/50" />
             <Button size="sm" variant="ghost"
-              className="h-7 px-2 gap-1 text-xs text-green-400 hover:bg-green-500/15 hover:text-green-300"
-              title="Screenshot (PNG)" onClick={takeScreenshot}>
-              <Camera className="h-3.5 w-3.5" /><span>Foto</span>
+              className={`h-7 px-2 gap-1 text-xs transition-all ${showPositions ? "text-yellow-300 bg-yellow-500/20 ring-1 ring-yellow-500/40" : "text-yellow-500/70 hover:bg-yellow-500/15 hover:text-yellow-300"}`}
+              title="Alternar números / posições" onClick={() => setShowPositions(v => !v)}>
+              <span className="font-semibold">{showPositions ? "Positions" : "Numbers"}</span>
             </Button>
+            <div className="w-px h-4 bg-border/50" />
+            <Button size="sm" variant="ghost"
+              className="h-7 px-2 gap-1 text-xs text-green-400 hover:bg-green-500/15 hover:text-green-300"
+              title="Screenshot do campo (PNG)" onClick={takeScreenshot}>
+              <Camera className="h-3.5 w-3.5" /><span>Field Photo</span>
+            </Button>
+            <div className="w-px h-4 bg-border/50" />
+            <Button size="sm" variant="ghost"
+              className="h-7 px-2 gap-1 text-xs text-blue-400 hover:bg-blue-500/15 hover:text-blue-300"
+              title="Screenshot com score (PNG)" onClick={takeScreenshotWithScore}>
+              <Camera className="h-3.5 w-3.5" /><span>Field Photo + Score</span>
+            </Button>
+          </div>
+
+          {/* ── Score Overlay ──────────────────────────────────────────────────── */}
+          <div className="flex-none flex items-center justify-center gap-4 py-2 px-4"
+            style={{ background: "linear-gradient(90deg, #0d1117 0%, #0f172a 50%, #0d1117 100%)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+
+            {/* Team A */}
+            <div className="flex items-center gap-2">
+              {teamABadge && <img src={teamABadge} className="h-7 w-7 object-contain rounded" alt="" />}
+              <span className="text-sm font-bold tracking-wide" style={{ color: "#CC0000", textShadow: "0 0 14px #CC000077" }}>
+                {teamAName}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setScoreA(s => Math.max(0, s - 1))}
+                  className="w-5 h-5 rounded text-xs flex items-center justify-center transition-all hover:bg-white/10"
+                  style={{ color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.1)" }}>−</button>
+                <span className="w-8 text-center text-2xl font-black tabular-nums" style={{ color: "#fff", textShadow: "0 0 20px rgba(255,255,255,0.35)", fontVariantNumeric: "tabular-nums" }}>
+                  {scoreA}
+                </span>
+                <button
+                  onClick={() => setScoreA(s => s + 1)}
+                  className="w-5 h-5 rounded text-xs flex items-center justify-center transition-all hover:bg-white/10"
+                  style={{ color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.1)" }}>+</button>
+              </div>
+            </div>
+
+            {/* VS */}
+            <span className="text-[10px] font-mono tracking-[0.4em] uppercase" style={{ color: "rgba(255,255,255,0.18)" }}>vs</span>
+
+            {/* Team B */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setScoreB(s => Math.max(0, s - 1))}
+                  className="w-5 h-5 rounded text-xs flex items-center justify-center transition-all hover:bg-white/10"
+                  style={{ color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.1)" }}>−</button>
+                <span className="w-8 text-center text-2xl font-black tabular-nums" style={{ color: "#fff", textShadow: "0 0 20px rgba(255,255,255,0.35)", fontVariantNumeric: "tabular-nums" }}>
+                  {scoreB}
+                </span>
+                <button
+                  onClick={() => setScoreB(s => s + 1)}
+                  className="w-5 h-5 rounded text-xs flex items-center justify-center transition-all hover:bg-white/10"
+                  style={{ color: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.1)" }}>+</button>
+              </div>
+              <span className="text-sm font-bold tracking-wide" style={{ color: "#0277BD", textShadow: "0 0 14px #0277BD77" }}>
+                {teamBName}
+              </span>
+              {teamBBadge && <img src={teamBBadge} className="h-7 w-7 object-contain rounded" alt="" />}
+            </div>
           </div>
 
           {/* ── Field ─────────────────────────────────────────────────────────── */}
