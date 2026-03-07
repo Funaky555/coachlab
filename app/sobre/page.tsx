@@ -65,7 +65,7 @@ export default function SobrePage() {
               </p>
               <p className="text-base">
                 O tabuleiro tático é gratuito para sempre. Os módulos avançados estão disponíveis
-                durante o período beta sem qualquer custo.
+                através do pagamento das respetivas subscrições.
               </p>
 
               <a
@@ -74,7 +74,7 @@ export default function SobrePage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-[#0066FF] hover:text-[#0066FF]/80 transition-colors text-sm font-medium"
               >
-                Ver portfolio do fundador →
+                Ver portfólio do fundador →
               </a>
             </div>
           </div>
