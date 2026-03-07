@@ -1,7 +1,14 @@
 export type EstadoJogador = "apto" | "condicionado" | "lesionado"
-export type PosicaoJogador = "GR" | "DD" | "DC" | "DE" | "MDC" | "MC" | "MD" | "MDE" | "MEE" | "MEE/MC" | "MDE/MC" | "AV" | "PL"
+export type PosicaoJogador = "GK" | "RB" | "CBR" | "CBL" | "LB" | "CM" | "CMR" | "CML" | "WR" | "OM" | "WL" | "ST"
 export type PePreferido = "direito" | "esquerdo" | "ambidestro"
 export type Setor = "GR" | "DEF" | "MED" | "AV"
+
+// Mapeamento de posições antigas → novas (migração automática)
+const POSICAO_MIGRATION: Record<string, PosicaoJogador> = {
+  GR: "GK", DD: "RB", DC: "CBR", DE: "LB",
+  MDC: "CM", MC: "CM", MD: "CMR", MDE: "WR", MEE: "WL",
+  "MEE/MC": "CML", "MDE/MC": "CMR", AV: "ST", PL: "ST",
+}
 
 export interface Jogador {
   id: string
@@ -20,10 +27,10 @@ export interface Jogador {
 
 export function getPrimarySetor(posicoes: PosicaoJogador[]): Setor {
   const p = posicoes[0]
-  if (!p || p === "GR") return "GR"
-  if (["DD", "DC", "DE"].includes(p)) return "DEF"
-  if (["MDC", "MC", "MD", "MDE", "MEE", "MEE/MC", "MDE/MC"].includes(p)) return "MED"
-  return "AV"
+  if (!p || p === "GK") return "GR"
+  if (["RB", "CBR", "CBL", "LB"].includes(p)) return "DEF"
+  if (["CM", "CMR", "CML"].includes(p)) return "MED"
+  return "AV" // WR, OM, WL, ST
 }
 
 export type TipoPresenca = "treino" | "ginasio" | "reuniao" | "jogo"
@@ -56,15 +63,18 @@ const KEYS = {
   disciplina: "coachlab_disciplina",
 }
 
+function migratePosicoes(posicoes: string[]): PosicaoJogador[] {
+  return posicoes.map(p => POSICAO_MIGRATION[p] ?? (p as PosicaoJogador))
+}
+
 // --- Jogadores ---
 export function getJogadores(): Jogador[] {
   if (typeof window === "undefined") return []
   try {
-    const raw = JSON.parse(localStorage.getItem(KEYS.jogadores) ?? "[]") as (Jogador & { posicao?: PosicaoJogador })[]
+    const raw = JSON.parse(localStorage.getItem(KEYS.jogadores) ?? "[]") as (Jogador & { posicao?: string })[]
     return raw.map(j => {
-      if (!j.posicoes && j.posicao) return { ...j, posicoes: [j.posicao] }
-      if (!j.posicoes) return { ...j, posicoes: ["DC" as PosicaoJogador] }
-      return j as Jogador
+      const posicoes = j.posicoes ? migratePosicoes(j.posicoes as string[]) : j.posicao ? migratePosicoes([j.posicao]) : ["CBR" as PosicaoJogador]
+      return { ...j, posicoes }
     })
   } catch { return [] }
 }

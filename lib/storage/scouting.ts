@@ -21,6 +21,64 @@ export interface JogadorObservado {
   notas: string
   dataObservacao: string
   jogosObservados: string[]
+
+  // Pessoal
+  altura?: number           // cm
+  peso?: number             // kg
+
+  // Clube
+  liga?: string
+  paisClube?: string
+  fimContrato?: string      // "YYYY-MM-DD"
+  valorMercado?: number     // euros
+
+  // Atributos físicos (0-100)
+  velocidade?: number
+  aceleracao?: number
+  resistencia?: number
+  forca?: number
+
+  // Estatísticas de jogo
+  golos?: number
+  assistencias?: number
+  cartoesAmarelos?: number
+  cartoesVermelhos?: number
+  jogosDisputados?: number
+  minutosJogados?: number
+
+  // Métricas GPS / físicas
+  sprintsPorJogo?: number
+  distanciaPorJogo?: number // km
+  velocidadeMaxima?: number // km/h
+  fcMedia?: number          // bpm
+
+  // Contrato
+  salario?: number          // €/mês
+  contactoAgente?: string
+}
+
+export interface FiltroScouting {
+  texto?: string
+  posicoes?: string[]
+  estados?: EstadoScouting[]
+  pePreferido?: PePreferido[]
+  nacionalidades?: string[]
+  alturaMin?: number; alturaMax?: number
+  pesoMin?: number; pesoMax?: number
+  idadeMin?: number; idadeMax?: number
+  avaliacaoMin?: number
+  velocidadeMin?: number
+  aceleracaoMin?: number
+  resistenciaMin?: number
+  forcaMin?: number
+  golosMin?: number
+  assistenciasMin?: number
+  jogosMin?: number
+  sprintsMin?: number
+  distanciaMin?: number
+  velMaxMin?: number
+  valorMercadoMax?: number
+  fimContratoAte?: string
 }
 
 const KEY = "coachlab_scouting"
@@ -46,6 +104,47 @@ export function updateJogadorObservado(id: string, data: Partial<Omit<JogadorObs
 
 export function deleteJogadorObservado(id: string): void {
   saveJogadoresObservados(getJogadoresObservados().filter(j => j.id !== id))
+}
+
+function calcIdade(dataNascimento?: string): number | undefined {
+  if (!dataNascimento) return undefined
+  return Math.floor((Date.now() - new Date(dataNascimento).getTime()) / (365.25 * 24 * 3600 * 1000))
+}
+
+export function filtrarJogadoresAvancado(filtro: FiltroScouting): JogadorObservado[] {
+  return getJogadoresObservados().filter(j => {
+    if (filtro.texto) {
+      const t = filtro.texto.toLowerCase()
+      if (!j.nome.toLowerCase().includes(t) && !j.clube.toLowerCase().includes(t) && !(j.nacionalidade?.toLowerCase().includes(t))) return false
+    }
+    if (filtro.posicoes?.length && !filtro.posicoes.includes(j.posicao)) return false
+    if (filtro.estados?.length && !filtro.estados.includes(j.estado)) return false
+    if (filtro.pePreferido?.length && !filtro.pePreferido.includes(j.pePreferido)) return false
+    if (filtro.nacionalidades?.length && !filtro.nacionalidades.some(n => j.nacionalidade?.toLowerCase().includes(n.toLowerCase()))) return false
+    if (filtro.alturaMin !== undefined && (j.altura ?? 0) < filtro.alturaMin) return false
+    if (filtro.alturaMax !== undefined && (j.altura ?? 999) > filtro.alturaMax) return false
+    if (filtro.pesoMin !== undefined && (j.peso ?? 0) < filtro.pesoMin) return false
+    if (filtro.pesoMax !== undefined && (j.peso ?? 999) > filtro.pesoMax) return false
+    if (filtro.idadeMin !== undefined || filtro.idadeMax !== undefined) {
+      const idade = calcIdade(j.dataNascimento)
+      if (filtro.idadeMin !== undefined && (idade ?? 0) < filtro.idadeMin) return false
+      if (filtro.idadeMax !== undefined && (idade ?? 999) > filtro.idadeMax) return false
+    }
+    if (filtro.avaliacaoMin !== undefined && j.avaliacao < filtro.avaliacaoMin) return false
+    if (filtro.velocidadeMin !== undefined && (j.velocidade ?? 0) < filtro.velocidadeMin) return false
+    if (filtro.aceleracaoMin !== undefined && (j.aceleracao ?? 0) < filtro.aceleracaoMin) return false
+    if (filtro.resistenciaMin !== undefined && (j.resistencia ?? 0) < filtro.resistenciaMin) return false
+    if (filtro.forcaMin !== undefined && (j.forca ?? 0) < filtro.forcaMin) return false
+    if (filtro.golosMin !== undefined && (j.golos ?? 0) < filtro.golosMin) return false
+    if (filtro.assistenciasMin !== undefined && (j.assistencias ?? 0) < filtro.assistenciasMin) return false
+    if (filtro.jogosMin !== undefined && (j.jogosDisputados ?? 0) < filtro.jogosMin) return false
+    if (filtro.sprintsMin !== undefined && (j.sprintsPorJogo ?? 0) < filtro.sprintsMin) return false
+    if (filtro.distanciaMin !== undefined && (j.distanciaPorJogo ?? 0) < filtro.distanciaMin) return false
+    if (filtro.velMaxMin !== undefined && (j.velocidadeMaxima ?? 0) < filtro.velMaxMin) return false
+    if (filtro.valorMercadoMax !== undefined && (j.valorMercado ?? Infinity) > filtro.valorMercadoMax) return false
+    if (filtro.fimContratoAte && j.fimContrato && j.fimContrato > filtro.fimContratoAte) return false
+    return true
+  })
 }
 
 export function filtrarPorPosicao(posicao: string): JogadorObservado[] {

@@ -2,22 +2,21 @@
 
 import type { PosicaoJogador } from "@/lib/storage/plantel"
 
-type PosCoord = { x: number; y: number; label: string }
+type PosCoord = { x: number; y: number; label: string; fontSize: number }
 
 const POSITIONS: Record<PosicaoJogador, PosCoord> = {
-  GR:       { x: 0.50, y: 0.08, label: "GR" },
-  DD:       { x: 0.82, y: 0.26, label: "DD" },
-  DC:       { x: 0.50, y: 0.24, label: "DC" },
-  DE:       { x: 0.18, y: 0.26, label: "DE" },
-  MDC:      { x: 0.50, y: 0.42, label: "MDC" },
-  MC:       { x: 0.50, y: 0.56, label: "MC" },
-  MD:       { x: 0.78, y: 0.50, label: "MD" },
-  MDE:      { x: 0.82, y: 0.68, label: "MDE" },
-  MEE:      { x: 0.18, y: 0.68, label: "MEE" },
-  "MEE/MC": { x: 0.22, y: 0.56, label: "MEE/MC" },
-  "MDE/MC": { x: 0.78, y: 0.56, label: "MDE/MC" },
-  AV:       { x: 0.35, y: 0.84, label: "AV" },
-  PL:       { x: 0.65, y: 0.84, label: "PL" },
+  GK:  { x: 0.50, y: 0.08, label: "GK",  fontSize: 9 },
+  RB:  { x: 0.85, y: 0.24, label: "RB",  fontSize: 9 },
+  CBR: { x: 0.63, y: 0.24, label: "CBR", fontSize: 7 },
+  CBL: { x: 0.37, y: 0.24, label: "CBL", fontSize: 7 },
+  LB:  { x: 0.15, y: 0.24, label: "LB",  fontSize: 9 },
+  CM:  { x: 0.50, y: 0.42, label: "CM",  fontSize: 9 },
+  CMR: { x: 0.68, y: 0.56, label: "CMR", fontSize: 7 },
+  CML: { x: 0.32, y: 0.56, label: "CML", fontSize: 7 },
+  WR:  { x: 0.85, y: 0.70, label: "WR",  fontSize: 9 },
+  OM:  { x: 0.50, y: 0.70, label: "OM",  fontSize: 9 },
+  WL:  { x: 0.15, y: 0.70, label: "WL",  fontSize: 9 },
+  ST:  { x: 0.50, y: 0.86, label: "ST",  fontSize: 9 },
 }
 
 interface PositionSelectorProps {
@@ -35,7 +34,7 @@ export function PositionSelector({ selected, onChange }: PositionSelectorProps) 
   }
 
   const W = 220
-  const H = 320
+  const H = 330
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -44,24 +43,23 @@ export function PositionSelector({ selected, onChange }: PositionSelectorProps) 
         width={W}
         height={H}
         viewBox={`0 0 ${W} ${H}`}
-        className="rounded-lg overflow-hidden"
-        style={{ background: "linear-gradient(180deg, #1a5c2a 0%, #1e6b2f 50%, #1a5c2a 100%)" }}
+        className="rounded-xl overflow-hidden"
+        style={{ background: "linear-gradient(180deg, #14532d 0%, #166534 40%, #14532d 100%)" }}
       >
-        {/* Pitch markings */}
         {/* Outer border */}
-        <rect x={10} y={10} width={W - 20} height={H - 20} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} rx={2} />
-        {/* Center line */}
-        <line x1={10} y1={H / 2} x2={W - 10} y2={H / 2} stroke="rgba(255,255,255,0.2)" strokeWidth={1} />
-        {/* Center circle */}
-        <circle cx={W / 2} cy={H / 2} r={28} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1} />
+        <rect x={8} y={8} width={W - 16} height={H - 16} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} rx={3} />
         {/* Penalty area top */}
-        <rect x={55} y={10} width={W - 110} height={50} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1} />
-        {/* Penalty area bottom */}
-        <rect x={55} y={H - 60} width={W - 110} height={50} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1} />
+        <rect x={60} y={8} width={W - 120} height={52} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth={1} />
         {/* Goal top */}
-        <rect x={85} y={10} width={50} height={12} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth={1} />
+        <rect x={88} y={8} width={44} height={14} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+        {/* Penalty area bottom */}
+        <rect x={60} y={H - 60} width={W - 120} height={52} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth={1} />
         {/* Goal bottom */}
-        <rect x={85} y={H - 22} width={50} height={12} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth={1} />
+        <rect x={88} y={H - 22} width={44} height={14} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+        {/* Center line */}
+        <line x1={8} y1={H / 2} x2={W - 8} y2={H / 2} stroke="rgba(255,255,255,0.18)" strokeWidth={1} />
+        {/* Center circle */}
+        <circle cx={W / 2} cy={H / 2} r={26} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth={1} />
 
         {/* Position dots */}
         {(Object.entries(POSITIONS) as [PosicaoJogador, PosCoord][]).map(([pos, coord]) => {
@@ -71,21 +69,25 @@ export function PositionSelector({ selected, onChange }: PositionSelectorProps) 
           const isPrimary = selected[0] === pos
           return (
             <g key={pos} onClick={() => toggle(pos)} style={{ cursor: "pointer" }}>
+              {/* Outer glow for selected */}
+              {isSelected && (
+                <circle cx={cx} cy={cy} r={20} fill={isPrimary ? "#00D66C30" : "#00D66C18"} />
+              )}
               <circle
                 cx={cx}
                 cy={cy}
-                r={14}
-                fill={isSelected ? (isPrimary ? "#00D66C" : "#00D66C99") : "rgba(0,0,0,0.55)"}
-                stroke={isSelected ? "#00D66C" : "rgba(255,255,255,0.5)"}
-                strokeWidth={isSelected ? 2 : 1}
+                r={16}
+                fill={isSelected ? (isPrimary ? "#00D66C" : "#00D66C88") : "rgba(0,0,0,0.6)"}
+                stroke={isSelected ? "#00D66C" : "rgba(255,255,255,0.4)"}
+                strokeWidth={isSelected ? 2 : 1.5}
               />
               <text
                 x={cx}
                 y={cy + 4}
                 textAnchor="middle"
-                fontSize={pos.length > 2 ? "6" : "8"}
-                fontWeight="700"
-                fill={isSelected ? "#000" : "rgba(255,255,255,0.85)"}
+                fontSize={coord.fontSize}
+                fontWeight="800"
+                fill={isSelected ? (isPrimary ? "#000" : "#fff") : "rgba(255,255,255,0.9)"}
                 style={{ pointerEvents: "none", userSelect: "none" }}
               >
                 {coord.label}
@@ -101,7 +103,7 @@ export function PositionSelector({ selected, onChange }: PositionSelectorProps) 
               key={p}
               className="text-xs px-2 py-0.5 rounded-full font-semibold"
               style={{
-                background: i === 0 ? "#00D66C" : "#00D66C33",
+                background: i === 0 ? "#00D66C" : "#00D66C22",
                 color: i === 0 ? "#000" : "#00D66C",
                 border: "1px solid #00D66C55",
               }}

@@ -57,7 +57,7 @@ function ocorrenciaBadge(tipo: TipoOcorrencia, gravidade: GravidadeOcorrencia) {
 
 const emptyForm = {
   nome: "", numero: 1,
-  posicoes: ["DC"] as PosicaoJogador[],
+  posicoes: ["CBR"] as PosicaoJogador[],
   estado: "apto" as EstadoJogador,
   foto: "", dataNascimento: "", nacionalidade: "",
   altura: "", peso: "",
