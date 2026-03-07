@@ -15,7 +15,6 @@ const freeFeatures = [
   { icon: Palette, title: "Fotos de Jogadores", desc: "Upload de foto personalizada para cada jogador" },
   { icon: Palette, title: "Cores das Equipas", desc: "Altera a cor dos pinos para distinguir equipa da casa e visitante" },
   { icon: Palette, title: "Limpar Tabuleiro", desc: "Reset rápido para recomeçar a análise" },
-  { icon: Palette, title: "Cronómetro", desc: "Contador de tempo integrado para simular partes do jogo" },
 ]
 
 const proModules = [

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, Zap } from "lucide-react"
+import { CheckCircle } from "lucide-react"
 import Link from "next/link"
 
 const plans = [
@@ -15,12 +15,13 @@ const plans = [
     cta: "Começar grátis",
     href: "/board",
     features: [
-      "Tabuleiro tático interativo",
-      "24 formações pré-configuradas",
-      "16 vistas de campo",
-      "Ferramentas de desenho completas",
-      "Upload de fotos de jogadores",
-      "Undo/Redo ilimitado",
+      "Nomes de Jogadores — alteração do nome de cada jogador diretamente no tabuleiro",
+      "Score do Jogo — marcador editável com o resultado em tempo real",
+      "Pinos e Formações Táticas — drag & drop com múltiplas formações disponíveis",
+      "Exportar como PNG — guarda o tabuleiro em imagem de alta qualidade",
+      "Fotos de Jogadores — upload de foto personalizada para cada jogador",
+      "Cores das Equipas — distinguir equipa da casa e visitante",
+      "Limpar Tabuleiro — reset rápido para recomeçar a análise",
     ],
     highlight: false,
   },
@@ -85,18 +86,6 @@ export function PricingSection() {
           </h2>
         </motion.div>
 
-        {/* Beta banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex items-center justify-center gap-2 mb-12"
-        >
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF6B35]/10 border border-[#FF6B35]/30 text-[#FF6B35] text-sm">
-            <Zap className="w-4 h-4" />
-            Durante o período beta, todos os módulos PRO estão completamente gratuitos
-          </div>
-        </motion.div>
 
         <div className="grid md:grid-cols-3 gap-6">
           {plans.map((plan, i) => (
