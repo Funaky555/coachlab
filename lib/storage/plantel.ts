@@ -1,15 +1,29 @@
 export type EstadoJogador = "apto" | "condicionado" | "lesionado"
 export type PosicaoJogador = "GR" | "DD" | "DC" | "DE" | "MDC" | "MC" | "MD" | "MDE" | "MEE" | "MEE/MC" | "MDE/MC" | "AV" | "PL"
+export type PePreferido = "direito" | "esquerdo" | "ambidestro"
+export type Setor = "GR" | "DEF" | "MED" | "AV"
 
 export interface Jogador {
   id: string
   nome: string
   numero: number
-  posicao: PosicaoJogador
+  posicoes: PosicaoJogador[]
   estado: EstadoJogador
   foto?: string
   dataNascimento?: string
+  nacionalidade?: string
+  altura?: number
+  peso?: number
+  pePreferido?: PePreferido
   notas?: string
+}
+
+export function getPrimarySetor(posicoes: PosicaoJogador[]): Setor {
+  const p = posicoes[0]
+  if (!p || p === "GR") return "GR"
+  if (["DD", "DC", "DE"].includes(p)) return "DEF"
+  if (["MDC", "MC", "MD", "MDE", "MEE", "MEE/MC", "MDE/MC"].includes(p)) return "MED"
+  return "AV"
 }
 
 export type TipoPresenca = "treino" | "ginasio" | "reuniao" | "jogo"
@@ -45,7 +59,14 @@ const KEYS = {
 // --- Jogadores ---
 export function getJogadores(): Jogador[] {
   if (typeof window === "undefined") return []
-  try { return JSON.parse(localStorage.getItem(KEYS.jogadores) ?? "[]") } catch { return [] }
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEYS.jogadores) ?? "[]") as (Jogador & { posicao?: PosicaoJogador })[]
+    return raw.map(j => {
+      if (!j.posicoes && j.posicao) return { ...j, posicoes: [j.posicao] }
+      if (!j.posicoes) return { ...j, posicoes: ["DC" as PosicaoJogador] }
+      return j as Jogador
+    })
+  } catch { return [] }
 }
 
 export function saveJogadores(data: Jogador[]): void {
@@ -80,6 +101,10 @@ export function addPresenca(p: Omit<RegistoPresenca, "id">): RegistoPresenca {
   return novo
 }
 
+export function getPresencasByJogador(jogadorId: string): RegistoPresenca[] {
+  return getPresencas().filter(p => p.jogadorId === jogadorId)
+}
+
 export function getPresencasByData(data: string): RegistoPresenca[] {
   return getPresencas().filter(p => p.data === data)
 }
@@ -88,6 +113,10 @@ export function getPresencasByData(data: string): RegistoPresenca[] {
 export function getOcorrencias(): OcorrenciaDisciplinar[] {
   if (typeof window === "undefined") return []
   try { return JSON.parse(localStorage.getItem(KEYS.disciplina) ?? "[]") } catch { return [] }
+}
+
+export function getOcorrenciasByJogador(jogadorId: string): OcorrenciaDisciplinar[] {
+  return getOcorrencias().filter(o => o.jogadorId === jogadorId)
 }
 
 export function addOcorrencia(o: Omit<OcorrenciaDisciplinar, "id">): OcorrenciaDisciplinar {
