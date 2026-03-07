@@ -117,20 +117,6 @@ export function HeroSection() {
           </Link>
         </motion.div>
 
-        {/* Stats — apenas beta gratuito */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
-          className="mt-12 text-center"
-        >
-          <div className="inline-flex flex-col items-center">
-            <div className="text-4xl font-bold text-gradient-brand mb-1" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-              100%
-            </div>
-            <div className="text-sm text-muted-foreground">Gratuito durante beta</div>
-          </div>
-        </motion.div>
       </div>
     </section>
   )
