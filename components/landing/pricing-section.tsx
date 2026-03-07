@@ -87,7 +87,7 @@ export function PricingSection() {
         </motion.div>
 
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 mt-4">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
@@ -106,19 +106,16 @@ export function PricingSection() {
                   : "hsl(var(--card) / 0.5)",
               }}
             >
-              {plan.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="px-3 py-1 rounded-full bg-[#00D66C] text-black text-xs font-bold">
-                    {plan.badge}
-                  </span>
-                </div>
-              )}
-
               {plan.highlight && (
                 <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl bg-gradient-to-r from-[#00D66C] to-[#0066FF]" />
               )}
 
               <div className="mb-4">
+                {plan.badge && (
+                  <span className="inline-block mb-3 px-3 py-1 rounded-full bg-[#00D66C] text-black text-xs font-bold">
+                    {plan.badge}
+                  </span>
+                )}
                 <h3 className="text-lg font-bold mb-1">{plan.name}</h3>
                 <p className="text-sm text-muted-foreground">{plan.description}</p>
               </div>
