@@ -1,26 +1,34 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Star, User } from "lucide-react"
+import { geoNaturalEarth1, geoPath, geoCentroid } from "d3-geo"
+import * as topojson from "topojson-client"
+import type { Topology, Objects } from "topojson-specification"
+import type { Feature, Geometry, GeoJsonProperties } from "geojson"
 import { type JogadorObservado } from "@/lib/storage/scouting"
-import { COUNTRY_PATHS, NATIONALITY_TO_CODE } from "./world-map-data"
+import { NATIONALITY_TO_CODE, UN_TO_ISO3, COUNTRY_NAMES } from "./world-map-data"
 
 interface Props {
   jogadores: JogadorObservado[]
   onEdit: (j: JogadorObservado) => void
 }
 
+const W = 960
+const H = 500
+
+const projection = geoNaturalEarth1()
+  .scale(153)
+  .translate([W / 2, H / 2])
+
+const pathGen = geoPath(projection)
+
 function getCountryColor(count: number): string {
-  if (count === 0) return "#1e293b"
+  if (count === 0) return "#334155"
   if (count === 1) return "#00D66C33"
   if (count <= 3) return "#00D66C66"
   if (count <= 6) return "#00D66C99"
-  return "#00D66C"
-}
-
-function getCountryStroke(count: number): string {
-  if (count === 0) return "rgba(255,255,255,0.08)"
   return "#00D66C"
 }
 
@@ -33,7 +41,7 @@ const ESTADOS_CONFIG: Record<string, { label: string; color: string }> = {
 
 const COUNTRY_FLAGS: Record<string, string> = {
   PRT: "🇵🇹", ESP: "🇪🇸", FRA: "🇫🇷", DEU: "🇩🇪", ITA: "🇮🇹",
-  ENG: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", NLD: "🇳🇱", BEL: "🇧🇪", BRA: "🇧🇷", ARG: "🇦🇷",
+  GBR: "🇬🇧", NLD: "🇳🇱", BEL: "🇧🇪", BRA: "🇧🇷", ARG: "🇦🇷",
   URY: "🇺🇾", COL: "🇨🇴", CHL: "🇨🇱", PER: "🇵🇪", VEN: "🇻🇪",
   ECU: "🇪🇨", MEX: "🇲🇽", USA: "🇺🇸", CAN: "🇨🇦", SEN: "🇸🇳",
   CIV: "🇨🇮", GHA: "🇬🇭", NGA: "🇳🇬", CMR: "🇨🇲", MAR: "🇲🇦",
@@ -46,11 +54,25 @@ const COUNTRY_FLAGS: Record<string, string> = {
   SVK: "🇸🇰", BIH: "🇧🇦", MNE: "🇲🇪",
 }
 
-export function WorldMap({ jogadores, onEdit }: Props) {
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; name: string; count: number } | null>(null)
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+type GeoFeature = Feature<Geometry, GeoJsonProperties>
 
-  // Agrupar jogadores por código de país
+export function WorldMap({ jogadores, onEdit }: Props) {
+  const [geographies, setGeographies] = useState<GeoFeature[]>([])
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; name: string; count: number } | null>(null)
+
+  useEffect(() => {
+    fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
+      .then(r => r.json())
+      .then((topo: Topology<Objects>) => {
+        const countries = topojson.feature(topo, topo.objects.countries)
+        if (countries.type === "FeatureCollection") {
+          setGeographies(countries.features as GeoFeature[])
+        }
+      })
+      .catch(console.error)
+  }, [])
+
   const playersByCountry = useMemo(() => {
     const map: Record<string, JogadorObservado[]> = {}
     for (const j of jogadores) {
@@ -66,22 +88,37 @@ export function WorldMap({ jogadores, onEdit }: Props) {
   }, [jogadores])
 
   const selectedPlayers = selectedCountry ? (playersByCountry[selectedCountry] ?? []) : []
-  const selectedCountryData = COUNTRY_PATHS.find(c => c.code === selectedCountry)
+  const selectedCountryName = selectedCountry ? (COUNTRY_NAMES[selectedCountry] ?? selectedCountry) : ""
 
-  // Estatísticas para a legenda
-  const totalComPais = Object.values(playersByCountry).reduce((sum, arr) => sum + arr.length, 0)
+  const totalComPais = Object.values(playersByCountry).reduce((s, a) => s + a.length, 0)
   const semPais = jogadores.length - totalComPais
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget
+    const rect = svg.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width * W
+    const y = (e.clientY - rect.top) / rect.height * H
+    const el = e.target as SVGElement
+    const code = el.getAttribute("data-code")
+    const countAttr = el.getAttribute("data-count")
+    if (code) {
+      setTooltip({ x, y, name: COUNTRY_NAMES[code] ?? code, count: Number(countAttr ?? 0) })
+    } else {
+      setTooltip(null)
+    }
+  }, [])
 
   return (
     <div className="relative">
-      {/* Header info */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm text-muted-foreground">
-          {jogadores.length} jogadores • {Object.keys(playersByCountry).length} países • {semPais > 0 && <span>{semPais} sem país definido</span>}
+          {jogadores.length} jogadores • {Object.keys(playersByCountry).length} países
+          {semPais > 0 && <span> • {semPais} sem país definido</span>}
         </div>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: "#00D66C33", border: "1px solid #00D66C" }} /> 1 jogador
+            <div className="w-3 h-3 rounded-sm" style={{ background: "#00D66C33", border: "1px solid #00D66C" }} /> 1
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm" style={{ background: "#00D66C66", border: "1px solid #00D66C" }} /> 2–3
@@ -95,88 +132,90 @@ export function WorldMap({ jogadores, onEdit }: Props) {
         </div>
       </div>
 
-      {/* SVG Map */}
+      {/* Mapa */}
       <div className="relative rounded-xl overflow-hidden border border-border" style={{ background: "#0f172a" }}>
         <svg
-          viewBox="0 0 600 340"
+          viewBox={`0 0 ${W} ${H}`}
           className="w-full"
           style={{ display: "block" }}
+          onMouseMove={handleMouseMove}
           onMouseLeave={() => setTooltip(null)}
         >
-          {/* Oceano */}
-          <rect width={600} height={340} fill="#0f172a" />
+          <rect width={W} height={H} fill="#0f172a" />
 
-          {COUNTRY_PATHS.map(country => {
-            const count = playersByCountry[country.code]?.length ?? 0
-            const isSelected = selectedCountry === country.code
-            // Escalar as coordenadas de 1000x500 para 600x340
-            const scaledPath = country.path
-              .replace(/(\d+\.?\d*),(\d+\.?\d*)/g, (_, x, y) =>
-                `${(parseFloat(x) * 0.6).toFixed(1)},${(parseFloat(y) * 0.68).toFixed(1)}`
-              )
-            const scaledCx = country.cx * 0.6
-            const scaledCy = country.cy * 0.68
+          {geographies.map((geo) => {
+            const id = String((geo as GeoFeature & { id?: string | number }).id ?? "")
+            const iso3 = UN_TO_ISO3[id]
+            const count = iso3 ? (playersByCountry[iso3]?.length ?? 0) : 0
+            const isSelected = iso3 === selectedCountry
+            const d = pathGen(geo) ?? ""
+            if (!d) return null
 
             return (
-              <g
-                key={country.code}
-                style={{ cursor: count > 0 ? "pointer" : "default" }}
-                onClick={() => count > 0 && setSelectedCountry(country.code)}
-                onMouseEnter={e => {
-                  const svg = (e.target as SVGElement).closest("svg")!
-                  const rect = svg.getBoundingClientRect()
-                  setTooltip({
-                    x: (e.clientX - rect.left) / rect.width * 600,
-                    y: (e.clientY - rect.top) / rect.height * 340,
-                    name: country.name,
-                    count,
-                  })
+              <path
+                key={id}
+                d={d}
+                data-code={iso3 ?? ""}
+                data-count={count}
+                fill={isSelected ? "#00D66C" : getCountryColor(count)}
+                stroke="rgba(255,255,255,0.12)"
+                strokeWidth={0.4}
+                style={{
+                  cursor: count > 0 ? "pointer" : "default",
+                  filter: isSelected ? "drop-shadow(0 0 6px #00D66C)" : undefined,
+                  transition: "fill 0.15s",
                 }}
-                onMouseLeave={() => setTooltip(null)}
-              >
-                <path
-                  d={scaledPath}
-                  fill={isSelected ? "#00D66C" : getCountryColor(count)}
-                  stroke={isSelected ? "#fff" : getCountryStroke(count)}
-                  strokeWidth={isSelected ? 1.5 : 0.5}
-                  opacity={isSelected ? 1 : 0.95}
+                onClick={() => {
+                  if (iso3 && count > 0) setSelectedCountry(iso3)
+                }}
+              />
+            )
+          })}
+
+          {/* Badges de contagem */}
+          {geographies.map((geo) => {
+            const id = String((geo as GeoFeature & { id?: string | number }).id ?? "")
+            const iso3 = UN_TO_ISO3[id]
+            const count = iso3 ? (playersByCountry[iso3]?.length ?? 0) : 0
+            if (!count || !iso3) return null
+            const isSelected = iso3 === selectedCountry
+            const centroid = geoCentroid(geo)
+            const coords = projection(centroid as [number, number])
+            if (!coords) return null
+            const [cx, cy] = coords
+            return (
+              <g key={`badge-${id}`} style={{ pointerEvents: "none" }}>
+                <circle
+                  cx={cx} cy={cy} r={9}
+                  fill={isSelected ? "#fff" : "#00D66C"}
+                  stroke={isSelected ? "#00D66C" : "#0f172a"}
+                  strokeWidth={1}
                 />
-                {/* Badge com contagem */}
-                {count > 0 && (
-                  <>
-                    <circle
-                      cx={scaledCx} cy={scaledCy - 8} r={7}
-                      fill={isSelected ? "#fff" : "#00D66C"}
-                      stroke={isSelected ? "#00D66C" : "#000"}
-                      strokeWidth={0.5}
-                    />
-                    <text
-                      x={scaledCx} y={scaledCy - 5}
-                      textAnchor="middle"
-                      fontSize={6.5}
-                      fontWeight="800"
-                      fill={isSelected ? "#00D66C" : "#000"}
-                      style={{ pointerEvents: "none", userSelect: "none" }}
-                    >
-                      {count}
-                    </text>
-                  </>
-                )}
+                <text
+                  x={cx} y={cy + 3.5}
+                  textAnchor="middle"
+                  fontSize={8}
+                  fontWeight="800"
+                  fill={isSelected ? "#00D66C" : "#0f172a"}
+                  style={{ userSelect: "none" }}
+                >
+                  {count}
+                </text>
               </g>
             )
           })}
 
           {/* Tooltip */}
-          {tooltip && (
+          {tooltip && tooltip.name && (
             <g style={{ pointerEvents: "none" }}>
               <rect
-                x={Math.min(tooltip.x + 8, 520)} y={Math.max(tooltip.y - 28, 4)}
-                width={tooltip.count > 0 ? 140 : 100} height={24}
-                rx={4} fill="rgba(0,0,0,0.85)" stroke="rgba(255,255,255,0.1)" strokeWidth={0.5}
+                x={Math.min(tooltip.x + 10, W - 160)} y={Math.max(tooltip.y - 32, 4)}
+                width={tooltip.count > 0 ? 155 : 110} height={24}
+                rx={5} fill="rgba(0,0,0,0.88)" stroke="rgba(255,255,255,0.15)" strokeWidth={0.5}
               />
               <text
-                x={Math.min(tooltip.x + 16, 528)} y={Math.max(tooltip.y - 12, 18)}
-                fontSize={9} fill="#fff" fontWeight="600"
+                x={Math.min(tooltip.x + 18, W - 152)} y={Math.max(tooltip.y - 15, 19)}
+                fontSize={10} fill="#fff" fontWeight="600"
               >
                 {tooltip.name}{tooltip.count > 0 ? ` — ${tooltip.count} jogador${tooltip.count !== 1 ? "es" : ""}` : ""}
               </text>
@@ -185,11 +224,10 @@ export function WorldMap({ jogadores, onEdit }: Props) {
         </svg>
       </div>
 
-      {/* Painel lateral — jogadores do país */}
+      {/* Painel lateral */}
       <AnimatePresence>
-        {selectedCountry && selectedCountryData && (
+        {selectedCountry && (
           <>
-            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -197,7 +235,6 @@ export function WorldMap({ jogadores, onEdit }: Props) {
               className="fixed inset-0 bg-black/40 z-40"
               onClick={() => setSelectedCountry(null)}
             />
-            {/* Painel */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
@@ -205,14 +242,13 @@ export function WorldMap({ jogadores, onEdit }: Props) {
               transition={{ type: "spring", damping: 28, stiffness: 300 }}
               className="fixed right-0 top-0 h-full w-80 bg-background border-l border-border z-50 flex flex-col shadow-2xl"
             >
-              {/* Header */}
               <div className="flex items-center justify-between px-4 py-4 border-b border-border">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{COUNTRY_FLAGS[selectedCountry] ?? "🌍"}</span>
-                    <div>
-                      <div className="font-bold">{selectedCountryData.name}</div>
-                      <div className="text-xs text-muted-foreground">{selectedPlayers.length} jogador{selectedPlayers.length !== 1 ? "es" : ""}</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{COUNTRY_FLAGS[selectedCountry] ?? "🌍"}</span>
+                  <div>
+                    <div className="font-bold">{selectedCountryName}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {selectedPlayers.length} jogador{selectedPlayers.length !== 1 ? "es" : ""}
                     </div>
                   </div>
                 </div>
@@ -224,7 +260,6 @@ export function WorldMap({ jogadores, onEdit }: Props) {
                 </button>
               </div>
 
-              {/* Lista de jogadores */}
               <div className="flex-1 overflow-y-auto p-3 space-y-2">
                 {selectedPlayers.map(j => {
                   const ec = ESTADOS_CONFIG[j.estado]
