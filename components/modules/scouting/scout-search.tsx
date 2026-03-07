@@ -353,11 +353,11 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         </FilterSection>
 
         {/* Secção: Atributos */}
-        <FilterSection title="Atributos (0–100)" id="atributos" open={openSections.includes("atributos")} onToggle={() => toggleSection("atributos")}>
-          <MinSlider label="Velocidade mín" min={0} max={100} value={velocidadeMin} onChange={setVelocidadeMin} />
-          <MinSlider label="Aceleração mín" min={0} max={100} value={aceleracaoMin} onChange={setAceleracaoMin} />
-          <MinSlider label="Resistência mín" min={0} max={100} value={resistenciaMin} onChange={setResistenciaMin} />
-          <MinSlider label="Força mín" min={0} max={100} value={forcaMin} onChange={setForcaMin} />
+        <FilterSection title="Atributos (0–20)" id="atributos" open={openSections.includes("atributos")} onToggle={() => toggleSection("atributos")}>
+          <MinSlider label="Velocidade mín" min={0} max={20} value={velocidadeMin} onChange={setVelocidadeMin} />
+          <MinSlider label="Aceleração mín" min={0} max={20} value={aceleracaoMin} onChange={setAceleracaoMin} />
+          <MinSlider label="Resistência mín" min={0} max={20} value={resistenciaMin} onChange={setResistenciaMin} />
+          <MinSlider label="Força mín" min={0} max={20} value={forcaMin} onChange={setForcaMin} />
         </FilterSection>
 
         {/* Secção: Estatísticas */}

@@ -407,12 +407,12 @@ export function ScoutingModule() {
             {/* STATS */}
             <TabsContent value="stats" className="space-y-5">
               <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Atributos Físicos (0–100)</div>
+                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Atributos Físicos (0–20)</div>
                 <div className="grid grid-cols-2 gap-3">
-                  <NumInput label="Velocidade" value={form.velocidade} onChange={v => setForm({...form, velocidade: v})} placeholder="75" min={0} max={100} />
-                  <NumInput label="Aceleração" value={form.aceleracao} onChange={v => setForm({...form, aceleracao: v})} placeholder="78" min={0} max={100} />
-                  <NumInput label="Resistência" value={form.resistencia} onChange={v => setForm({...form, resistencia: v})} placeholder="72" min={0} max={100} />
-                  <NumInput label="Força" value={form.forca} onChange={v => setForm({...form, forca: v})} placeholder="65" min={0} max={100} />
+                  <NumInput label="Velocidade" value={form.velocidade} onChange={v => setForm({...form, velocidade: v})} placeholder="15" min={0} max={20} />
+                  <NumInput label="Aceleração" value={form.aceleracao} onChange={v => setForm({...form, aceleracao: v})} placeholder="16" min={0} max={20} />
+                  <NumInput label="Resistência" value={form.resistencia} onChange={v => setForm({...form, resistencia: v})} placeholder="14" min={0} max={20} />
+                  <NumInput label="Força" value={form.forca} onChange={v => setForm({...form, forca: v})} placeholder="13" min={0} max={20} />
                 </div>
               </div>
               <div>
