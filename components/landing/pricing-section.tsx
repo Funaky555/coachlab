@@ -36,7 +36,7 @@ const plans = [
     features: [
       "Tudo do plano Free",
       "Gestão completa do plantel",
-      "Planeamento de treinos (microciclo)",
+      "Planeamento de treino",
       "Análise de jogo e estatísticas",
       "Scouting e base de dados",
       "Dep. médico e monitorização",

@@ -15,7 +15,7 @@ export default function SobrePage() {
             </div>
             <h1 className="text-5xl md:text-6xl font-bold" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
               Construído por um{" "}
-              <span className="text-gradient-brand">treinador real</span>
+              <span className="text-gradient-brand">Treinador de Futebol</span>
             </h1>
           </div>
 
