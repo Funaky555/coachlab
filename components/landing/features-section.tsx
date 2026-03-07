@@ -8,10 +8,14 @@ import {
 } from "lucide-react"
 
 const freeFeatures = [
-  { icon: Palette, title: "Tabuleiro Tático Interativo", desc: "Canvas com drag & drop, 24 formações, 16 vistas de campo" },
-  { icon: Palette, title: "Ferramentas de Desenho", desc: "Setas, linhas, zonas, texto e muito mais" },
-  { icon: Palette, title: "Undo/Redo Ilimitado", desc: "50 snapshots de histórico" },
-  { icon: Palette, title: "Fotos de Jogadores", desc: "Upload de fotos para cada jogador" },
+  { icon: Palette, title: "Nomes de Jogadores", desc: "Alteração do nome de cada jogador diretamente no tabuleiro" },
+  { icon: Palette, title: "Score do Jogo", desc: "Marcador editável com o resultado em tempo real" },
+  { icon: Palette, title: "Pinos e Formações Táticas", desc: "Drag & drop dos jogadores com múltiplas formações disponíveis" },
+  { icon: Palette, title: "Exportar como PNG", desc: "Guarda o tabuleiro em imagem de alta qualidade" },
+  { icon: Palette, title: "Fotos de Jogadores", desc: "Upload de foto personalizada para cada jogador" },
+  { icon: Palette, title: "Cores das Equipas", desc: "Altera a cor dos pinos para distinguir equipa da casa e visitante" },
+  { icon: Palette, title: "Limpar Tabuleiro", desc: "Reset rápido para recomeçar a análise" },
+  { icon: Palette, title: "Cronómetro", desc: "Contador de tempo integrado para simular partes do jogo" },
 ]
 
 const proModules = [
