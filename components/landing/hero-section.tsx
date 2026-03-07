@@ -36,8 +36,8 @@ export function HeroSection() {
           <img
             src="/logo.png"
             alt="CoachLab"
-            width={120}
-            height={120}
+            width={160}
+            height={160}
             className="rounded-full glow-green mx-auto"
           />
         </motion.div>
@@ -74,8 +74,7 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed"
         >
-          Gere o teu plantel, planeia treinos, analisa jogos e faz scouting — tudo numa só aplicação.
-          Criada por treinadores, para treinadores.
+          Gere o teu plantel, planeia treinos, analisa jogos, faz scouting, gere o departamento médico, entre outros — tudo numa só aplicação.
         </motion.p>
 
         {/* CTAs */}
@@ -106,25 +105,19 @@ export function HeroSection() {
           </Link>
         </motion.div>
 
-        {/* Stats */}
+        {/* Stats — apenas beta gratuito */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.7 }}
-          className="mt-16 grid grid-cols-3 gap-8 text-center"
+          className="mt-12 text-center"
         >
-          {[
-            { value: "8", label: "Módulos completos" },
-            { value: "UEFA B", label: "Certificação do fundador" },
-            { value: "100%", label: "Gratuito durante beta" },
-          ].map((stat) => (
-            <div key={stat.label}>
-              <div className="text-3xl font-bold text-gradient-brand mb-1" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-                {stat.value}
-              </div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
+          <div className="inline-flex flex-col items-center">
+            <div className="text-4xl font-bold text-gradient-brand mb-1" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
+              100%
             </div>
-          ))}
+            <div className="text-sm text-muted-foreground">Gratuito durante beta</div>
+          </div>
         </motion.div>
       </div>
     </section>

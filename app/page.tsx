@@ -1,9 +1,5 @@
 import Link from "next/link"
 import { HeroSection } from "@/components/landing/hero-section"
-import { FounderSection } from "@/components/landing/founder-section"
-import { FeaturesSection } from "@/components/landing/features-section"
-import { PricingSection } from "@/components/landing/pricing-section"
-import { CtaSection } from "@/components/landing/cta-section"
 
 export default function HomePage() {
   return (
@@ -19,8 +15,9 @@ export default function HomePage() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-          <a href="#features" className="hover:text-foreground transition-colors">Funcionalidades</a>
-          <a href="#pricing" className="hover:text-foreground transition-colors">Preços</a>
+          <Link href="/sobre" className="hover:text-foreground transition-colors">Sobre</Link>
+          <Link href="/funcionalidades" className="hover:text-foreground transition-colors">Funcionalidades</Link>
+          <Link href="/precos" className="hover:text-foreground transition-colors">Preços</Link>
           <Link href="/board" className="hover:text-foreground transition-colors">Tabuleiro</Link>
           <Link
             href="/dashboard/plantel"
@@ -44,13 +41,9 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Content */}
+      {/* Content — apenas Hero */}
       <main>
         <HeroSection />
-        <FounderSection />
-        <FeaturesSection />
-        <PricingSection />
-        <CtaSection />
       </main>
 
       {/* Footer */}
