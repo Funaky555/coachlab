@@ -193,10 +193,10 @@ export function ScoutingModule() {
 
   return (
     <div className="relative min-h-screen" style={{ background: "#050e1a" }}>
-      {/* Fundo de campo de futebol */}
+      {/* Fundo imagem */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 0%, #00D66C08 0%, transparent 60%), radial-gradient(ellipse at 100% 100%, #0066FF06 0%, transparent 50%)" }} />
-        <FootballFieldBg />
+        <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.72)" }} />
       </div>
 
       <div className="relative p-4 md:p-8 max-w-7xl mx-auto">
