@@ -196,7 +196,7 @@ export function ScoutingModule() {
       {/* Fundo imagem */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
-        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.72)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.55)" }} />
       </div>
 
       <div className="relative p-4 md:p-8 max-w-7xl mx-auto">
@@ -256,13 +256,12 @@ export function ScoutingModule() {
                 key={e.value}
                 className="relative rounded-xl border cursor-pointer transition-all duration-200 overflow-hidden"
                 style={{
-                  borderColor: isActive ? e.color : `${e.color}60`,
-                  background: isActive
-                    ? `linear-gradient(135deg, ${e.color}28, #0a1a2e)`
-                    : `linear-gradient(135deg, ${e.color}12, #0a1628)`,
+                  borderColor: isActive ? e.color : `${e.color}80`,
+                  background: "rgba(4,10,22,0.92)",
                   boxShadow: isActive
-                    ? `0 0 24px ${e.color}40, inset 0 1px 0 rgba(255,255,255,0.1)`
-                    : `inset 0 1px 0 rgba(255,255,255,0.06)`,
+                    ? `0 0 24px ${e.color}50, 0 4px 20px rgba(0,0,0,0.5)`
+                    : `0 2px 12px rgba(0,0,0,0.4)`,
+                  backdropFilter: "blur(12px)",
                 }}
                 onClick={() => {
                   if (isReferenciados) {
@@ -274,11 +273,13 @@ export function ScoutingModule() {
                   }
                 }}
               >
-                <div className="p-4">
+                {/* Barra lateral colorida */}
+                <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl" style={{ background: e.color }} />
+                <div className="p-4 pl-5">
                   <div className="flex items-start justify-between mb-2">
                     <div
                       className="w-9 h-9 rounded-lg flex items-center justify-center"
-                      style={{ background: `${e.color}20` }}
+                      style={{ background: `${e.color}25`, border: `1px solid ${e.color}50` }}
                     >
                       <Icon className="w-5 h-5" style={{ color: e.color }} />
                     </div>
@@ -292,10 +293,10 @@ export function ScoutingModule() {
                   <div className="text-3xl font-black" style={{ color: e.color, fontFamily: "var(--font-barlow-condensed)" }}>
                     {count}
                   </div>
-                  <div className="text-xs font-medium text-muted-foreground mt-0.5">{e.label}</div>
+                  <div className="text-xs font-bold mt-0.5" style={{ color: "rgba(255,255,255,0.70)" }}>{e.label}</div>
                 </div>
-                {/* Barra de fundo decorativa */}
-                <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${e.color}, transparent)`, opacity: isActive ? 1 : 0.3 }} />
+                {/* Barra inferior decorativa */}
+                <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, ${e.color}, transparent)`, opacity: isActive ? 1 : 0.4 }} />
               </div>
             )
           })}
@@ -309,8 +310,10 @@ export function ScoutingModule() {
             <div
               className="mb-4 rounded-xl border p-4"
               style={{
-                borderColor: `${estado.color}50`,
-                background: `linear-gradient(135deg, ${estado.color}15, #0a1628)`,
+                borderColor: estado.color,
+                background: "rgba(4,10,22,0.90)",
+                boxShadow: `0 0 20px ${estado.color}30`,
+                backdropFilter: "blur(12px)",
               }}
             >
               <div className="flex items-center justify-between mb-3">
@@ -362,7 +365,7 @@ export function ScoutingModule() {
 
         {/* Tabs principais */}
         <Tabs defaultValue="jogadores">
-          <TabsList className="mb-6" style={{ background: "linear-gradient(135deg, #0d1f35, #0a1628)", border: "1px solid rgba(255,255,255,0.15)" }}>
+          <TabsList className="mb-6" style={{ background: "rgba(4,10,22,0.88)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(12px)" }}>
             <TabsTrigger value="jogadores" className="gap-2">
               <Users className="w-4 h-4" /> Atletas ({jogadores.length})
             </TabsTrigger>
@@ -384,7 +387,7 @@ export function ScoutingModule() {
                   value={searchText}
                   onChange={e => setSearchText(e.target.value)}
                   className="pl-9"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  style={{ background: "rgba(4,10,22,0.85)", border: "1px solid rgba(255,255,255,0.25)" }}
                 />
               </div>
               <Select value={filtroEstado} onValueChange={v => { setFiltroEstado(v as EstadoScouting | "todos"); setExpandedEstado(null) }}>
@@ -419,15 +422,16 @@ export function ScoutingModule() {
                       key={j.id}
                       className="group rounded-xl border transition-all duration-200 overflow-hidden"
                       style={{
-                        borderColor: `${estadoAtual.color}40`,
-                        background: "linear-gradient(135deg, #0d1f35, #0a1628)",
-                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+                        borderColor: `${estadoAtual.color}70`,
+                        background: "rgba(4,10,22,0.90)",
+                        boxShadow: "0 2px 16px rgba(0,0,0,0.5)",
+                        backdropFilter: "blur(12px)",
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.borderColor = `${estadoAtual.color}80`)}
-                      onMouseLeave={e => (e.currentTarget.style.borderColor = `${estadoAtual.color}40`)}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = estadoAtual.color)}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = `${estadoAtual.color}70`)}
                     >
                       {/* Linha colorida no topo */}
-                      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${estadoAtual.color}, ${estadoAtual.color}40, transparent)` }} />
+                      <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${estadoAtual.color}CC, ${estadoAtual.color}40)` }} />
                       <div className="p-4">
                         {/* Avatar + info */}
                         <div className="flex items-start gap-3 mb-3">
@@ -441,7 +445,7 @@ export function ScoutingModule() {
                           )}
                           <div className="flex-1 min-w-0">
                             <div className="font-bold truncate text-white">{j.nome}</div>
-                            <div className="text-xs text-muted-foreground">{j.posicao} · {j.clube || "—"}</div>
+                            <div className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.60)" }}>{j.posicao} · {j.clube || "—"}</div>
                             {j.nacionalidade && (
                               <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                                 {flag && <span className="text-sm leading-none">{flag}</span>}
