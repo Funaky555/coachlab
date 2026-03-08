@@ -165,8 +165,8 @@ export function ScoutingModule() {
     <div className="relative min-h-screen" style={{ background: "#050e1a" }}>
       {/* Fundo imagem */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
-        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.15)" }} />
+        <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", opacity: 0.5 }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.30)" }} />
       </div>
 
       <div className="relative p-4 md:p-8 max-w-7xl mx-auto">
