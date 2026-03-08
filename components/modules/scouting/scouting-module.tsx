@@ -166,7 +166,7 @@ export function ScoutingModule() {
       {/* Fundo imagem */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
-        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.55)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.28)" }} />
       </div>
 
       <div className="relative p-4 md:p-8 max-w-7xl mx-auto">
@@ -210,129 +210,6 @@ export function ScoutingModule() {
           </Button>
         </div>
 
-        {/* Stats cards — Referenciados + zonas de seleção */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
-          {ESTADOS.map(e => {
-            const count = countByEstado(e.value)
-            const Icon = e.icon
-            const isReferenciados = e.value === "em_observacao"
-            const isExpanded = expandedEstado === e.value
-            const isActive = isReferenciados
-              ? filtroEstado === e.value
-              : isExpanded
-
-            return (
-              <div
-                key={e.value}
-                className="relative rounded-xl border cursor-pointer transition-all duration-200 overflow-hidden"
-                style={{
-                  borderColor: isActive ? e.color : `${e.color}80`,
-                  background: "rgba(4,10,22,0.72)",
-                  boxShadow: isActive
-                    ? `0 0 24px ${e.color}50, 0 4px 20px rgba(0,0,0,0.5)`
-                    : `0 2px 12px rgba(0,0,0,0.4)`,
-                  backdropFilter: "blur(12px)",
-                }}
-                onClick={() => {
-                  if (isReferenciados) {
-                    setFiltroEstado(filtroEstado === e.value ? "todos" : e.value)
-                    setExpandedEstado(null)
-                  } else {
-                    setExpandedEstado(isExpanded ? null : e.value)
-                    setFiltroEstado("todos")
-                  }
-                }}
-              >
-                {/* Barra lateral colorida */}
-                <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl" style={{ background: e.color }} />
-                <div className="p-4 pl-5">
-                  <div className="flex items-start justify-between mb-2">
-                    <div
-                      className="w-9 h-9 rounded-lg flex items-center justify-center"
-                      style={{ background: `${e.color}25`, border: `1px solid ${e.color}50` }}
-                    >
-                      <Icon className="w-5 h-5" style={{ color: e.color }} />
-                    </div>
-                    {!isReferenciados && count > 0 && (
-                      <ChevronDown
-                        className="w-4 h-4 transition-transform"
-                        style={{ color: e.color, transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
-                      />
-                    )}
-                  </div>
-                  <div className="text-3xl font-black" style={{ color: e.color, fontFamily: "var(--font-barlow-condensed)" }}>
-                    {count}
-                  </div>
-                  <div className="text-xs font-bold mt-0.5" style={{ color: "rgba(255,255,255,0.70)" }}>{e.label}</div>
-                </div>
-                {/* Barra inferior decorativa */}
-                <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, ${e.color}, transparent)`, opacity: isActive ? 1 : 0.4 }} />
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Painel expansível das zonas de seleção */}
-        {expandedEstado && (() => {
-          const estado = ESTADOS.find(e => e.value === expandedEstado)!
-          const jogadoresNestadoEstado = jogadores.filter(j => j.estado === expandedEstado)
-          return (
-            <div
-              className="mb-4 rounded-xl border p-4"
-              style={{
-                borderColor: estado.color,
-                background: "rgba(4,10,22,0.70)",
-                boxShadow: `0 0 20px ${estado.color}30`,
-                backdropFilter: "blur(12px)",
-              }}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <estado.icon className="w-4 h-4" style={{ color: estado.color }} />
-                  <span className="text-sm font-bold" style={{ color: estado.color }}>{estado.label}</span>
-                  <span className="text-xs text-muted-foreground">({jogadoresNestadoEstado.length} atletas)</span>
-                </div>
-                <button onClick={() => setExpandedEstado(null)} className="text-muted-foreground hover:text-foreground transition-colors">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              {jogadoresNestadoEstado.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-4">Nenhum atleta neste estado</p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {jogadoresNestadoEstado.map(j => {
-                    const { flag, name } = getCountryInfo(j.nacionalidade)
-                    return (
-                      <div
-                        key={j.id}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium transition-colors"
-                        style={{ borderColor: `${estado.color}40`, background: `${estado.color}15` }}
-                      >
-                        {j.fotoUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={j.fotoUrl} alt={j.nome} className="w-5 h-5 rounded-full object-cover shrink-0" />
-                        ) : (
-                          <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center shrink-0 text-[9px] font-bold">{j.nome[0]}</div>
-                        )}
-                        <span style={{ color: estado.color }}>{j.nome}</span>
-                        {j.clube && <span className="text-muted-foreground">· {j.clube}</span>}
-                        {name && <span className="text-muted-foreground">{flag} {name}</span>}
-                        <button
-                          onClick={e => { e.stopPropagation(); removeFromEstado(j.id) }}
-                          className="ml-1 hover:text-destructive transition-colors text-muted-foreground"
-                          title="Voltar a Referenciados"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )
-        })()}
-
         {/* Tabs principais */}
         <Tabs defaultValue="jogadores">
           <TabsList className="mb-6" style={{ background: "rgba(4,10,22,0.70)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(12px)" }}>
@@ -349,6 +226,129 @@ export function ScoutingModule() {
 
           {/* TAB: Jogadores */}
           <TabsContent value="jogadores">
+            {/* Stats cards — Referenciados + zonas de seleção */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+              {ESTADOS.map(e => {
+                const count = countByEstado(e.value)
+                const Icon = e.icon
+                const isReferenciados = e.value === "em_observacao"
+                const isExpanded = expandedEstado === e.value
+                const isActive = isReferenciados
+                  ? filtroEstado === e.value
+                  : isExpanded
+
+                return (
+                  <div
+                    key={e.value}
+                    className="relative rounded-xl border cursor-pointer transition-all duration-200 overflow-hidden"
+                    style={{
+                      borderColor: isActive ? e.color : `${e.color}80`,
+                      background: "rgba(4,10,22,0.72)",
+                      boxShadow: isActive
+                        ? `0 0 24px ${e.color}50, 0 4px 20px rgba(0,0,0,0.5)`
+                        : `0 2px 12px rgba(0,0,0,0.4)`,
+                      backdropFilter: "blur(12px)",
+                    }}
+                    onClick={() => {
+                      if (isReferenciados) {
+                        setFiltroEstado(filtroEstado === e.value ? "todos" : e.value)
+                        setExpandedEstado(null)
+                      } else {
+                        setExpandedEstado(isExpanded ? null : e.value)
+                        setFiltroEstado("todos")
+                      }
+                    }}
+                  >
+                    {/* Barra lateral colorida */}
+                    <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl" style={{ background: e.color }} />
+                    <div className="p-4 pl-5">
+                      <div className="flex items-start justify-between mb-2">
+                        <div
+                          className="w-9 h-9 rounded-lg flex items-center justify-center"
+                          style={{ background: `${e.color}25`, border: `1px solid ${e.color}50` }}
+                        >
+                          <Icon className="w-5 h-5" style={{ color: e.color }} />
+                        </div>
+                        {!isReferenciados && count > 0 && (
+                          <ChevronDown
+                            className="w-4 h-4 transition-transform"
+                            style={{ color: e.color, transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                          />
+                        )}
+                      </div>
+                      <div className="text-3xl font-black" style={{ color: e.color, fontFamily: "var(--font-barlow-condensed)" }}>
+                        {count}
+                      </div>
+                      <div className="text-xs font-bold mt-0.5" style={{ color: "rgba(255,255,255,0.70)" }}>{e.label}</div>
+                    </div>
+                    {/* Barra inferior decorativa */}
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, ${e.color}, transparent)`, opacity: isActive ? 1 : 0.4 }} />
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Painel expansível das zonas de seleção */}
+            {expandedEstado && (() => {
+              const estado = ESTADOS.find(e => e.value === expandedEstado)!
+              const jogadoresNestadoEstado = jogadores.filter(j => j.estado === expandedEstado)
+              return (
+                <div
+                  className="mb-4 rounded-xl border p-4"
+                  style={{
+                    borderColor: estado.color,
+                    background: "rgba(4,10,22,0.70)",
+                    boxShadow: `0 0 20px ${estado.color}30`,
+                    backdropFilter: "blur(12px)",
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <estado.icon className="w-4 h-4" style={{ color: estado.color }} />
+                      <span className="text-sm font-bold" style={{ color: estado.color }}>{estado.label}</span>
+                      <span className="text-xs text-muted-foreground">({jogadoresNestadoEstado.length} atletas)</span>
+                    </div>
+                    <button onClick={() => setExpandedEstado(null)} className="text-muted-foreground hover:text-foreground transition-colors">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {jogadoresNestadoEstado.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-4">Nenhum atleta neste estado</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {jogadoresNestadoEstado.map(j => {
+                        const { flag, name } = getCountryInfo(j.nacionalidade)
+                        return (
+                          <div
+                            key={j.id}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium transition-colors"
+                            style={{ borderColor: `${estado.color}40`, background: `${estado.color}15` }}
+                          >
+                            {j.fotoUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={j.fotoUrl} alt={j.nome} className="w-5 h-5 rounded-full object-cover shrink-0" />
+                            ) : (
+                              <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center shrink-0 text-[9px] font-bold">{j.nome[0]}</div>
+                            )}
+                            <span style={{ color: estado.color }}>{j.nome}</span>
+                            {j.clube && <span className="text-muted-foreground">· {j.clube}</span>}
+                            {name && <span className="text-muted-foreground">{flag} {name}</span>}
+                            <button
+                              onClick={e => { e.stopPropagation(); removeFromEstado(j.id) }}
+                              className="ml-1 hover:text-destructive transition-colors text-muted-foreground"
+                              title="Voltar a Referenciados"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
+
             <div className="flex flex-wrap gap-3 mb-6">
               <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
