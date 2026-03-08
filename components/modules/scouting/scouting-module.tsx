@@ -256,10 +256,13 @@ export function ScoutingModule() {
                 key={e.value}
                 className="relative rounded-xl border cursor-pointer transition-all duration-200 overflow-hidden"
                 style={{
-                  borderColor: isActive ? e.color : `${e.color}30`,
-                  background: isActive ? `${e.color}12` : "rgba(255,255,255,0.03)",
-                  boxShadow: isActive ? `0 0 20px ${e.color}30` : "none",
-                  backdropFilter: "blur(8px)",
+                  borderColor: isActive ? e.color : `${e.color}60`,
+                  background: isActive
+                    ? `linear-gradient(135deg, ${e.color}28, #0a1a2e)`
+                    : `linear-gradient(135deg, ${e.color}12, #0a1628)`,
+                  boxShadow: isActive
+                    ? `0 0 24px ${e.color}40, inset 0 1px 0 rgba(255,255,255,0.1)`
+                    : `inset 0 1px 0 rgba(255,255,255,0.06)`,
                 }}
                 onClick={() => {
                   if (isReferenciados) {
@@ -306,9 +309,8 @@ export function ScoutingModule() {
             <div
               className="mb-4 rounded-xl border p-4"
               style={{
-                borderColor: `${estado.color}30`,
-                background: `${estado.color}08`,
-                backdropFilter: "blur(8px)",
+                borderColor: `${estado.color}50`,
+                background: `linear-gradient(135deg, ${estado.color}15, #0a1628)`,
               }}
             >
               <div className="flex items-center justify-between mb-3">
@@ -360,7 +362,7 @@ export function ScoutingModule() {
 
         {/* Tabs principais */}
         <Tabs defaultValue="jogadores">
-          <TabsList className="mb-6" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <TabsList className="mb-6" style={{ background: "linear-gradient(135deg, #0d1f35, #0a1628)", border: "1px solid rgba(255,255,255,0.15)" }}>
             <TabsTrigger value="jogadores" className="gap-2">
               <Users className="w-4 h-4" /> Atletas ({jogadores.length})
             </TabsTrigger>
@@ -415,15 +417,17 @@ export function ScoutingModule() {
                   return (
                     <div
                       key={j.id}
-                      className="group rounded-xl border transition-all duration-200"
+                      className="group rounded-xl border transition-all duration-200 overflow-hidden"
                       style={{
-                        borderColor: "rgba(255,255,255,0.08)",
-                        background: "rgba(255,255,255,0.03)",
-                        backdropFilter: "blur(8px)",
+                        borderColor: `${estadoAtual.color}40`,
+                        background: "linear-gradient(135deg, #0d1f35, #0a1628)",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.borderColor = `${estadoAtual.color}40`)}
-                      onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = `${estadoAtual.color}80`)}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = `${estadoAtual.color}40`)}
                     >
+                      {/* Linha colorida no topo */}
+                      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${estadoAtual.color}, ${estadoAtual.color}40, transparent)` }} />
                       <div className="p-4">
                         {/* Avatar + info */}
                         <div className="flex items-start gap-3 mb-3">
