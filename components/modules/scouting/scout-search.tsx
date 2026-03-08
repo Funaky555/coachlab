@@ -50,9 +50,10 @@ function FilterSection({ title, id, open, onToggle, children }: {
   title: string; id: string; open: boolean; onToggle: () => void; children: React.ReactNode
 }) {
   return (
-    <div className="border-b border-border/40 last:border-0">
+    <div style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }} className="last:border-0">
       <button
-        className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold hover:bg-muted/30 transition-colors text-left"
+        className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold transition-colors text-left"
+        style={{ color: "rgba(255,255,255,0.85)" }}
         onClick={onToggle}
       >
         {title}
@@ -83,7 +84,7 @@ function RangeSlider({ label, min, max, value, onChange, unit = "" }: {
 }) {
   return (
     <div>
-      <div className="flex justify-between text-xs text-muted-foreground mb-2">
+      <div className="flex justify-between text-xs mb-2" style={{ color: "rgba(255,255,255,0.70)" }}>
         <span>{label}</span>
         <span className="font-medium">{value[0]}{unit} – {value[1]}{unit}</span>
       </div>
@@ -102,7 +103,7 @@ function MinSlider({ label, min, max, value, onChange, unit = "" }: {
 }) {
   return (
     <div>
-      <div className="flex justify-between text-xs text-muted-foreground mb-2">
+      <div className="flex justify-between text-xs mb-2" style={{ color: "rgba(255,255,255,0.70)" }}>
         <span>{label}</span>
         <span className="font-medium">mín {value}{unit}</span>
       </div>
@@ -261,11 +262,11 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
     sprintsMin > 0 || distanciaMin > 0 || velMaxMin > 0 || ligaTexto
 
   return (
-    <div className="flex gap-0 rounded-xl border border-border overflow-hidden" style={{ minHeight: 500 }}>
+    <div className="flex gap-0 rounded-xl border overflow-hidden" style={{ minHeight: 500, borderColor: "rgba(255,255,255,0.15)", background: "rgba(4,10,22,0.88)", backdropFilter: "blur(12px)" }}>
       {/* PAINEL DE FILTROS */}
-      <div className="w-60 shrink-0 border-r border-border bg-card/50 overflow-y-auto">
-        <div className="flex items-center justify-between px-3 py-2.5 border-b border-border">
-          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Filtros</span>
+      <div className="w-60 shrink-0 overflow-y-auto" style={{ background: "rgba(4,10,22,0.80)", borderRight: "1px solid rgba(255,255,255,0.10)" }}>
+        <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.10)" }}>
+          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.80)" }}>Filtros</span>
           {hasFilters && (
             <button onClick={clearAll} className="text-xs text-[#FF6B35] hover:opacity-80 flex items-center gap-1">
               <X className="w-3 h-3" /> Limpar
@@ -274,7 +275,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         </div>
 
         {/* Pesquisa rápida */}
-        <div className="px-3 py-2.5 border-b border-border/40">
+        <div className="px-3 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
@@ -289,7 +290,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         {/* Secção: Pessoal */}
         <FilterSection title="Pessoal" id="pessoal" open={openSections.includes("pessoal")} onToggle={() => toggleSection("pessoal")}>
           <div>
-            <div className="text-xs text-muted-foreground mb-1.5">Posição</div>
+            <div className="text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.70)" }}>Posição</div>
             <div className="grid grid-cols-3 gap-1">
               {POSICOES_SCOUTING.map(p => (
                 <button
@@ -297,8 +298,9 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
                   onClick={() => toggleArr(posicoes, p, setPosicoes)}
                   className="text-xs py-1 rounded font-semibold transition-colors"
                   style={{
-                    background: posicoes.includes(p) ? "#00D66C" : "hsl(var(--muted))",
-                    color: posicoes.includes(p) ? "#000" : "hsl(var(--muted-foreground))",
+                    background: posicoes.includes(p) ? "#00D66C" : "rgba(255,255,255,0.08)",
+                    color: posicoes.includes(p) ? "#000" : "rgba(255,255,255,0.75)",
+                    border: posicoes.includes(p) ? "none" : "1px solid rgba(255,255,255,0.15)",
                   }}
                 >
                   {p}
@@ -307,14 +309,15 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
             </div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground mb-1.5">Pé Preferido</div>
+            <div className="text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.70)" }}>Pé Preferido</div>
             <div className="flex gap-1">
               {(["direito","esquerdo","ambidestro"] as const).map(p => (
                 <button key={p} onClick={() => toggleArr(pePreferido, p, setPePreferido)}
                   className="flex-1 text-xs py-1 rounded font-medium transition-colors capitalize"
                   style={{
-                    background: pePreferido.includes(p) ? "#0066FF" : "hsl(var(--muted))",
-                    color: pePreferido.includes(p) ? "#fff" : "hsl(var(--muted-foreground))",
+                    background: pePreferido.includes(p) ? "#0066FF" : "rgba(255,255,255,0.08)",
+                    color: pePreferido.includes(p) ? "#fff" : "rgba(255,255,255,0.75)",
+                    border: pePreferido.includes(p) ? "none" : "1px solid rgba(255,255,255,0.15)",
                   }}
                 >
                   {p === "ambidestro" ? "Amb." : p === "direito" ? "Dir." : "Esq."}
@@ -333,10 +336,10 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
             {ESTADOS_SCOUTING.map(e => (
               <button key={e.value} onClick={() => toggleArr(estados, e.value, setEstados)}
                 className="w-full text-left text-xs py-1.5 px-2 rounded transition-colors flex items-center gap-2"
-                style={{ background: estados.includes(e.value) ? `${e.color}22` : "transparent" }}
+                style={{ background: estados.includes(e.value) ? `${e.color}22` : "rgba(255,255,255,0.04)", border: `1px solid ${estados.includes(e.value) ? e.color + "50" : "rgba(255,255,255,0.08)"}` }}
               >
                 <div className="w-2 h-2 rounded-full shrink-0" style={{ background: e.color }} />
-                <span style={{ color: estados.includes(e.value) ? e.color : "hsl(var(--muted-foreground))" }}>{e.label}</span>
+                <span style={{ color: estados.includes(e.value) ? e.color : "rgba(255,255,255,0.75)" }}>{e.label}</span>
               </button>
             ))}
           </div>
@@ -345,7 +348,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         {/* Secção: Clube */}
         <FilterSection title="Clube" id="clube" open={openSections.includes("clube")} onToggle={() => toggleSection("clube")}>
           <div>
-            <div className="text-xs text-muted-foreground mb-1">Nome do Clube</div>
+            <div className="text-xs font-semibold mb-1" style={{ color: "rgba(255,255,255,0.70)" }}>Nome do Clube</div>
             <Input placeholder="ex: Benfica" value={clubeTexto} onChange={e => setClubeTexto(e.target.value)} className="h-7 text-xs" />
           </div>
         </FilterSection>
@@ -354,7 +357,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         <FilterSection title="Avaliação" id="avaliacao" open={openSections.includes("avaliacao")} onToggle={() => toggleSection("avaliacao")}>
           <div className="space-y-3">
             <div>
-              <div className="text-xs text-muted-foreground mb-2">A. Geral mín.</div>
+              <div className="text-xs font-semibold mb-2" style={{ color: "rgba(255,255,255,0.70)" }}>A. Geral mín.</div>
               <div className="flex gap-1">
                 {[1,2,3,4,5].map(v => (
                   <button key={v} onClick={() => setAvaliacaoMin(v)}
@@ -399,7 +402,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
               { label: "Jogos mín", value: jogosMin, set: setJogosMin },
             ].map(f => (
               <div key={f.label}>
-                <div className="text-xs text-muted-foreground mb-1">{f.label}</div>
+                <div className="text-xs font-semibold mb-1" style={{ color: "rgba(255,255,255,0.70)" }}>{f.label}</div>
                 <Input type="number" min={0} value={f.value || ""} onChange={e => f.set(Number(e.target.value) || 0)} className="h-7 text-xs" placeholder="0" />
               </div>
             ))}
@@ -415,7 +418,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
               { label: "Vel. máxima mín (km/h)", value: velMaxMin, set: setVelMaxMin },
             ].map(f => (
               <div key={f.label}>
-                <div className="text-xs text-muted-foreground mb-1">{f.label}</div>
+                <div className="text-xs font-semibold mb-1" style={{ color: "rgba(255,255,255,0.70)" }}>{f.label}</div>
                 <Input type="number" min={0} value={f.value || ""} onChange={e => f.set(Number(e.target.value) || 0)} className="h-7 text-xs" placeholder="0" />
               </div>
             ))}
@@ -425,9 +428,9 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
 
       {/* PAINEL DE RESULTADOS */}
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card/30">
-          <span className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">{filtered.length}</span> resultado{filtered.length !== 1 ? "s" : ""}
+        <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.10)", background: "rgba(4,10,22,0.70)" }}>
+          <span className="text-sm" style={{ color: "rgba(255,255,255,0.70)" }}>
+            <span className="font-bold text-white">{filtered.length}</span> resultado{filtered.length !== 1 ? "s" : ""}
             {jogadores.length !== filtered.length && <span> de {jogadores.length}</span>}
           </span>
         </div>
@@ -486,13 +489,13 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
                       <TableCell>
                         <Badge variant="outline" className="text-xs font-bold">{j.posicao}</Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{j.clube || "—"}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-sm whitespace-nowrap" style={{ color: "rgba(255,255,255,0.65)" }}>{j.clube || "—"}</TableCell>
+                      <TableCell className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
                         {j.nacionalidade ? (
                           <span title={j.nacionalidade} className="text-base">{getFlag(j.nacionalidade) || j.nacionalidade}</span>
                         ) : "—"}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{j.liga || "—"}</TableCell>
+                      <TableCell className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{j.liga || "—"}</TableCell>
                       <TableCell>
                         <div className="flex gap-0.5">
                           {[1,2,3,4,5].map(i => (
@@ -507,13 +510,13 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
                               <Star key={i} className={`w-3 h-3 ${i <= j.potencial! ? "text-[#8B5CF6] fill-[#8B5CF6]" : "text-muted-foreground"}`} />
                             ))}
                           </div>
-                        ) : <span className="text-muted-foreground">—</span>}
+                        ) : <span style={{ color: "rgba(255,255,255,0.45)" }}>—</span>}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground text-center">{j.velocidade ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground text-center">{j.golos ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground text-center">{j.assistencias ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground text-center">{j.jogosDisputados ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{formatValor(j.valorMercado)}</TableCell>
+                      <TableCell className="text-sm text-center" style={{ color: "rgba(255,255,255,0.65)" }}>{j.velocidade ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-center" style={{ color: "rgba(255,255,255,0.65)" }}>{j.golos ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-center" style={{ color: "rgba(255,255,255,0.65)" }}>{j.assistencias ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-center" style={{ color: "rgba(255,255,255,0.65)" }}>{j.jogosDisputados ?? "—"}</TableCell>
+                      <TableCell className="text-sm whitespace-nowrap" style={{ color: "rgba(255,255,255,0.65)" }}>{formatValor(j.valorMercado)}</TableCell>
                       <TableCell>
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
                           style={{ background: `${ec?.color}20`, color: ec?.color, border: `1px solid ${ec?.color}40` }}>

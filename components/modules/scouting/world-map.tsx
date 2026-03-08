@@ -114,11 +114,11 @@ export function WorldMap({ jogadores, onEdit }: Props) {
     <div className="relative">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.75)" }}>
           {jogadores.length} jogadores • {Object.keys(playersByCountry).length} países
           {semPais > 0 && <span> • {semPais} sem país definido</span>}
         </div>
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-4 text-xs" style={{ color: "rgba(255,255,255,0.70)" }}>
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm" style={{ background: "#00D66C33", border: "1px solid #00D66C" }} /> 1
           </div>
@@ -135,7 +135,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
       </div>
 
       {/* Mapa */}
-      <div className="relative rounded-xl overflow-hidden border border-border" style={{ background: "#0f172a" }}>
+      <div className="relative rounded-xl overflow-hidden" style={{ background: "#0f172a", border: "1px solid rgba(0,214,108,0.25)", boxShadow: "0 0 30px rgba(0,214,108,0.06)" }}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="w-full"
@@ -254,7 +254,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
                     <span className="text-3xl">{selectedCountryFlag}</span>
                     <div>
                       <div className="font-bold text-base">{selectedCountryName}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
                         {selectedPlayers.length} jogador{selectedPlayers.length !== 1 ? "es" : ""}
                       </div>
                     </div>
@@ -293,7 +293,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
                       )}
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-sm truncate">{j.nome}</div>
-                        <div className="text-xs text-muted-foreground">{j.posicao} · {j.clube || "—"}</div>
+                        <div className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>{j.posicao} · {j.clube || "—"}</div>
                         <div className="flex items-center gap-2 mt-0.5">
                           <div className="flex gap-0.5">
                             {[1,2,3,4,5].map(i => (

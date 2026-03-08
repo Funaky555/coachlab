@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
@@ -85,36 +85,6 @@ const emptyForm: Omit<JogadorObservado, "id"> = {
   dataObservacao: new Date().toISOString().split("T")[0], jogosObservados: [],
 }
 
-// SVG de campo de futebol estilizado para fundo
-const FootballFieldBg = () => (
-  <svg
-    className="absolute inset-0 w-full h-full pointer-events-none"
-    viewBox="0 0 1200 400"
-    preserveAspectRatio="xMidYMid slice"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    {/* Campo exterior */}
-    <rect x="60" y="20" width="1080" height="360" rx="8" fill="none" stroke="#00D66C" strokeWidth="1.5" strokeOpacity="0.12" />
-    {/* Linha central */}
-    <line x1="600" y1="20" x2="600" y2="380" stroke="#00D66C" strokeWidth="1.5" strokeOpacity="0.12" />
-    {/* Círculo central */}
-    <circle cx="600" cy="200" r="70" fill="none" stroke="#00D66C" strokeWidth="1.5" strokeOpacity="0.12" />
-    <circle cx="600" cy="200" r="3" fill="#00D66C" fillOpacity="0.2" />
-    {/* Grande área esquerda */}
-    <rect x="60" y="100" width="150" height="200" rx="2" fill="none" stroke="#00D66C" strokeWidth="1.5" strokeOpacity="0.1" />
-    {/* Pequena área esquerda */}
-    <rect x="60" y="150" width="60" height="100" rx="2" fill="none" stroke="#00D66C" strokeWidth="1" strokeOpacity="0.08" />
-    {/* Grande área direita */}
-    <rect x="990" y="100" width="150" height="200" rx="2" fill="none" stroke="#00D66C" strokeWidth="1.5" strokeOpacity="0.1" />
-    {/* Pequena área direita */}
-    <rect x="1080" y="150" width="60" height="100" rx="2" fill="none" stroke="#00D66C" strokeWidth="1" strokeOpacity="0.08" />
-    {/* Arcos de canto */}
-    <path d="M60,20 Q80,20 80,40" fill="none" stroke="#00D66C" strokeWidth="1" strokeOpacity="0.08" />
-    <path d="M1140,20 Q1120,20 1120,40" fill="none" stroke="#00D66C" strokeWidth="1" strokeOpacity="0.08" />
-    <path d="M60,380 Q80,380 80,360" fill="none" stroke="#00D66C" strokeWidth="1" strokeOpacity="0.08" />
-    <path d="M1140,380 Q1120,380 1120,360" fill="none" stroke="#00D66C" strokeWidth="1" strokeOpacity="0.08" />
-  </svg>
-)
 
 export function ScoutingModule() {
   const [jogadores, setJogadores] = useState<JogadorObservado[]>([])
@@ -196,7 +166,7 @@ export function ScoutingModule() {
       {/* Fundo imagem */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
-        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.55)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.70)" }} />
       </div>
 
       <div className="relative p-4 md:p-8 max-w-7xl mx-auto">
