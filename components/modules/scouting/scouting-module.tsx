@@ -165,8 +165,8 @@ export function ScoutingModule() {
     <div className="relative min-h-screen" style={{ background: "#050e1a" }}>
       {/* Fundo imagem */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", opacity: 0.5 }} />
-        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.30)" }} />
+        <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", opacity: 0.3 }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.45)" }} />
       </div>
 
       <div className="relative p-4 md:p-8 max-w-7xl mx-auto">
@@ -186,23 +186,6 @@ export function ScoutingModule() {
               >
                 Scouting
               </h1>
-            </div>
-            <div className="flex items-center gap-4 text-sm ml-4">
-              <span style={{ color: "rgba(255,255,255,0.75)" }}>
-                <span className="font-bold text-white">{jogadores.length}</span> atletas
-              </span>
-              <span style={{ color: "rgba(255,255,255,0.30)" }}>·</span>
-              <span style={{ color: "rgba(255,255,255,0.75)" }}>
-                <span className="font-bold text-white">{paises}</span> países
-              </span>
-              {contratados > 0 && (
-                <>
-                  <span style={{ color: "rgba(255,255,255,0.30)" }}>·</span>
-                  <span style={{ color: "#00D66C" }}>
-                    <span className="font-bold">{contratados}</span> contratados
-                  </span>
-                </>
-              )}
             </div>
           </div>
           <Button onClick={openAdd} className="gap-2 shrink-0 text-white hover:opacity-90 shadow-lg" style={{ background: "linear-gradient(135deg, #FF6B35, #FF8C5A)", boxShadow: "0 4px 20px #FF6B3540" }}>
@@ -224,30 +207,30 @@ export function ScoutingModule() {
           >
             <TabsTrigger
               value="jogadores"
-              className="flex-1 gap-2.5 px-5 py-3 text-sm font-bold uppercase tracking-wide rounded-xl transition-all duration-200
-                data-[state=inactive]:text-white/45 data-[state=inactive]:hover:text-white/75
+              className="flex-1 gap-2.5 px-5 py-3 font-black uppercase tracking-wide rounded-xl transition-all duration-200
+                data-[state=inactive]:text-white/70 data-[state=inactive]:hover:text-white
                 data-[state=active]:text-white data-[state=active]:shadow-lg"
-              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "15px", letterSpacing: "0.05em" }}
+              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "16px", letterSpacing: "0.05em" }}
             >
-              <Users className="w-4 h-4" /> Atletas <span className="text-xs opacity-70">({jogadores.length})</span>
+              <Users className="w-4 h-4" /> Atletas <span className="font-bold" style={{ color: "#00D66C" }}>{jogadores.length}</span>
             </TabsTrigger>
             <TabsTrigger
               value="pesquisa"
-              className="flex-1 gap-2.5 px-5 py-3 text-sm font-bold uppercase tracking-wide rounded-xl transition-all duration-200
-                data-[state=inactive]:text-white/45 data-[state=inactive]:hover:text-white/75
+              className="flex-1 gap-2.5 px-5 py-3 font-black uppercase tracking-wide rounded-xl transition-all duration-200
+                data-[state=inactive]:text-white/70 data-[state=inactive]:hover:text-white
                 data-[state=active]:text-white data-[state=active]:shadow-lg"
-              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "15px", letterSpacing: "0.05em" }}
+              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "16px", letterSpacing: "0.05em" }}
             >
-              <Filter className="w-4 h-4" /> Super Pesquisa
+              <Filter className="w-4 h-4" /> Super Pesquisa <span className="font-bold" style={{ color: "#0066FF" }}>{jogadores.length}</span>
             </TabsTrigger>
             <TabsTrigger
               value="mapa"
-              className="flex-1 gap-2.5 px-5 py-3 text-sm font-bold uppercase tracking-wide rounded-xl transition-all duration-200
-                data-[state=inactive]:text-white/45 data-[state=inactive]:hover:text-white/75
+              className="flex-1 gap-2.5 px-5 py-3 font-black uppercase tracking-wide rounded-xl transition-all duration-200
+                data-[state=inactive]:text-white/70 data-[state=inactive]:hover:text-white
                 data-[state=active]:text-white data-[state=active]:shadow-lg"
-              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "15px", letterSpacing: "0.05em" }}
+              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "16px", letterSpacing: "0.05em" }}
             >
-              <Globe2 className="w-4 h-4" /> Mapa Mundial
+              <Globe2 className="w-4 h-4" /> Mapa Mundial <span className="font-bold" style={{ color: "#8B5CF6" }}>{jogadores.length}</span>
             </TabsTrigger>
           </TabsList>
 

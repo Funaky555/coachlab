@@ -25,18 +25,18 @@ const projection = geoNaturalEarth1()
 const pathGen = geoPath(projection)
 
 function getCountryColor(count: number): string {
-  if (count === 0) return "#334155"
-  if (count === 1) return "#00D66C33"
-  if (count <= 3) return "#00D66C66"
-  if (count <= 6) return "#00D66C99"
-  return "#00D66C"
+  if (count === 0) return "#1e293b"
+  if (count === 1) return "#00D66C90"
+  if (count <= 3)  return "#0066FFAA"
+  if (count <= 6)  return "#8B5CF6CC"
+  return "#FF6B35"
 }
 
 const ESTADOS_CONFIG: Record<string, { label: string; color: string }> = {
   em_observacao: { label: "Em Observação", color: "#0066FF" },
   contactado:    { label: "Contactado",    color: "#8B5CF6" },
   contratado:    { label: "Contratado",    color: "#00D66C" },
-  descartado:    { label: "Descartado",    color: "#6B7280" },
+  descartado:    { label: "Descartado",    color: "#EF4444" },
 }
 
 type GeoFeature = Feature<Geometry, GeoJsonProperties>
@@ -118,18 +118,22 @@ export function WorldMap({ jogadores, onEdit }: Props) {
           {jogadores.length} jogadores • {Object.keys(playersByCountry).length} países
           {semPais > 0 && <span> • {semPais} sem país definido</span>}
         </div>
-        <div className="flex items-center gap-4 text-xs" style={{ color: "rgba(255,255,255,0.70)" }}>
+        <div className="flex items-center gap-4 text-xs font-semibold" style={{ color: "rgba(255,255,255,0.80)" }}>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: "#00D66C33", border: "1px solid #00D66C" }} /> 1
+            <div className="w-3 h-3 rounded-sm" style={{ background: "#00D66C90", border: "1px solid #00D66C" }} />
+            <span style={{ color: "#00D66C" }}>1</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: "#00D66C66", border: "1px solid #00D66C" }} /> 2–3
+            <div className="w-3 h-3 rounded-sm" style={{ background: "#0066FFAA", border: "1px solid #0066FF" }} />
+            <span style={{ color: "#0066FF" }}>2–3</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: "#00D66C99", border: "1px solid #00D66C" }} /> 4–6
+            <div className="w-3 h-3 rounded-sm" style={{ background: "#8B5CF6CC", border: "1px solid #8B5CF6" }} />
+            <span style={{ color: "#8B5CF6" }}>4–6</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ background: "#00D66C", border: "1px solid #00D66C" }} /> 7+
+            <div className="w-3 h-3 rounded-sm" style={{ background: "#FF6B35", border: "1px solid #FF6B35" }} />
+            <span style={{ color: "#FF6B35" }}>7+</span>
           </div>
         </div>
       </div>

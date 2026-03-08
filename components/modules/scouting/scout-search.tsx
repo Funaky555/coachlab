@@ -262,7 +262,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
     sprintsMin > 0 || distanciaMin > 0 || velMaxMin > 0 || ligaTexto
 
   return (
-    <div className="flex gap-0 rounded-xl border overflow-hidden" style={{ minHeight: 500, borderColor: "rgba(255,255,255,0.15)", background: "rgba(4,10,22,0.68)", backdropFilter: "blur(12px)" }}>
+    <div className="flex gap-0 rounded-xl border overflow-hidden w-full" style={{ minHeight: 500, borderColor: "rgba(255,255,255,0.15)", background: "rgba(4,10,22,0.68)", backdropFilter: "blur(12px)" }}>
       {/* PAINEL DE FILTROS */}
       <div className="w-60 shrink-0 overflow-y-auto" style={{ background: "rgba(4,10,22,0.58)", borderRight: "1px solid rgba(255,255,255,0.10)" }}>
         <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.10)" }}>
@@ -435,7 +435,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
           </span>
         </div>
 
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <Search className="w-10 h-10 mb-2 opacity-30" />
