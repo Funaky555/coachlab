@@ -182,6 +182,22 @@ export const UN_TO_ISO3: Record<string, string> = {
   "860": "UZB", "862": "VEN", "887": "YEM", "894": "ZMB",
 }
 
+// Bandeiras emoji por ISO-3
+export const COUNTRY_FLAGS: Record<string, string> = {
+  PRT: "🇵🇹", ESP: "🇪🇸", FRA: "🇫🇷", DEU: "🇩🇪", ITA: "🇮🇹",
+  GBR: "🇬🇧", NLD: "🇳🇱", BEL: "🇧🇪", BRA: "🇧🇷", ARG: "🇦🇷",
+  URY: "🇺🇾", COL: "🇨🇴", CHL: "🇨🇱", PER: "🇵🇪", VEN: "🇻🇪",
+  ECU: "🇪🇨", MEX: "🇲🇽", USA: "🇺🇸", CAN: "🇨🇦", SEN: "🇸🇳",
+  CIV: "🇨🇮", GHA: "🇬🇭", NGA: "🇳🇬", CMR: "🇨🇲", MAR: "🇲🇦",
+  DZA: "🇩🇿", TUN: "🇹🇳", EGY: "🇪🇬", ZAF: "🇿🇦", MOZ: "🇲🇿",
+  AGO: "🇦🇴", ETH: "🇪🇹", MLI: "🇲🇱", GIN: "🇬🇳", JPN: "🇯🇵",
+  KOR: "🇰🇷", CHN: "🇨🇳", AUS: "🇦🇺", RUS: "🇷🇺", UKR: "🇺🇦",
+  POL: "🇵🇱", HRV: "🇭🇷", SRB: "🇷🇸", DNK: "🇩🇰", SWE: "🇸🇪",
+  NOR: "🇳🇴", IRL: "🇮🇪", TUR: "🇹🇷", GRC: "🇬🇷", ROU: "🇷🇴",
+  HUN: "🇭🇺", CZE: "🇨🇿", AUT: "🇦🇹", CHE: "🇨🇭", SVN: "🇸🇮",
+  SVK: "🇸🇰", BIH: "🇧🇦", MNE: "🇲🇪",
+}
+
 // Nomes dos países em português (ISO-3 → nome PT)
 export const COUNTRY_NAMES: Record<string, string> = {
   PRT: "Portugal", ESP: "Espanha", FRA: "França", DEU: "Alemanha", ITA: "Itália",

@@ -9,6 +9,13 @@ import { Slider } from "@/components/ui/slider"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronDown, ChevronRight, Search, X, Star, Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
 import { type JogadorObservado, type EstadoScouting, type FiltroScouting, deleteJogadorObservado, getJogadoresObservados } from "@/lib/storage/scouting"
+import { NATIONALITY_TO_CODE, COUNTRY_FLAGS } from "./world-map-data"
+
+function getFlag(nacionalidade?: string): string {
+  if (!nacionalidade) return ""
+  const code = NATIONALITY_TO_CODE[nacionalidade.toLowerCase().trim()]
+  return code ? (COUNTRY_FLAGS[code] ?? "") : ""
+}
 
 const POSICOES_SCOUTING = ["GK","RB","CBR","CBL","LB","CM","CMR","CML","WR","OM","WL","ST"]
 const ESTADOS_SCOUTING: { value: EstadoScouting; label: string; color: string }[] = [
@@ -123,6 +130,8 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
   const [peso, setPeso] = useState<[number, number]>([50, 110])
   const [idade, setIdade] = useState<[number, number]>([14, 45])
   const [avaliacaoMin, setAvaliacaoMin] = useState(1)
+  const [potencialMin, setPotencialMin] = useState(1)
+  const [clubeTexto, setClubeTexto] = useState("")
   const [velocidadeMin, setVelocidadeMin] = useState(0)
   const [aceleracaoMin, setAceleracaoMin] = useState(0)
   const [resistenciaMin, setResistenciaMin] = useState(0)
@@ -134,6 +143,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
   const [distanciaMin, setDistanciaMin] = useState(0)
   const [velMaxMin, setVelMaxMin] = useState(0)
   const [ligaTexto, setLigaTexto] = useState("")
+  // ligaTexto mantido para pesquisa rápida mas removido do painel lateral
 
   function toggleSection(id: string) {
     setOpenSections(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id])
@@ -146,7 +156,8 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
   function clearAll() {
     setTexto(""); setPosicoes([]); setEstados([]); setPePreferido([])
     setAltura([155, 210]); setPeso([50, 110]); setIdade([14, 45])
-    setAvaliacaoMin(1); setVelocidadeMin(0); setAceleracaoMin(0)
+    setAvaliacaoMin(1); setPotencialMin(1); setClubeTexto("")
+    setVelocidadeMin(0); setAceleracaoMin(0)
     setResistenciaMin(0); setForcaMin(0); setGolosMin(0)
     setAssistenciasMin(0); setJogosMin(0); setSprintsMin(0)
     setDistanciaMin(0); setVelMaxMin(0); setLigaTexto("")
@@ -164,6 +175,8 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
     idadeMin: idade[0] > 14 ? idade[0] : undefined,
     idadeMax: idade[1] < 45 ? idade[1] : undefined,
     avaliacaoMin: avaliacaoMin > 1 ? avaliacaoMin : undefined,
+    potencialMin: potencialMin > 1 ? potencialMin : undefined,
+    clubeTexto: clubeTexto || undefined,
     velocidadeMin: velocidadeMin > 0 ? velocidadeMin : undefined,
     aceleracaoMin: aceleracaoMin > 0 ? aceleracaoMin : undefined,
     resistenciaMin: resistenciaMin > 0 ? resistenciaMin : undefined,
@@ -195,6 +208,8 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         if (filtro.idadeMax !== undefined && (id ?? 999) > filtro.idadeMax) return false
       }
       if (filtro.avaliacaoMin !== undefined && j.avaliacao < filtro.avaliacaoMin) return false
+      if (filtro.potencialMin !== undefined && (j.potencial ?? 0) < filtro.potencialMin) return false
+      if (filtro.clubeTexto && !j.clube?.toLowerCase().includes(filtro.clubeTexto.toLowerCase())) return false
       if (filtro.velocidadeMin !== undefined && (j.velocidade ?? 0) < filtro.velocidadeMin) return false
       if (filtro.aceleracaoMin !== undefined && (j.aceleracao ?? 0) < filtro.aceleracaoMin) return false
       if (filtro.resistenciaMin !== undefined && (j.resistencia ?? 0) < filtro.resistenciaMin) return false
@@ -217,9 +232,9 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
     })
     return result
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jogadores, texto, posicoes, estados, pePreferido, altura, peso, idade, avaliacaoMin,
+  }, [jogadores, texto, posicoes, estados, pePreferido, altura, peso, idade, avaliacaoMin, potencialMin,
     velocidadeMin, aceleracaoMin, resistenciaMin, forcaMin, golosMin, assistenciasMin,
-    jogosMin, sprintsMin, distanciaMin, velMaxMin, ligaTexto, sortBy, sortDir])
+    jogosMin, sprintsMin, distanciaMin, velMaxMin, ligaTexto, clubeTexto, sortBy, sortDir])
 
   function handleSort(col: SortKey) {
     if (sortBy === col) setSortDir(d => d === "asc" ? "desc" : "asc")
@@ -240,7 +255,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
 
   const hasFilters = texto || posicoes.length || estados.length || pePreferido.length ||
     altura[0] > 155 || altura[1] < 210 || peso[0] > 50 || peso[1] < 110 ||
-    idade[0] > 14 || idade[1] < 45 || avaliacaoMin > 1 ||
+    idade[0] > 14 || idade[1] < 45 || avaliacaoMin > 1 || potencialMin > 1 || clubeTexto ||
     velocidadeMin > 0 || aceleracaoMin > 0 || resistenciaMin > 0 || forcaMin > 0 ||
     golosMin > 0 || assistenciasMin > 0 || jogosMin > 0 ||
     sprintsMin > 0 || distanciaMin > 0 || velMaxMin > 0 || ligaTexto
@@ -330,24 +345,39 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         {/* Secção: Clube */}
         <FilterSection title="Clube" id="clube" open={openSections.includes("clube")} onToggle={() => toggleSection("clube")}>
           <div>
-            <div className="text-xs text-muted-foreground mb-1">Liga</div>
-            <Input placeholder="ex: Premier League" value={ligaTexto} onChange={e => setLigaTexto(e.target.value)} className="h-7 text-xs" />
+            <div className="text-xs text-muted-foreground mb-1">Nome do Clube</div>
+            <Input placeholder="ex: Benfica" value={clubeTexto} onChange={e => setClubeTexto(e.target.value)} className="h-7 text-xs" />
           </div>
         </FilterSection>
 
         {/* Secção: Avaliação */}
         <FilterSection title="Avaliação" id="avaliacao" open={openSections.includes("avaliacao")} onToggle={() => toggleSection("avaliacao")}>
-          <div>
-            <div className="text-xs text-muted-foreground mb-2">Mínimo ★</div>
-            <div className="flex gap-1">
-              {[1,2,3,4,5].map(v => (
-                <button key={v} onClick={() => setAvaliacaoMin(v)}
-                  className="flex-1 py-1 rounded text-xs transition-colors"
-                  style={{ background: v <= avaliacaoMin ? "#FFD700" : "hsl(var(--muted))" }}
-                >
-                  ★
-                </button>
-              ))}
+          <div className="space-y-3">
+            <div>
+              <div className="text-xs text-muted-foreground mb-2">A. Geral mín.</div>
+              <div className="flex gap-1">
+                {[1,2,3,4,5].map(v => (
+                  <button key={v} onClick={() => setAvaliacaoMin(v)}
+                    className="flex-1 py-1 rounded text-xs transition-colors"
+                    style={{ background: v <= avaliacaoMin ? "#FFD700" : "hsl(var(--muted))", color: v <= avaliacaoMin ? "#000" : undefined }}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs mb-2" style={{ color: "#8B5CF6" }}>Potencial mín.</div>
+              <div className="flex gap-1">
+                {[1,2,3,4,5].map(v => (
+                  <button key={v} onClick={() => setPotencialMin(v)}
+                    className="flex-1 py-1 rounded text-xs transition-colors"
+                    style={{ background: v <= potencialMin ? "#8B5CF6" : "hsl(var(--muted))", color: v <= potencialMin ? "#fff" : undefined }}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </FilterSection>
@@ -420,6 +450,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
                     { col: "nacionalidade" as SortKey, label: "País" },
                     { col: "liga" as SortKey, label: "Liga" },
                     { col: "avaliacao" as SortKey, label: "Aval" },
+                    { col: "potencial" as SortKey, label: "Pot" },
                     { col: "velocidade" as SortKey, label: "Vel" },
                     { col: "golos" as SortKey, label: "G" },
                     { col: "assistencias" as SortKey, label: "A" },
@@ -456,7 +487,11 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
                         <Badge variant="outline" className="text-xs font-bold">{j.posicao}</Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{j.clube || "—"}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{j.nacionalidade || "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {j.nacionalidade ? (
+                          <span title={j.nacionalidade} className="text-base">{getFlag(j.nacionalidade) || j.nacionalidade}</span>
+                        ) : "—"}
+                      </TableCell>
                       <TableCell className="text-sm text-muted-foreground">{j.liga || "—"}</TableCell>
                       <TableCell>
                         <div className="flex gap-0.5">
@@ -464,6 +499,15 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
                             <Star key={i} className={`w-3 h-3 ${i <= j.avaliacao ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`} />
                           ))}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {j.potencial !== undefined ? (
+                          <div className="flex gap-0.5">
+                            {[1,2,3,4,5].map(i => (
+                              <Star key={i} className={`w-3 h-3 ${i <= j.potencial! ? "text-[#8B5CF6] fill-[#8B5CF6]" : "text-muted-foreground"}`} />
+                            ))}
+                          </div>
+                        ) : <span className="text-muted-foreground">—</span>}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground text-center">{j.velocidade ?? "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground text-center">{j.golos ?? "—"}</TableCell>

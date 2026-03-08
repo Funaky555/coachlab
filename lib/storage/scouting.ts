@@ -55,6 +55,11 @@ export interface JogadorObservado {
   // Contrato
   salario?: number          // €/mês
   contactoAgente?: string
+  nomeAgente?: string
+  agencia?: string
+
+  // Avaliação de potencial
+  potencial?: number        // estrelas 1-5
 }
 
 export interface FiltroScouting {
@@ -67,6 +72,8 @@ export interface FiltroScouting {
   pesoMin?: number; pesoMax?: number
   idadeMin?: number; idadeMax?: number
   avaliacaoMin?: number
+  potencialMin?: number
+  clubeTexto?: string
   velocidadeMin?: number
   aceleracaoMin?: number
   resistenciaMin?: number
@@ -131,6 +138,8 @@ export function filtrarJogadoresAvancado(filtro: FiltroScouting): JogadorObserva
       if (filtro.idadeMax !== undefined && (idade ?? 999) > filtro.idadeMax) return false
     }
     if (filtro.avaliacaoMin !== undefined && j.avaliacao < filtro.avaliacaoMin) return false
+    if (filtro.potencialMin !== undefined && (j.potencial ?? 0) < filtro.potencialMin) return false
+    if (filtro.clubeTexto && !j.clube?.toLowerCase().includes(filtro.clubeTexto.toLowerCase())) return false
     if (filtro.velocidadeMin !== undefined && (j.velocidade ?? 0) < filtro.velocidadeMin) return false
     if (filtro.aceleracaoMin !== undefined && (j.aceleracao ?? 0) < filtro.aceleracaoMin) return false
     if (filtro.resistenciaMin !== undefined && (j.resistencia ?? 0) < filtro.resistenciaMin) return false

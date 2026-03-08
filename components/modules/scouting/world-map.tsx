@@ -8,7 +8,7 @@ import * as topojson from "topojson-client"
 import type { Topology, Objects } from "topojson-specification"
 import type { Feature, Geometry, GeoJsonProperties } from "geojson"
 import { type JogadorObservado } from "@/lib/storage/scouting"
-import { NATIONALITY_TO_CODE, UN_TO_ISO3, COUNTRY_NAMES } from "./world-map-data"
+import { NATIONALITY_TO_CODE, UN_TO_ISO3, COUNTRY_NAMES, COUNTRY_FLAGS } from "./world-map-data"
 
 interface Props {
   jogadores: JogadorObservado[]
@@ -39,26 +39,27 @@ const ESTADOS_CONFIG: Record<string, { label: string; color: string }> = {
   descartado:    { label: "Descartado",    color: "#6B7280" },
 }
 
-const COUNTRY_FLAGS: Record<string, string> = {
-  PRT: "🇵🇹", ESP: "🇪🇸", FRA: "🇫🇷", DEU: "🇩🇪", ITA: "🇮🇹",
-  GBR: "🇬🇧", NLD: "🇳🇱", BEL: "🇧🇪", BRA: "🇧🇷", ARG: "🇦🇷",
-  URY: "🇺🇾", COL: "🇨🇴", CHL: "🇨🇱", PER: "🇵🇪", VEN: "🇻🇪",
-  ECU: "🇪🇨", MEX: "🇲🇽", USA: "🇺🇸", CAN: "🇨🇦", SEN: "🇸🇳",
-  CIV: "🇨🇮", GHA: "🇬🇭", NGA: "🇳🇬", CMR: "🇨🇲", MAR: "🇲🇦",
-  DZA: "🇩🇿", TUN: "🇹🇳", EGY: "🇪🇬", ZAF: "🇿🇦", MOZ: "🇲🇿",
-  AGO: "🇦🇴", ETH: "🇪🇹", MLI: "🇲🇱", GIN: "🇬🇳", JPN: "🇯🇵",
-  KOR: "🇰🇷", CHN: "🇨🇳", AUS: "🇦🇺", RUS: "🇷🇺", UKR: "🇺🇦",
-  POL: "🇵🇱", HRV: "🇭🇷", SRB: "🇷🇸", DNK: "🇩🇰", SWE: "🇸🇪",
-  NOR: "🇳🇴", IRL: "🇮🇪", TUR: "🇹🇷", GRC: "🇬🇷", ROU: "🇷🇴",
-  HUN: "🇭🇺", CZE: "🇨🇿", AUT: "🇦🇹", CHE: "🇨🇭", SVN: "🇸🇮",
-  SVK: "🇸🇰", BIH: "🇧🇦", MNE: "🇲🇪",
-}
-
 type GeoFeature = Feature<Geometry, GeoJsonProperties>
+
+function MiniCountryMap({ feature }: { feature: GeoFeature }) {
+  const MW = 240, MH = 130
+  const proj = useMemo(() => {
+    return geoNaturalEarth1().fitSize([MW, MH], feature)
+  }, [feature])
+  const d = useMemo(() => geoPath(proj)(feature) ?? "", [proj, feature])
+  if (!d) return null
+  return (
+    <svg viewBox={`0 0 ${MW} ${MH}`} className="w-full rounded-lg" style={{ display: "block" }}>
+      <rect width={MW} height={MH} fill="#0a1628" rx={6} />
+      <path d={d} fill="#00D66C22" stroke="#00D66C" strokeWidth={1.5} />
+    </svg>
+  )
+}
 
 export function WorldMap({ jogadores, onEdit }: Props) {
   const [geographies, setGeographies] = useState<GeoFeature[]>([])
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+  const [selectedFeature, setSelectedFeature] = useState<GeoFeature | null>(null)
   const [tooltip, setTooltip] = useState<{ x: number; y: number; name: string; count: number } | null>(null)
 
   useEffect(() => {
@@ -89,6 +90,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
 
   const selectedPlayers = selectedCountry ? (playersByCountry[selectedCountry] ?? []) : []
   const selectedCountryName = selectedCountry ? (COUNTRY_NAMES[selectedCountry] ?? selectedCountry) : ""
+  const selectedCountryFlag = selectedCountry ? (COUNTRY_FLAGS[selectedCountry] ?? "🌍") : "🌍"
 
   const totalComPais = Object.values(playersByCountry).reduce((s, a) => s + a.length, 0)
   const semPais = jogadores.length - totalComPais
@@ -166,7 +168,10 @@ export function WorldMap({ jogadores, onEdit }: Props) {
                   transition: "fill 0.15s",
                 }}
                 onClick={() => {
-                  if (iso3 && count > 0) setSelectedCountry(iso3)
+                  if (iso3 && count > 0) {
+                    setSelectedCountry(iso3)
+                    setSelectedFeature(geo)
+                  }
                 }}
               />
             )
@@ -233,7 +238,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/40 z-40"
-              onClick={() => setSelectedCountry(null)}
+              onClick={() => { setSelectedCountry(null); setSelectedFeature(null) }}
             />
             <motion.div
               initial={{ x: "100%" }}
@@ -242,22 +247,31 @@ export function WorldMap({ jogadores, onEdit }: Props) {
               transition={{ type: "spring", damping: 28, stiffness: 300 }}
               className="fixed right-0 top-0 h-full w-80 bg-background border-l border-border z-50 flex flex-col shadow-2xl"
             >
-              <div className="flex items-center justify-between px-4 py-4 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{COUNTRY_FLAGS[selectedCountry] ?? "🌍"}</span>
-                  <div>
-                    <div className="font-bold">{selectedCountryName}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {selectedPlayers.length} jogador{selectedPlayers.length !== 1 ? "es" : ""}
+              {/* Header do painel */}
+              <div className="px-4 py-4 border-b border-border" style={{ background: "linear-gradient(135deg, #00D66C10, #0066FF10)" }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl">{selectedCountryFlag}</span>
+                    <div>
+                      <div className="font-bold text-base">{selectedCountryName}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {selectedPlayers.length} jogador{selectedPlayers.length !== 1 ? "es" : ""}
+                      </div>
                     </div>
                   </div>
+                  <button
+                    onClick={() => { setSelectedCountry(null); setSelectedFeature(null) }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-                <button
-                  onClick={() => setSelectedCountry(null)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                {/* Mini mapa do país */}
+                {selectedFeature && (
+                  <div className="rounded-lg overflow-hidden border border-[#00D66C]/20">
+                    <MiniCountryMap feature={selectedFeature} />
+                  </div>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -267,7 +281,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
                     <div
                       key={j.id}
                       className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-[#00D66C]/40 hover:bg-muted/20 cursor-pointer transition-colors"
-                      onClick={() => { setSelectedCountry(null); onEdit(j) }}
+                      onClick={() => { setSelectedCountry(null); setSelectedFeature(null); onEdit(j) }}
                     >
                       {j.fotoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element

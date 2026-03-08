@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
@@ -10,11 +10,12 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Search, Star, User, Pencil, Trash2, Users, Globe2, Filter } from "lucide-react"
+import { Plus, Search, Star, User, Pencil, Trash2, Users, Globe2, Filter, Upload, Camera, FileText, BarChart3, Award } from "lucide-react"
 import {
   type JogadorObservado, type EstadoScouting, type PePreferido,
   getJogadoresObservados, addJogadorObservado, updateJogadorObservado, deleteJogadorObservado
 } from "@/lib/storage/scouting"
+import { NATIONALITY_TO_CODE, COUNTRY_FLAGS } from "./world-map-data"
 import { ScoutSearch } from "./scout-search"
 import { WorldMap } from "./world-map"
 
@@ -26,6 +27,12 @@ const ESTADOS: { value: EstadoScouting; label: string; color: string }[] = [
 ]
 
 const POSICOES = ["GK","RB","CBR","CBL","LB","CM","CMR","CML","WR","OM","WL","ST"]
+
+function getFlag(nacionalidade?: string): string {
+  if (!nacionalidade) return ""
+  const code = NATIONALITY_TO_CODE[nacionalidade.toLowerCase().trim()]
+  return code ? (COUNTRY_FLAGS[code] ?? "") : ""
+}
 
 function estadoBadge(estado: EstadoScouting) {
   const e = ESTADOS.find(s => s.value === estado) ?? ESTADOS[0]
@@ -39,13 +46,14 @@ function estadoBadge(estado: EstadoScouting) {
   )
 }
 
-function StarRating({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
+function StarRating({ value, onChange, size = "sm" }: { value: number; onChange?: (v: number) => void; size?: "sm" | "md" | "lg" }) {
+  const sz = size === "lg" ? "w-6 h-6" : size === "md" ? "w-5 h-5" : "w-4 h-4"
   return (
     <div className="flex gap-0.5">
       {[1,2,3,4,5].map(i => (
         <Star
           key={i}
-          className={`w-4 h-4 ${onChange ? "cursor-pointer" : ""} ${i <= value ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`}
+          className={`${sz} ${onChange ? "cursor-pointer hover:scale-110 transition-transform" : ""} ${i <= value ? "text-yellow-400 fill-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.6)]" : "text-muted-foreground"}`}
           onClick={() => onChange?.(i)}
         />
       ))}
@@ -73,7 +81,7 @@ function NumInput({ label, value, onChange, placeholder, min, max }: {
 
 const emptyForm: Omit<JogadorObservado, "id"> = {
   nome: "", dataNascimento: "", clube: "", posicao: "CM", pePreferido: "direito",
-  nacionalidade: "", fotoUrl: "", avaliacao: 3, estado: "em_observacao",
+  nacionalidade: "", fotoUrl: "", avaliacao: 3, potencial: 3, estado: "em_observacao",
   caracteristicasTecnicas: "", caracteristicasTaticas: "",
   caracteristicasFisicas: "", caracteristicasMentais: "",
   pontosFortess: "", pontosFracos: "", notas: "",
@@ -88,6 +96,7 @@ export function ScoutingModule() {
   const [filtroEstado, setFiltroEstado] = useState<EstadoScouting | "todos">("todos")
   const [filtroPosicao, setFiltroPosicao] = useState<string>("todos")
   const [searchText, setSearchText] = useState("")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { setJogadores(getJogadoresObservados()) }, [])
 
@@ -121,6 +130,8 @@ export function ScoutingModule() {
       paisClube: form.paisClube || undefined,
       fimContrato: form.fimContrato || undefined,
       contactoAgente: form.contactoAgente || undefined,
+      nomeAgente: form.nomeAgente || undefined,
+      agencia: form.agencia || undefined,
     }
     if (editingId) { updateJogadorObservado(editingId, clean) } else { addJogadorObservado(clean) }
     refresh()
@@ -129,6 +140,14 @@ export function ScoutingModule() {
 
   function remove(id: string) { deleteJogadorObservado(id); refresh() }
   const countByEstado = (e: EstadoScouting) => jogadores.filter(j => j.estado === e).length
+
+  function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => setForm(f => ({ ...f, fotoUrl: ev.target?.result as string }))
+    reader.readAsDataURL(file)
+  }
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
@@ -205,50 +224,65 @@ export function ScoutingModule() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filtered.map(j => (
-                <Card key={j.id} className="glass-card border-border/50 group hover:border-[#FF6B35]/30 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3 mb-3">
-                      {j.fotoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={j.fotoUrl} alt={j.nome} className="w-12 h-12 rounded-full object-cover shrink-0" />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <User className="w-5 h-5 text-muted-foreground" />
+              {filtered.map(j => {
+                const flag = getFlag(j.nacionalidade)
+                return (
+                  <Card key={j.id} className="glass-card border-border/50 group hover:border-[#FF6B35]/30 transition-colors">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        {j.fotoUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={j.fotoUrl} alt={j.nome} className="w-12 h-12 rounded-full object-cover shrink-0 border-2 border-[#00D66C]/40" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0 border-2 border-border">
+                            <User className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold truncate">{j.nome}</div>
+                          <div className="text-xs text-muted-foreground">{j.posicao} · {j.clube || "—"}</div>
+                          {j.nacionalidade && (
+                            <div className="text-xs text-muted-foreground flex items-center gap-1">
+                              {flag ? <span className="text-base leading-none">{flag}</span> : null}
+                              <span>{flag ? "" : j.nacionalidade}</span>
+                            </div>
+                          )}
+                          <div className="mt-1 flex items-center gap-2">
+                            <StarRating value={j.avaliacao} />
+                            {j.potencial !== undefined && (
+                              <span className="text-xs text-[#8B5CF6] font-medium flex items-center gap-0.5">
+                                <Award className="w-3 h-3" />{j.potencial}★
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        {estadoBadge(j.estado)}
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button size="icon" variant="ghost" className="w-7 h-7" onClick={() => openEdit(j)}>
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button size="icon" variant="ghost" className="w-7 h-7 text-destructive hover:text-destructive" onClick={() => remove(j.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      {(j.liga || j.valorMercado) && (
+                        <div className="mt-2 flex gap-2 flex-wrap">
+                          {j.liga && <Badge variant="outline" className="text-xs">{j.liga}</Badge>}
+                          {j.valorMercado && (
+                            <Badge variant="outline" className="text-xs text-[#00D66C] border-[#00D66C]/30">
+                              {j.valorMercado >= 1_000_000 ? `€${(j.valorMercado/1_000_000).toFixed(1)}M` : `€${(j.valorMercado/1000).toFixed(0)}K`}
+                            </Badge>
+                          )}
                         </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold truncate">{j.nome}</div>
-                        <div className="text-xs text-muted-foreground">{j.posicao} · {j.clube || "—"}</div>
-                        {j.nacionalidade && <div className="text-xs text-muted-foreground">{j.nacionalidade}</div>}
-                        <div className="mt-1"><StarRating value={j.avaliacao} /></div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      {estadoBadge(j.estado)}
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button size="icon" variant="ghost" className="w-7 h-7" onClick={() => openEdit(j)}>
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="w-7 h-7 text-destructive hover:text-destructive" onClick={() => remove(j.id)}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                    {(j.liga || j.valorMercado) && (
-                      <div className="mt-2 flex gap-2 flex-wrap">
-                        {j.liga && <Badge variant="outline" className="text-xs">{j.liga}</Badge>}
-                        {j.valorMercado && (
-                          <Badge variant="outline" className="text-xs text-[#00D66C] border-[#00D66C]/30">
-                            {j.valorMercado >= 1_000_000 ? `€${(j.valorMercado/1_000_000).toFixed(1)}M` : `€${(j.valorMercado/1000).toFixed(0)}K`}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                    <div className="mt-1 text-xs text-muted-foreground">Obs: {j.dataObservacao}</div>
-                  </CardContent>
-                </Card>
-              ))}
+                      <div className="mt-1 text-xs text-muted-foreground">Obs: {j.dataObservacao}</div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
           )}
         </TabsContent>
@@ -266,179 +300,266 @@ export function ScoutingModule() {
 
       {/* Dialog add/edit — 4 tabs */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Editar Ficha de Scouting" : "Nova Ficha de Scouting"}</DialogTitle>
-          </DialogHeader>
-          <Tabs defaultValue="info" className="py-2">
-            <TabsList className="mb-4 w-full">
-              <TabsTrigger value="info" className="flex-1">Informação</TabsTrigger>
-              <TabsTrigger value="contrato" className="flex-1">Contrato</TabsTrigger>
-              <TabsTrigger value="caracteristicas" className="flex-1">Características</TabsTrigger>
-              <TabsTrigger value="stats" className="flex-1">Stats</TabsTrigger>
-            </TabsList>
-
-            {/* INFO */}
-            <TabsContent value="info" className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Nome *</Label>
-                  <Input value={form.nome} onChange={e => setForm({...form, nome: e.target.value})} className="mt-1" />
-                </div>
-                <div>
-                  <Label>Data de Nascimento</Label>
-                  <Input type="date" value={form.dataNascimento} onChange={e => setForm({...form, dataNascimento: e.target.value})} className="mt-1" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Clube Atual</Label>
-                  <Input value={form.clube} onChange={e => setForm({...form, clube: e.target.value})} className="mt-1" />
-                </div>
-                <div>
-                  <Label>Nacionalidade</Label>
-                  <Input value={form.nacionalidade} onChange={e => setForm({...form, nacionalidade: e.target.value})} className="mt-1" placeholder="ex: Portugal" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Liga</Label>
-                  <Input placeholder="ex: Premier League" value={form.liga ?? ""} onChange={e => setForm({...form, liga: e.target.value})} className="mt-1" />
-                </div>
-                <div>
-                  <Label>País do Clube</Label>
-                  <Input placeholder="ex: Inglaterra" value={form.paisClube ?? ""} onChange={e => setForm({...form, paisClube: e.target.value})} className="mt-1" />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <Label>Posição</Label>
-                  <Select value={form.posicao} onValueChange={v => setForm({...form, posicao: v})}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                    <SelectContent>{POSICOES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Pé Preferido</Label>
-                  <Select value={form.pePreferido} onValueChange={v => setForm({...form, pePreferido: v as PePreferido})}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="direito">Direito</SelectItem>
-                      <SelectItem value="esquerdo">Esquerdo</SelectItem>
-                      <SelectItem value="ambidestro">Ambidestro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Estado</Label>
-                  <Select value={form.estado} onValueChange={v => setForm({...form, estado: v as EstadoScouting})}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                    <SelectContent>{ESTADOS.map(e => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <NumInput label="Altura (cm)" value={form.altura} onChange={v => setForm({...form, altura: v})} placeholder="180" min={140} max={220} />
-                <NumInput label="Peso (kg)" value={form.peso} onChange={v => setForm({...form, peso: v})} placeholder="75" min={40} max={130} />
-                <div>
-                  <Label className="text-xs">Data de Observação</Label>
-                  <Input type="date" value={form.dataObservacao} onChange={e => setForm({...form, dataObservacao: e.target.value})} className="mt-1 h-8" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>URL da Foto</Label>
-                  <Input placeholder="https://..." value={form.fotoUrl ?? ""} onChange={e => setForm({...form, fotoUrl: e.target.value})} className="mt-1" />
-                </div>
-                <div>
-                  <Label>Avaliação Geral</Label>
-                  <div className="mt-2 h-8 flex items-center">
-                    <StarRating value={form.avaliacao} onChange={v => setForm({...form, avaliacao: v})} />
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          {/* Header gradient */}
+          <div className="relative px-6 pt-6 pb-4" style={{ background: "linear-gradient(135deg, #00D66C15 0%, #0066FF15 50%, #8B5CF615 100%)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="flex items-center gap-4">
+              {/* Avatar com upload */}
+              <div className="relative shrink-0">
+                <div
+                  className="w-16 h-16 rounded-full overflow-hidden border-2 cursor-pointer group/avatar"
+                  style={{ borderColor: "#00D66C", boxShadow: "0 0 12px #00D66C44" }}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {form.fotoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={form.fotoUrl} alt="foto" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <User className="w-7 h-7 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity rounded-full">
+                    <Camera className="w-5 h-5 text-white" />
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white"
+                  style={{ background: "#00D66C" }}
+                >
+                  <Upload className="w-3 h-3" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoUpload}
+                />
               </div>
-            </TabsContent>
+              <div className="flex-1 min-w-0">
+                <DialogTitle className="text-lg font-bold mb-0.5">
+                  {editingId ? "Editar Ficha de Scouting" : "Nova Ficha de Scouting"}
+                </DialogTitle>
+                <p className="text-xs text-muted-foreground">
+                  {form.nome || "Novo jogador"} {form.posicao ? `· ${form.posicao}` : ""}
+                </p>
+              </div>
+            </div>
+          </div>
 
-            {/* CONTRATO */}
-            <TabsContent value="contrato" className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Fim de Contrato</Label>
-                  <Input type="date" value={form.fimContrato ?? ""} onChange={e => setForm({...form, fimContrato: e.target.value})} className="mt-1" />
-                </div>
-                <NumInput label="Valor de Mercado (€)" value={form.valorMercado} onChange={v => setForm({...form, valorMercado: v})} placeholder="1000000" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <NumInput label="Salário (€/mês)" value={form.salario} onChange={v => setForm({...form, salario: v})} placeholder="50000" />
-                <div>
-                  <Label>Contacto do Agente</Label>
-                  <Input placeholder="email ou telefone" value={form.contactoAgente ?? ""} onChange={e => setForm({...form, contactoAgente: e.target.value})} className="mt-1" />
-                </div>
-              </div>
-            </TabsContent>
+          <div className="px-6 pt-4 pb-2">
+            <Tabs defaultValue="info" className="w-full">
+              <TabsList className="w-full mb-5 grid grid-cols-4 h-auto p-1" style={{ background: "hsl(var(--muted)/0.4)" }}>
+                <TabsTrigger value="info" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#00D66C]">
+                  <User className="w-4 h-4" />
+                  <span>Info</span>
+                </TabsTrigger>
+                <TabsTrigger value="contrato" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#0066FF]">
+                  <FileText className="w-4 h-4" />
+                  <span>Contrato</span>
+                </TabsTrigger>
+                <TabsTrigger value="caracteristicas" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#8B5CF6]">
+                  <Award className="w-4 h-4" />
+                  <span>Características</span>
+                </TabsTrigger>
+                <TabsTrigger value="stats" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#FF6B35]">
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Stats</span>
+                </TabsTrigger>
+              </TabsList>
 
-            {/* CARACTERÍSTICAS */}
-            <TabsContent value="caracteristicas" className="space-y-4">
-              {[
-                { key: "caracteristicasTecnicas" as const, label: "Características Técnicas" },
-                { key: "caracteristicasTaticas" as const, label: "Características Táticas" },
-                { key: "caracteristicasFisicas" as const, label: "Características Físicas" },
-                { key: "caracteristicasMentais" as const, label: "Características Mentais" },
-              ].map(f => (
-                <div key={f.key}>
-                  <Label>{f.label}</Label>
-                  <Textarea placeholder="Descreve..." value={form[f.key]} onChange={e => setForm({...form, [f.key]: e.target.value})} className="mt-1 h-20" />
+              {/* INFO */}
+              <TabsContent value="info" className="space-y-4">
+                <div className="p-3 rounded-lg border border-[#00D66C]/20" style={{ background: "#00D66C08" }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#00D66C] mb-3">Identificação</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs">Nome *</Label>
+                      <Input value={form.nome} onChange={e => setForm({...form, nome: e.target.value})} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Data de Nascimento</Label>
+                      <Input type="date" value={form.dataNascimento} onChange={e => setForm({...form, dataNascimento: e.target.value})} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Clube Atual</Label>
+                      <Input value={form.clube} onChange={e => setForm({...form, clube: e.target.value})} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Nacionalidade</Label>
+                      <div className="relative mt-1">
+                        <Input value={form.nacionalidade} onChange={e => setForm({...form, nacionalidade: e.target.value})} placeholder="ex: Portugal" />
+                        {form.nacionalidade && getFlag(form.nacionalidade) && (
+                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-lg">{getFlag(form.nacionalidade)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Liga</Label>
+                      <Input placeholder="ex: Premier League" value={form.liga ?? ""} onChange={e => setForm({...form, liga: e.target.value})} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">País do Clube</Label>
+                      <Input placeholder="ex: Inglaterra" value={form.paisClube ?? ""} onChange={e => setForm({...form, paisClube: e.target.value})} className="mt-1" />
+                    </div>
+                  </div>
                 </div>
-              ))}
-              <div>
-                <Label>Pontos Fortes</Label>
-                <Textarea placeholder="Lista os pontos fortes..." value={form.pontosFortess} onChange={e => setForm({...form, pontosFortess: e.target.value})} className="mt-1 h-16" />
-              </div>
-              <div>
-                <Label>Pontos Fracos</Label>
-                <Textarea placeholder="Pontos a melhorar..." value={form.pontosFracos} onChange={e => setForm({...form, pontosFracos: e.target.value})} className="mt-1 h-16" />
-              </div>
-              <div>
-                <Label>Notas</Label>
-                <Textarea placeholder="Notas livres..." value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} className="mt-1 h-16" />
-              </div>
-            </TabsContent>
 
-            {/* STATS */}
-            <TabsContent value="stats" className="space-y-5">
-              <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Atributos Físicos (0–20)</div>
+                <div className="p-3 rounded-lg border border-border/40" style={{ background: "hsl(var(--muted)/0.2)" }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Perfil</div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <Label className="text-xs">Posição</Label>
+                      <Select value={form.posicao} onValueChange={v => setForm({...form, posicao: v})}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>{POSICOES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Pé Preferido</Label>
+                      <Select value={form.pePreferido} onValueChange={v => setForm({...form, pePreferido: v as PePreferido})}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="direito">Direito</SelectItem>
+                          <SelectItem value="esquerdo">Esquerdo</SelectItem>
+                          <SelectItem value="ambidestro">Ambidestro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Estado</Label>
+                      <Select value={form.estado} onValueChange={v => setForm({...form, estado: v as EstadoScouting})}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>{ESTADOS.map(e => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 mt-3">
+                    <NumInput label="Altura (cm)" value={form.altura} onChange={v => setForm({...form, altura: v})} placeholder="180" min={140} max={220} />
+                    <NumInput label="Peso (kg)" value={form.peso} onChange={v => setForm({...form, peso: v})} placeholder="75" min={40} max={130} />
+                    <div>
+                      <Label className="text-xs">Data de Observação</Label>
+                      <Input type="date" value={form.dataObservacao} onChange={e => setForm({...form, dataObservacao: e.target.value})} className="mt-1 h-8" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Avaliação */}
                 <div className="grid grid-cols-2 gap-3">
-                  <NumInput label="Velocidade" value={form.velocidade} onChange={v => setForm({...form, velocidade: v})} placeholder="15" min={0} max={20} />
-                  <NumInput label="Aceleração" value={form.aceleracao} onChange={v => setForm({...form, aceleracao: v})} placeholder="16" min={0} max={20} />
-                  <NumInput label="Resistência" value={form.resistencia} onChange={v => setForm({...form, resistencia: v})} placeholder="14" min={0} max={20} />
-                  <NumInput label="Força" value={form.forca} onChange={v => setForm({...form, forca: v})} placeholder="13" min={0} max={20} />
+                  <div className="p-3 rounded-lg border border-yellow-400/20" style={{ background: "rgba(250,204,21,0.05)" }}>
+                    <div className="text-xs font-bold uppercase tracking-wider text-yellow-400/80 mb-2">Avaliação Geral</div>
+                    <StarRating value={form.avaliacao} onChange={v => setForm({...form, avaliacao: v})} size="md" />
+                  </div>
+                  <div className="p-3 rounded-lg border border-[#8B5CF6]/20" style={{ background: "rgba(139,92,246,0.05)" }}>
+                    <div className="text-xs font-bold uppercase tracking-wider text-[#8B5CF6] mb-2">Potencial</div>
+                    <StarRating value={form.potencial ?? 3} onChange={v => setForm({...form, potencial: v})} size="md" />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Estatísticas de Jogo</div>
-                <div className="grid grid-cols-3 gap-3">
-                  <NumInput label="Golos" value={form.golos} onChange={v => setForm({...form, golos: v})} placeholder="12" min={0} />
-                  <NumInput label="Assistências" value={form.assistencias} onChange={v => setForm({...form, assistencias: v})} placeholder="8" min={0} />
-                  <NumInput label="Jogos" value={form.jogosDisputados} onChange={v => setForm({...form, jogosDisputados: v})} placeholder="30" min={0} />
-                  <NumInput label="Minutos" value={form.minutosJogados} onChange={v => setForm({...form, minutosJogados: v})} placeholder="2400" min={0} />
-                  <NumInput label="Amarelos" value={form.cartoesAmarelos} onChange={v => setForm({...form, cartoesAmarelos: v})} placeholder="3" min={0} />
-                  <NumInput label="Vermelhos" value={form.cartoesVermelhos} onChange={v => setForm({...form, cartoesVermelhos: v})} placeholder="0" min={0} />
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Métricas GPS</div>
-                <div className="grid grid-cols-2 gap-3">
-                  <NumInput label="Sprints / jogo" value={form.sprintsPorJogo} onChange={v => setForm({...form, sprintsPorJogo: v})} placeholder="18" min={0} />
-                  <NumInput label="Distância / jogo (km)" value={form.distanciaPorJogo} onChange={v => setForm({...form, distanciaPorJogo: v})} placeholder="10.5" min={0} />
-                  <NumInput label="Vel. Máxima (km/h)" value={form.velocidadeMaxima} onChange={v => setForm({...form, velocidadeMaxima: v})} placeholder="32" min={0} />
-                  <NumInput label="FC Média (bpm)" value={form.fcMedia} onChange={v => setForm({...form, fcMedia: v})} placeholder="155" min={0} />
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+              </TabsContent>
 
-          <DialogFooter>
+              {/* CONTRATO */}
+              <TabsContent value="contrato" className="space-y-4">
+                <div className="p-3 rounded-lg border border-[#0066FF]/20" style={{ background: "#0066FF08" }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#0066FF] mb-3">Dados Contratuais</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs">Fim de Contrato</Label>
+                      <Input type="date" value={form.fimContrato ?? ""} onChange={e => setForm({...form, fimContrato: e.target.value})} className="mt-1" />
+                    </div>
+                    <NumInput label="Valor de Mercado (€)" value={form.valorMercado} onChange={v => setForm({...form, valorMercado: v})} placeholder="1000000" />
+                    <NumInput label="Salário (€/mês)" value={form.salario} onChange={v => setForm({...form, salario: v})} placeholder="50000" />
+                    <div>
+                      <Label className="text-xs">Contacto do Agente</Label>
+                      <Input placeholder="email ou telefone" value={form.contactoAgente ?? ""} onChange={e => setForm({...form, contactoAgente: e.target.value})} className="mt-1" />
+                    </div>
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg border border-[#0066FF]/10" style={{ background: "#0066FF05" }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#0066FF]/70 mb-3">Representação</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs">Nome do Agente</Label>
+                      <Input placeholder="ex: Jorge Mendes" value={form.nomeAgente ?? ""} onChange={e => setForm({...form, nomeAgente: e.target.value})} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Agência</Label>
+                      <Input placeholder="ex: Gestifute" value={form.agencia ?? ""} onChange={e => setForm({...form, agencia: e.target.value})} className="mt-1" />
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* CARACTERÍSTICAS */}
+              <TabsContent value="caracteristicas" className="space-y-4">
+                <div className="p-3 rounded-lg border border-[#8B5CF6]/20" style={{ background: "#8B5CF608" }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#8B5CF6] mb-3">Análise Técnica</div>
+                  {[
+                    { key: "caracteristicasTecnicas" as const, label: "Características Técnicas" },
+                    { key: "caracteristicasTaticas" as const, label: "Características Táticas" },
+                    { key: "caracteristicasFisicas" as const, label: "Características Físicas" },
+                    { key: "caracteristicasMentais" as const, label: "Características Mentais" },
+                  ].map(f => (
+                    <div key={f.key} className="mb-3 last:mb-0">
+                      <Label className="text-xs">{f.label}</Label>
+                      <Textarea placeholder="Descreve..." value={form[f.key]} onChange={e => setForm({...form, [f.key]: e.target.value})} className="mt-1 h-16" />
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-[#00D66C]">Pontos Fortes</Label>
+                    <Textarea placeholder="Lista os pontos fortes..." value={form.pontosFortess} onChange={e => setForm({...form, pontosFortess: e.target.value})} className="mt-1 h-20 border-[#00D66C]/20" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-destructive">Pontos Fracos</Label>
+                    <Textarea placeholder="Pontos a melhorar..." value={form.pontosFracos} onChange={e => setForm({...form, pontosFracos: e.target.value})} className="mt-1 h-20 border-destructive/20" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs">Notas</Label>
+                  <Textarea placeholder="Notas livres..." value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} className="mt-1 h-16" />
+                </div>
+              </TabsContent>
+
+              {/* STATS */}
+              <TabsContent value="stats" className="space-y-5">
+                <div className="p-3 rounded-lg border border-[#FF6B35]/20" style={{ background: "#FF6B3508" }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#FF6B35] mb-3">Atributos Físicos (0–20)</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <NumInput label="Velocidade" value={form.velocidade} onChange={v => setForm({...form, velocidade: v})} placeholder="15" min={0} max={20} />
+                    <NumInput label="Aceleração" value={form.aceleracao} onChange={v => setForm({...form, aceleracao: v})} placeholder="16" min={0} max={20} />
+                    <NumInput label="Resistência" value={form.resistencia} onChange={v => setForm({...form, resistencia: v})} placeholder="14" min={0} max={20} />
+                    <NumInput label="Força" value={form.forca} onChange={v => setForm({...form, forca: v})} placeholder="13" min={0} max={20} />
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg border border-border/40" style={{ background: "hsl(var(--muted)/0.2)" }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Estatísticas de Jogo</div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <NumInput label="Golos" value={form.golos} onChange={v => setForm({...form, golos: v})} placeholder="12" min={0} />
+                    <NumInput label="Assistências" value={form.assistencias} onChange={v => setForm({...form, assistencias: v})} placeholder="8" min={0} />
+                    <NumInput label="Jogos" value={form.jogosDisputados} onChange={v => setForm({...form, jogosDisputados: v})} placeholder="30" min={0} />
+                    <NumInput label="Minutos" value={form.minutosJogados} onChange={v => setForm({...form, minutosJogados: v})} placeholder="2400" min={0} />
+                    <NumInput label="Amarelos" value={form.cartoesAmarelos} onChange={v => setForm({...form, cartoesAmarelos: v})} placeholder="3" min={0} />
+                    <NumInput label="Vermelhos" value={form.cartoesVermelhos} onChange={v => setForm({...form, cartoesVermelhos: v})} placeholder="0" min={0} />
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg border border-border/40" style={{ background: "hsl(var(--muted)/0.2)" }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Métricas GPS</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <NumInput label="Sprints / jogo" value={form.sprintsPorJogo} onChange={v => setForm({...form, sprintsPorJogo: v})} placeholder="18" min={0} />
+                    <NumInput label="Distância / jogo (km)" value={form.distanciaPorJogo} onChange={v => setForm({...form, distanciaPorJogo: v})} placeholder="10.5" min={0} />
+                    <NumInput label="Vel. Máxima (km/h)" value={form.velocidadeMaxima} onChange={v => setForm({...form, velocidadeMaxima: v})} placeholder="32" min={0} />
+                    <NumInput label="FC Média (bpm)" value={form.fcMedia} onChange={v => setForm({...form, fcMedia: v})} placeholder="155" min={0} />
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          <DialogFooter className="px-6 pb-6">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
             <Button onClick={save} disabled={!form.nome.trim()} className="text-white hover:opacity-90" style={{ background: "#FF6B35" }}>
               {editingId ? "Guardar" : "Adicionar"}
