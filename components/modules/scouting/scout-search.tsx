@@ -22,7 +22,7 @@ const ESTADOS_SCOUTING: { value: EstadoScouting; label: string; color: string }[
   { value: "em_observacao", label: "Em Observação", color: "#0066FF" },
   { value: "contactado", label: "Contactado", color: "#8B5CF6" },
   { value: "contratado", label: "Contratado", color: "#00D66C" },
-  { value: "descartado", label: "Descartado", color: "#6B7280" },
+  { value: "descartado", label: "Descartado", color: "#EF4444" },
 ]
 
 interface Props {
@@ -525,7 +525,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
                       </TableCell>
                       <TableCell onClick={e => e.stopPropagation()}>
                         <div className="flex gap-1">
-                          <Button size="icon" variant="ghost" className="w-7 h-7" onClick={() => onEdit(j)}>
+                          <Button size="icon" variant="ghost" className="w-7 h-7 text-white/60 hover:text-white hover:bg-white/10" onClick={() => onEdit(j)}>
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>
                           <Button size="icon" variant="ghost" className="w-7 h-7 text-destructive" onClick={() => remove(j.id)}>

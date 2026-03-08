@@ -25,7 +25,7 @@ const ESTADOS: { value: EstadoScouting; label: string; color: string; icon: Reac
   { value: "em_observacao", label: "Referenciados", color: "#0066FF", icon: Eye },
   { value: "contactado",    label: "Contactado",    color: "#8B5CF6", icon: Phone },
   { value: "contratado",    label: "Contratado",    color: "#00D66C", icon: Handshake },
-  { value: "descartado",    label: "Descartado",    color: "#6B7280", icon: XCircle },
+  { value: "descartado",    label: "Descartado",    color: "#EF4444", icon: XCircle },
 ]
 
 const ESTADOS_ACAO: { value: EstadoScouting; label: string; color: string }[] = [
@@ -166,7 +166,7 @@ export function ScoutingModule() {
       {/* Fundo imagem */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
-        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.28)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.15)" }} />
       </div>
 
       <div className="relative p-4 md:p-8 max-w-7xl mx-auto">
@@ -188,16 +188,16 @@ export function ScoutingModule() {
               </h1>
             </div>
             <div className="flex items-center gap-4 text-sm ml-4">
-              <span className="text-muted-foreground">
+              <span style={{ color: "rgba(255,255,255,0.75)" }}>
                 <span className="font-bold text-white">{jogadores.length}</span> atletas
               </span>
-              <span className="text-muted-foreground/40">·</span>
-              <span className="text-muted-foreground">
+              <span style={{ color: "rgba(255,255,255,0.30)" }}>·</span>
+              <span style={{ color: "rgba(255,255,255,0.75)" }}>
                 <span className="font-bold text-white">{paises}</span> países
               </span>
               {contratados > 0 && (
                 <>
-                  <span className="text-muted-foreground/40">·</span>
+                  <span style={{ color: "rgba(255,255,255,0.30)" }}>·</span>
                   <span style={{ color: "#00D66C" }}>
                     <span className="font-bold">{contratados}</span> contratados
                   </span>
@@ -212,14 +212,41 @@ export function ScoutingModule() {
 
         {/* Tabs principais */}
         <Tabs defaultValue="jogadores">
-          <TabsList className="mb-6" style={{ background: "rgba(4,10,22,0.70)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(12px)" }}>
-            <TabsTrigger value="jogadores" className="gap-2">
-              <Users className="w-4 h-4" /> Atletas ({jogadores.length})
+          <TabsList
+            className="mb-6 h-auto p-1.5 gap-1 w-full"
+            style={{
+              background: "rgba(4,10,22,0.85)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              backdropFilter: "blur(20px)",
+              borderRadius: "16px",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset",
+            }}
+          >
+            <TabsTrigger
+              value="jogadores"
+              className="flex-1 gap-2.5 px-5 py-3 text-sm font-bold uppercase tracking-wide rounded-xl transition-all duration-200
+                data-[state=inactive]:text-white/45 data-[state=inactive]:hover:text-white/75
+                data-[state=active]:text-white data-[state=active]:shadow-lg"
+              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "15px", letterSpacing: "0.05em" }}
+            >
+              <Users className="w-4 h-4" /> Atletas <span className="text-xs opacity-70">({jogadores.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="pesquisa" className="gap-2">
+            <TabsTrigger
+              value="pesquisa"
+              className="flex-1 gap-2.5 px-5 py-3 text-sm font-bold uppercase tracking-wide rounded-xl transition-all duration-200
+                data-[state=inactive]:text-white/45 data-[state=inactive]:hover:text-white/75
+                data-[state=active]:text-white data-[state=active]:shadow-lg"
+              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "15px", letterSpacing: "0.05em" }}
+            >
               <Filter className="w-4 h-4" /> Super Pesquisa
             </TabsTrigger>
-            <TabsTrigger value="mapa" className="gap-2">
+            <TabsTrigger
+              value="mapa"
+              className="flex-1 gap-2.5 px-5 py-3 text-sm font-bold uppercase tracking-wide rounded-xl transition-all duration-200
+                data-[state=inactive]:text-white/45 data-[state=inactive]:hover:text-white/75
+                data-[state=active]:text-white data-[state=active]:shadow-lg"
+              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "15px", letterSpacing: "0.05em" }}
+            >
               <Globe2 className="w-4 h-4" /> Mapa Mundial
             </TabsTrigger>
           </TabsList>
@@ -261,25 +288,25 @@ export function ScoutingModule() {
                   >
                     {/* Barra lateral colorida */}
                     <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl" style={{ background: e.color }} />
-                    <div className="p-4 pl-5">
-                      <div className="flex items-start justify-between mb-2">
-                        <div
-                          className="w-9 h-9 rounded-lg flex items-center justify-center"
-                          style={{ background: `${e.color}25`, border: `1px solid ${e.color}50` }}
-                        >
-                          <Icon className="w-5 h-5" style={{ color: e.color }} />
+                    <div className="p-3 pl-4 flex items-center gap-3">
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ background: `${e.color}25`, border: `1px solid ${e.color}50` }}
+                      >
+                        <Icon className="w-4 h-4" style={{ color: e.color }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-2xl font-black leading-none" style={{ color: e.color, fontFamily: "var(--font-barlow-condensed)" }}>
+                          {count}
                         </div>
-                        {!isReferenciados && count > 0 && (
-                          <ChevronDown
-                            className="w-4 h-4 transition-transform"
-                            style={{ color: e.color, transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
-                          />
-                        )}
+                        <div className="text-[11px] font-bold mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.70)" }}>{e.label}</div>
                       </div>
-                      <div className="text-3xl font-black" style={{ color: e.color, fontFamily: "var(--font-barlow-condensed)" }}>
-                        {count}
-                      </div>
-                      <div className="text-xs font-bold mt-0.5" style={{ color: "rgba(255,255,255,0.70)" }}>{e.label}</div>
+                      {!isReferenciados && count > 0 && (
+                        <ChevronDown
+                          className="w-4 h-4 shrink-0 transition-transform"
+                          style={{ color: e.color, transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+                        />
+                      )}
                     </div>
                     {/* Barra inferior decorativa */}
                     <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, ${e.color}, transparent)`, opacity: isActive ? 1 : 0.4 }} />
