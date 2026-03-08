@@ -1,126 +1,147 @@
 // Mapa de normalização: texto livre → código ISO-3
+// Cobre: nomes de país (PT+EN), adjetivos masculinos/femininos, códigos ISO diretos
 export const NATIONALITY_TO_CODE: Record<string, string> = {
+  // Códigos ISO diretos (ex: utilizador digita "PRT", "BRA", "AUS")
+  "prt": "PRT", "esp": "ESP", "fra": "FRA", "deu": "DEU", "ita": "ITA",
+  "gbr": "GBR", "nld": "NLD", "bel": "BEL", "bra": "BRA", "arg": "ARG",
+  "ury": "URY", "col": "COL", "chl": "CHL", "per": "PER", "ven": "VEN",
+  "ecu": "ECU", "mex": "MEX", "usa": "USA", "can": "CAN",
+  "sen": "SEN", "civ": "CIV", "gha": "GHA", "nga": "NGA", "cmr": "CMR",
+  "mar": "MAR", "dza": "DZA", "tun": "TUN", "egy": "EGY", "zaf": "ZAF",
+  "moz": "MOZ", "ago": "AGO", "eth": "ETH", "mli": "MLI", "gin": "GIN",
+  "jpn": "JPN", "kor": "KOR", "chn": "CHN", "aus": "AUS",
+  "rus": "RUS", "ukr": "UKR", "pol": "POL", "hrv": "HRV", "srb": "SRB",
+  "dnk": "DNK", "swe": "SWE", "nor": "NOR", "che": "CHE", "aut": "AUT",
+  "cze": "CZE", "hun": "HUN", "rou": "ROU", "tur": "TUR", "grc": "GRC",
+  "svn": "SVN", "svk": "SVK", "mne": "MNE", "bih": "BIH", "irl": "IRL",
+
   // Portugal
-  "portugal": "PRT", "português": "PRT", "portuguesa": "PRT",
+  "portugal": "PRT", "português": "PRT", "portuguesa": "PRT", "portuguese": "PRT",
   // Espanha
-  "espanha": "ESP", "spain": "ESP", "español": "ESP", "espanhol": "ESP",
+  "espanha": "ESP", "spain": "ESP", "español": "ESP", "espanhol": "ESP", "espanhola": "ESP", "spanish": "ESP",
   // França
-  "frança": "FRA", "france": "FRA", "français": "FRA", "francês": "FRA", "franceses": "FRA",
+  "frança": "FRA", "franca": "FRA", "france": "FRA", "français": "FRA", "francês": "FRA", "francesa": "FRA", "franceses": "FRA", "french": "FRA",
   // Alemanha
-  "alemanha": "DEU", "germany": "DEU", "deutsch": "DEU", "alemão": "DEU",
+  "alemanha": "DEU", "germany": "DEU", "deutsch": "DEU", "alemão": "DEU", "alemoa": "DEU", "alemã": "DEU", "alemao": "DEU", "german": "DEU",
   // Itália
-  "itália": "ITA", "italy": "ITA", "italiano": "ITA",
-  // Inglaterra / Reino Unido → GBR (ISO-3 real)
-  "inglaterra": "GBR", "england": "GBR", "inglês": "GBR", "british": "GBR",
-  "reino unido": "GBR", "united kingdom": "GBR", "uk": "GBR",
+  "itália": "ITA", "italia": "ITA", "italy": "ITA", "italiano": "ITA", "italiana": "ITA", "italian": "ITA",
+  // Inglaterra / Reino Unido
+  "inglaterra": "GBR", "england": "GBR", "inglês": "GBR", "ingles": "GBR", "inglesa": "GBR",
+  "reino unido": "GBR", "united kingdom": "GBR", "uk": "GBR", "english": "GBR", "british": "GBR",
   // Holanda
-  "holanda": "NLD", "netherlands": "NLD", "países baixos": "NLD", "holandês": "NLD",
+  "holanda": "NLD", "netherlands": "NLD", "países baixos": "NLD", "paises baixos": "NLD",
+  "holandês": "NLD", "holandes": "NLD", "holandesa": "NLD", "dutch": "NLD",
   // Bélgica
-  "bélgica": "BEL", "belgium": "BEL", "belga": "BEL",
+  "bélgica": "BEL", "belgica": "BEL", "belgium": "BEL", "belga": "BEL", "belgian": "BEL",
   // Brasil
-  "brasil": "BRA", "brazil": "BRA", "brasileiro": "BRA", "brasileira": "BRA",
+  "brasil": "BRA", "brazil": "BRA", "brasileiro": "BRA", "brasileira": "BRA", "brazilian": "BRA",
   // Argentina
-  "argentina": "ARG", "argentino": "ARG", "argentinian": "ARG",
+  "argentina": "ARG", "argentino": "ARG", "argentinian": "ARG", "argentinean": "ARG",
   // Uruguai
-  "uruguai": "URY", "uruguay": "URY", "uruguaio": "URY",
+  "uruguai": "URY", "uruguay": "URY", "uruguaio": "URY", "uruguaia": "URY", "uruguayan": "URY",
   // Colômbia
-  "colômbia": "COL", "colombia": "COL", "colombiano": "COL",
+  "colômbia": "COL", "colombia": "COL", "colombiano": "COL", "colombiana": "COL", "colombian": "COL",
   // Chile
-  "chile": "CHL", "chileno": "CHL",
+  "chile": "CHL", "chileno": "CHL", "chilena": "CHL", "chilean": "CHL",
   // Peru
-  "peru": "PER", "peruano": "PER",
+  "peru": "PER", "peruano": "PER", "peruana": "PER", "peruvian": "PER",
   // Venezuela
-  "venezuela": "VEN", "venezuelano": "VEN",
+  "venezuela": "VEN", "venezuelano": "VEN", "venezuelana": "VEN", "venezuelan": "VEN",
   // Equador
-  "equador": "ECU", "ecuador": "ECU", "equatoriano": "ECU",
+  "equador": "ECU", "ecuador": "ECU", "equatoriano": "ECU", "equatoriana": "ECU", "ecuadorian": "ECU",
   // México
-  "méxico": "MEX", "mexico": "MEX", "mexicano": "MEX",
+  "méxico": "MEX", "mexico": "MEX", "mexicano": "MEX", "mexicana": "MEX", "mexican": "MEX",
   // EUA
-  "eua": "USA", "usa": "USA", "estados unidos": "USA", "united states": "USA", "americano": "USA",
+  "eua": "USA", "estados unidos": "USA", "united states": "USA", "americano": "USA", "americana": "USA", "american": "USA",
   // Canadá
-  "canadá": "CAN", "canada": "CAN", "canadiano": "CAN",
+  "canadá": "CAN", "canada": "CAN", "canadiano": "CAN", "canadiana": "CAN", "canadian": "CAN",
   // Senegal
-  "senegal": "SEN", "senegalês": "SEN", "senegalese": "SEN",
+  "senegal": "SEN", "senegalês": "SEN", "senegales": "SEN", "senegalesa": "SEN", "senegalese": "SEN",
   // Costa do Marfim
-  "costa do marfim": "CIV", "ivory coast": "CIV", "côte d'ivoire": "CIV",
+  "costa do marfim": "CIV", "costa marfim": "CIV", "ivory coast": "CIV", "côte d'ivoire": "CIV", "cote d'ivoire": "CIV",
+  "marfinense": "CIV", "ivoriano": "CIV", "ivoriana": "CIV",
   // Gana
-  "gana": "GHA", "ghana": "GHA", "ganês": "GHA", "ghanaian": "GHA",
+  "gana": "GHA", "ghana": "GHA", "ganês": "GHA", "ganes": "GHA", "ganesa": "GHA", "ghanaian": "GHA",
   // Nigéria
-  "nigéria": "NGA", "nigeria": "NGA", "nigeriano": "NGA",
+  "nigéria": "NGA", "nigeria": "NGA", "nigeriano": "NGA", "nigeriana": "NGA", "nigerian": "NGA",
   // Camarões
-  "camarões": "CMR", "cameroon": "CMR", "camaronês": "CMR",
+  "camarões": "CMR", "camaroes": "CMR", "cameroon": "CMR", "camaronês": "CMR", "camaronesa": "CMR", "cameroonian": "CMR",
   // Marrocos
-  "marrocos": "MAR", "morocco": "MAR", "marroquino": "MAR",
+  "marrocos": "MAR", "morocco": "MAR", "marroquino": "MAR", "marroquina": "MAR", "moroccan": "MAR",
   // Egito
-  "egito": "EGY", "egypt": "EGY", "egípcio": "EGY",
+  "egito": "EGY", "egypt": "EGY", "egípcio": "EGY", "egipcio": "EGY", "egípcia": "EGY", "egyptian": "EGY",
   // África do Sul
-  "áfrica do sul": "ZAF", "south africa": "ZAF", "sul-africano": "ZAF",
+  "áfrica do sul": "ZAF", "africa do sul": "ZAF", "south africa": "ZAF",
+  "sul-africano": "ZAF", "sul africano": "ZAF", "sul-africana": "ZAF", "south african": "ZAF",
   // Tunísia
-  "tunísia": "TUN", "tunisia": "TUN", "tunisino": "TUN",
+  "tunísia": "TUN", "tunisia": "TUN", "tunisino": "TUN", "tunisina": "TUN", "tunisian": "TUN",
   // Argélia
-  "argélia": "DZA", "algeria": "DZA", "argelino": "DZA",
+  "argélia": "DZA", "argelia": "DZA", "algeria": "DZA", "argelino": "DZA", "argelina": "DZA", "algerian": "DZA",
   // Mali
-  "mali": "MLI", "maliano": "MLI",
+  "mali": "MLI", "maliano": "MLI", "maliana": "MLI", "malian": "MLI",
   // Guiné
-  "guiné": "GIN", "guinea": "GIN",
+  "guiné": "GIN", "guine": "GIN", "guinea": "GIN", "guineano": "GIN", "guineana": "GIN",
   // Etiópia
-  "etiópia": "ETH", "ethiopia": "ETH",
+  "etiópia": "ETH", "etiopia": "ETH", "ethiopia": "ETH", "etíope": "ETH", "ethiopian": "ETH",
   // Angola
-  "angola": "AGO", "angolano": "AGO",
+  "angola": "AGO", "angolano": "AGO", "angolana": "AGO", "angolan": "AGO",
   // Moçambique
-  "moçambique": "MOZ", "mozambique": "MOZ", "moçambicano": "MOZ",
+  "moçambique": "MOZ", "mocambique": "MOZ", "mozambique": "MOZ",
+  "moçambicano": "MOZ", "mocambicano": "MOZ", "mozambican": "MOZ",
   // Japão
-  "japão": "JPN", "japan": "JPN", "japonês": "JPN",
+  "japão": "JPN", "japao": "JPN", "japan": "JPN", "japonês": "JPN", "japones": "JPN", "japonesa": "JPN", "japanese": "JPN",
   // Coreia do Sul
-  "coreia do sul": "KOR", "south korea": "KOR", "coreano": "KOR",
+  "coreia do sul": "KOR", "coreia": "KOR", "south korea": "KOR", "korea": "KOR",
+  "coreano": "KOR", "coreana": "KOR", "korean": "KOR", "south korean": "KOR",
   // China
-  "china": "CHN", "chinês": "CHN", "chinese": "CHN",
+  "china": "CHN", "chinês": "CHN", "chines": "CHN", "chinesa": "CHN", "chinese": "CHN",
   // Austrália
-  "austrália": "AUS", "australia": "AUS", "australiano": "AUS",
+  "austrália": "AUS", "australia": "AUS", "australiano": "AUS", "australiana": "AUS", "australian": "AUS",
   // Rússia
-  "rússia": "RUS", "russia": "RUS", "russo": "RUS",
+  "rússia": "RUS", "russia": "RUS", "russo": "RUS", "russa": "RUS", "russian": "RUS",
   // Ucrânia
-  "ucrânia": "UKR", "ukraine": "UKR", "ucraniano": "UKR",
+  "ucrânia": "UKR", "ucrania": "UKR", "ukraine": "UKR", "ucraniano": "UKR", "ucraniana": "UKR", "ukrainian": "UKR",
   // Polónia
-  "polónia": "POL", "poland": "POL", "polaco": "POL",
+  "polónia": "POL", "polonia": "POL", "poland": "POL", "polaco": "POL", "polaca": "POL", "polish": "POL",
   // Croácia
-  "croácia": "HRV", "croatia": "HRV", "croata": "HRV",
+  "croácia": "HRV", "croacia": "HRV", "croatia": "HRV", "croata": "HRV", "croatian": "HRV",
   // Sérvia
-  "sérvia": "SRB", "serbia": "SRB", "sérvio": "SRB",
+  "sérvia": "SRB", "servia": "SRB", "serbia": "SRB", "sérvio": "SRB", "servio": "SRB", "serbian": "SRB",
   // Dinamarca
-  "dinamarca": "DNK", "denmark": "DNK", "dinamarquês": "DNK",
+  "dinamarca": "DNK", "denmark": "DNK", "dinamarquês": "DNK", "dinamarques": "DNK", "dinamarquesa": "DNK", "danish": "DNK",
   // Suécia
-  "suécia": "SWE", "sweden": "SWE", "sueco": "SWE",
+  "suécia": "SWE", "suecia": "SWE", "sweden": "SWE", "sueco": "SWE", "sueca": "SWE", "swedish": "SWE",
   // Noruega
-  "noruega": "NOR", "norway": "NOR", "norueguês": "NOR",
+  "noruega": "NOR", "norway": "NOR", "norueguês": "NOR", "noruegues": "NOR", "norueguesa": "NOR", "norwegian": "NOR",
   // Suíça
-  "suíça": "CHE", "switzerland": "CHE", "suíço": "CHE",
+  "suíça": "CHE", "suica": "CHE", "switzerland": "CHE", "suíço": "CHE", "suico": "CHE", "swiss": "CHE",
   // Áustria
-  "áustria": "AUT", "austria": "AUT", "austríaco": "AUT",
+  "áustria": "AUT", "austria": "AUT", "austríaco": "AUT", "austriaco": "AUT", "austríaca": "AUT", "austrian": "AUT",
   // República Checa
-  "república checa": "CZE", "czech republic": "CZE", "czechia": "CZE",
+  "república checa": "CZE", "republica checa": "CZE", "czech republic": "CZE", "czechia": "CZE",
+  "checo": "CZE", "checa": "CZE", "czech": "CZE",
   // Hungria
-  "hungria": "HUN", "hungary": "HUN", "húngaro": "HUN",
+  "hungria": "HUN", "hungary": "HUN", "húngaro": "HUN", "hungaro": "HUN", "húngara": "HUN", "hungarian": "HUN",
   // Roménia
-  "roménia": "ROU", "romania": "ROU", "romeno": "ROU",
+  "roménia": "ROU", "romenia": "ROU", "romania": "ROU", "romeno": "ROU", "romena": "ROU", "romanian": "ROU",
   // Turquia
-  "turquia": "TUR", "turkey": "TUR", "turco": "TUR",
+  "turquia": "TUR", "turkey": "TUR", "turco": "TUR", "turca": "TUR", "turkish": "TUR",
   // Grécia
-  "grécia": "GRC", "greece": "GRC", "grego": "GRC",
+  "grécia": "GRC", "grecia": "GRC", "greece": "GRC", "grego": "GRC", "grega": "GRC", "greek": "GRC",
   // Eslovénia
-  "eslovénia": "SVN", "slovenia": "SVN", "esloveno": "SVN",
+  "eslovénia": "SVN", "eslovenia": "SVN", "slovenia": "SVN", "esloveno": "SVN", "eslovena": "SVN", "slovenian": "SVN",
   // Eslováquia
-  "eslováquia": "SVK", "slovakia": "SVK", "eslovaco": "SVK",
+  "eslováquia": "SVK", "eslovaquia": "SVK", "slovakia": "SVK", "eslovaco": "SVK", "eslovaca": "SVK", "slovak": "SVK",
   // Montenegro
-  "montenegro": "MNE", "montenegrino": "MNE",
+  "montenegro": "MNE", "montenegrino": "MNE", "montenegrina": "MNE", "montenegrin": "MNE",
   // Bósnia
-  "bósnia": "BIH", "bosnia": "BIH", "bósnio": "BIH",
+  "bósnia": "BIH", "bosnia": "BIH", "bósnio": "BIH", "bosnio": "BIH", "bósnia e herzegovina": "BIH", "bosnian": "BIH",
   // Irlanda
-  "irlanda": "IRL", "ireland": "IRL", "irlandês": "IRL",
-  // Escócia
-  "escócia": "SCO", "scotland": "SCO", "escocês": "SCO",
-  // País de Gales
-  "país de gales": "WAL", "wales": "WAL",
+  "irlanda": "IRL", "ireland": "IRL", "irlandês": "IRL", "irlandes": "IRL", "irlandesa": "IRL", "irish": "IRL",
+  // Escócia (aparece como GBR no mapa)
+  "escócia": "GBR", "escocia": "GBR", "scotland": "GBR", "escocês": "GBR", "escoces": "GBR", "scottish": "GBR",
+  // País de Gales (aparece como GBR no mapa)
+  "país de gales": "GBR", "pais de gales": "GBR", "wales": "GBR", "welsh": "GBR",
 }
 
 // Mapeamento ID UN M49 → ISO-3
