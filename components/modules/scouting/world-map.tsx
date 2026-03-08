@@ -144,7 +144,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
           <rect width={W} height={H} fill="#0f172a" />
 
           {geographies.map((geo) => {
-            const id = String((geo as GeoFeature & { id?: string | number }).id ?? "")
+            const id = String((geo as GeoFeature & { id?: string | number }).id ?? "").padStart(3, '0')
             const iso3 = UN_TO_ISO3[id]
             const count = iso3 ? (playersByCountry[iso3]?.length ?? 0) : 0
             const isSelected = iso3 === selectedCountry
@@ -174,7 +174,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
 
           {/* Badges de contagem */}
           {geographies.map((geo) => {
-            const id = String((geo as GeoFeature & { id?: string | number }).id ?? "")
+            const id = String((geo as GeoFeature & { id?: string | number }).id ?? "").padStart(3, '0')
             const iso3 = UN_TO_ISO3[id]
             const count = iso3 ? (playersByCountry[iso3]?.length ?? 0) : 0
             if (!count || !iso3) return null
