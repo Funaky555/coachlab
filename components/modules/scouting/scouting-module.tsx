@@ -166,7 +166,7 @@ export function ScoutingModule() {
       {/* Fundo imagem */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0" style={{ backgroundImage: "url('/FundoS.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
-        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.70)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,14,26,0.55)" }} />
       </div>
 
       <div className="relative p-4 md:p-8 max-w-7xl mx-auto">
@@ -227,7 +227,7 @@ export function ScoutingModule() {
                 className="relative rounded-xl border cursor-pointer transition-all duration-200 overflow-hidden"
                 style={{
                   borderColor: isActive ? e.color : `${e.color}80`,
-                  background: "rgba(4,10,22,0.92)",
+                  background: "rgba(4,10,22,0.72)",
                   boxShadow: isActive
                     ? `0 0 24px ${e.color}50, 0 4px 20px rgba(0,0,0,0.5)`
                     : `0 2px 12px rgba(0,0,0,0.4)`,
@@ -281,7 +281,7 @@ export function ScoutingModule() {
               className="mb-4 rounded-xl border p-4"
               style={{
                 borderColor: estado.color,
-                background: "rgba(4,10,22,0.90)",
+                background: "rgba(4,10,22,0.70)",
                 boxShadow: `0 0 20px ${estado.color}30`,
                 backdropFilter: "blur(12px)",
               }}
@@ -335,7 +335,7 @@ export function ScoutingModule() {
 
         {/* Tabs principais */}
         <Tabs defaultValue="jogadores">
-          <TabsList className="mb-6" style={{ background: "rgba(4,10,22,0.88)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(12px)" }}>
+          <TabsList className="mb-6" style={{ background: "rgba(4,10,22,0.70)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(12px)" }}>
             <TabsTrigger value="jogadores" className="gap-2">
               <Users className="w-4 h-4" /> Atletas ({jogadores.length})
             </TabsTrigger>
@@ -357,7 +357,7 @@ export function ScoutingModule() {
                   value={searchText}
                   onChange={e => setSearchText(e.target.value)}
                   className="pl-9"
-                  style={{ background: "rgba(4,10,22,0.85)", border: "1px solid rgba(255,255,255,0.25)" }}
+                  style={{ background: "rgba(4,10,22,0.65)", border: "1px solid rgba(255,255,255,0.25)" }}
                 />
               </div>
               <Select value={filtroEstado} onValueChange={v => { setFiltroEstado(v as EstadoScouting | "todos"); setExpandedEstado(null) }}>
@@ -393,7 +393,7 @@ export function ScoutingModule() {
                       className="group rounded-xl border transition-all duration-200 overflow-hidden"
                       style={{
                         borderColor: `${estadoAtual.color}70`,
-                        background: "rgba(4,10,22,0.90)",
+                        background: "rgba(4,10,22,0.70)",
                         boxShadow: "0 2px 16px rgba(0,0,0,0.5)",
                         backdropFilter: "blur(12px)",
                       }}
