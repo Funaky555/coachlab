@@ -13,21 +13,21 @@ const navItems = [
   {
     href: "/board",
     icon: Palette,
-    label: "Tabuleiro Tático",
+    label: "Tactical Board",
     color: "#0066FF",
     badge: "FREE",
   },
 ]
 
 const proItems = [
-  { href: "/dashboard/plantel",    icon: Users,          label: "Gestão do Plantel",      color: "#00D66C", gradient: "from-[#00D66C]/20 to-[#00D66C]/5" },
-  { href: "/dashboard/treinos",    icon: Calendar,       label: "Planeamento de Treino",  color: "#0066FF", gradient: "from-[#0066FF]/20 to-[#0066FF]/5" },
-  { href: "/dashboard/analise",    icon: BarChart3,      label: "Análise de Jogo",        color: "#8B5CF6", gradient: "from-[#8B5CF6]/20 to-[#8B5CF6]/5" },
-  { href: "/dashboard/scouting",   icon: Search,         label: "Scouting",               color: "#FF6B35", gradient: "from-[#FF6B35]/20 to-[#FF6B35]/5" },
-  { href: "/dashboard/medico",     icon: Heart,          label: "Dep. Médico",            color: "#00D66C", gradient: "from-[#00D66C]/20 to-[#00D66C]/5" },
-  { href: "/dashboard/fisico",     icon: Zap,            label: "Monitorização Física",   color: "#0066FF", gradient: "from-[#0066FF]/20 to-[#0066FF]/5" },
-  { href: "/dashboard/adversario", icon: Target,         label: "Prep. Adversário",       color: "#8B5CF6", gradient: "from-[#8B5CF6]/20 to-[#8B5CF6]/5" },
-  { href: "/dashboard/comunicacao",icon: MessageSquare,  label: "Comunicação",            color: "#FF6B35", gradient: "from-[#FF6B35]/20 to-[#FF6B35]/5" },
+  { href: "/dashboard/plantel",    icon: Users,          label: "Squad Management",    color: "#00D66C", gradient: "from-[#00D66C]/20 to-[#00D66C]/5" },
+  { href: "/dashboard/treinos",    icon: Calendar,       label: "Training Planning",    color: "#0066FF", gradient: "from-[#0066FF]/20 to-[#0066FF]/5" },
+  { href: "/dashboard/analise",    icon: BarChart3,      label: "Match Analysis",       color: "#8B5CF6", gradient: "from-[#8B5CF6]/20 to-[#8B5CF6]/5" },
+  { href: "/dashboard/scouting",   icon: Search,         label: "Scouting",             color: "#FF6B35", gradient: "from-[#FF6B35]/20 to-[#FF6B35]/5" },
+  { href: "/dashboard/medico",     icon: Heart,          label: "Medical Dept.",        color: "#00D66C", gradient: "from-[#00D66C]/20 to-[#00D66C]/5" },
+  { href: "/dashboard/fisico",     icon: Zap,            label: "Physical Monitoring",  color: "#0066FF", gradient: "from-[#0066FF]/20 to-[#0066FF]/5" },
+  { href: "/dashboard/adversario", icon: Target,         label: "Opposition Prep.",     color: "#8B5CF6", gradient: "from-[#8B5CF6]/20 to-[#8B5CF6]/5" },
+  { href: "/dashboard/comunicacao",icon: MessageSquare,  label: "Communication",        color: "#FF6B35", gradient: "from-[#FF6B35]/20 to-[#FF6B35]/5" },
 ]
 
 interface DashboardSidebarProps {
@@ -101,7 +101,7 @@ export function DashboardSidebar({ mobileOpen, onMobileClose }: DashboardSidebar
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/40 hover:text-white/80 hover:bg-white/5 transition-all mb-1"
           >
             <Home className="w-4 h-4 shrink-0" />
-            <span>Início</span>
+            <span>Home</span>
           </Link>
 
           {/* Tabuleiro (FREE) */}
@@ -146,7 +146,7 @@ export function DashboardSidebar({ mobileOpen, onMobileClose }: DashboardSidebar
           <div className="flex items-center gap-2 px-3 mb-2">
             <LayoutDashboard className="w-3 h-3 text-white/25" />
             <span className="text-[9px] font-bold uppercase tracking-widest text-white/25">
-              Módulos PRO
+              PRO Modules
             </span>
           </div>
 
@@ -237,7 +237,7 @@ export function DashboardSidebar({ mobileOpen, onMobileClose }: DashboardSidebar
               <div className="text-xs font-semibold text-white/60 group-hover:text-white/90 transition-colors leading-none">
                 Daniel de Sousa
               </div>
-              <div className="text-[10px] text-white/30 leading-none mt-0.5">Fundador</div>
+              <div className="text-[10px] text-white/30 leading-none mt-0.5">Founder</div>
             </div>
           </a>
         </div>

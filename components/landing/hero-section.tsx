@@ -63,7 +63,7 @@ export function HeroSection() {
         >
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00D66C]/10 border border-[#00D66C]/30 text-[#00D66C] text-sm font-medium">
             <span className="w-2 h-2 rounded-full bg-[#00D66C] animate-pulse" />
-            Plataforma para Treinadores de Futebol
+            Platform for Football Coaches
           </span>
         </motion.div>
 
@@ -75,8 +75,9 @@ export function HeroSection() {
           className="text-5xl md:text-7xl font-bold leading-tight mb-6"
           style={{ fontFamily: "var(--font-barlow-condensed)" }}
         >
-          A plataforma definitiva para{" "}
-          <span className="text-gradient-brand">treinadores de futebol</span>
+          The ultimate{" "}
+          <br className="hidden sm:block" />
+          <span className="text-gradient-brand">platform for football coaches</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -86,7 +87,7 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed"
         >
-          Gere o teu plantel, planeia treinos, analisa jogos, faz scouting, gere o departamento médico, entre outros — tudo numa só aplicação.
+          Manage your squad, plan training sessions, analyse matches, scout players, manage the medical department, and more — all in one application.
         </motion.p>
 
         {/* CTAs */}
@@ -101,7 +102,7 @@ export function HeroSection() {
               size="lg"
               className="h-12 px-8 text-base font-semibold bg-[#00D66C] hover:bg-[#00D66C]/90 text-black gap-2"
             >
-              Explorar Dashboard PRO
+              Explore PRO Dashboard
               <ArrowRight className="w-5 h-5" />
             </Button>
           </Link>
@@ -112,7 +113,7 @@ export function HeroSection() {
               className="h-12 px-8 text-base font-semibold border-[#0066FF]/40 text-[#0066FF] hover:bg-[#0066FF]/10 gap-2"
             >
               <Play className="w-4 h-4" />
-              Tabuleiro Tático (Free)
+              Tactical Board (Free)
             </Button>
           </Link>
         </motion.div>

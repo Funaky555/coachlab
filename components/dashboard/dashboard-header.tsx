@@ -14,7 +14,7 @@ export function DashboardHeader({ title, onMenuClick }: DashboardHeaderProps) {
       <button
         onClick={onMenuClick}
         className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground"
-        aria-label="Abrir menu"
+        aria-label="Open menu"
       >
         <Menu className="w-5 h-5" />
       </button>

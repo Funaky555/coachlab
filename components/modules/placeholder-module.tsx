@@ -25,7 +25,7 @@ export function PlaceholderModule({ title, description, color, features, comingS
           <p className="text-muted-foreground">{description}</p>
         </div>
         {comingSoon && (
-          <Badge variant="warning" className="shrink-0">Em desenvolvimento</Badge>
+          <Badge variant="warning" className="shrink-0">In development</Badge>
         )}
       </div>
 
@@ -49,11 +49,11 @@ export function PlaceholderModule({ title, description, color, features, comingS
         </div>
 
         <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-          Em desenvolvimento
+          In development
         </h2>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          Este módulo está a ser desenvolvido e estará disponível em breve.
-          Estamos a trabalhar para trazer as melhores ferramentas para a tua equipa.
+          This module is being developed and will be available soon.
+          We are working to bring the best tools to your team.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto text-left">

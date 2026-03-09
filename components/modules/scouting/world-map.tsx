@@ -33,10 +33,10 @@ function getCountryColor(count: number): string {
 }
 
 const ESTADOS_CONFIG: Record<string, { label: string; color: string }> = {
-  em_observacao: { label: "Em Observação", color: "#0066FF" },
-  contactado:    { label: "Contactado",    color: "#8B5CF6" },
-  contratado:    { label: "Contratado",    color: "#00D66C" },
-  descartado:    { label: "Descartado",    color: "#EF4444" },
+  em_observacao: { label: "Scouted",   color: "#0066FF" },
+  contactado:    { label: "Contacted", color: "#8B5CF6" },
+  contratado:    { label: "Signed",    color: "#00D66C" },
+  descartado:    { label: "Dismissed", color: "#EF4444" },
 }
 
 type GeoFeature = Feature<Geometry, GeoJsonProperties>
@@ -115,8 +115,8 @@ export function WorldMap({ jogadores, onEdit }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.75)" }}>
-          {jogadores.length} jogadores • {Object.keys(playersByCountry).length} países
-          {semPais > 0 && <span> • {semPais} sem país definido</span>}
+          {jogadores.length} players • {Object.keys(playersByCountry).length} countries
+          {semPais > 0 && <span> • {semPais} no country defined</span>}
         </div>
         <div className="flex items-center gap-4 text-xs font-semibold" style={{ color: "rgba(255,255,255,0.80)" }}>
           <div className="flex items-center gap-1.5">
@@ -226,7 +226,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
                 x={Math.min(tooltip.x + 18, W - 152)} y={Math.max(tooltip.y - 15, 19)}
                 fontSize={10} fill="#fff" fontWeight="600"
               >
-                {tooltip.name}{tooltip.count > 0 ? ` — ${tooltip.count} jogador${tooltip.count !== 1 ? "es" : ""}` : ""}
+                {tooltip.name}{tooltip.count > 0 ? ` — ${tooltip.count} player${tooltip.count !== 1 ? "s" : ""}` : ""}
               </text>
             </g>
           )}
@@ -259,7 +259,7 @@ export function WorldMap({ jogadores, onEdit }: Props) {
                     <div>
                       <div className="font-bold text-base">{selectedCountryName}</div>
                       <div className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
-                        {selectedPlayers.length} jogador{selectedPlayers.length !== 1 ? "es" : ""}
+                        {selectedPlayers.length} player{selectedPlayers.length !== 1 ? "s" : ""}
                       </div>
                     </div>
                   </div>

@@ -8,24 +8,24 @@ import {
 } from "lucide-react"
 
 const freeFeatures = [
-  { icon: Palette, title: "Nomes de Jogadores", desc: "Alteração do nome de cada jogador diretamente no tabuleiro" },
-  { icon: Palette, title: "Score do Jogo", desc: "Marcador editável com o resultado em tempo real" },
-  { icon: Palette, title: "Pinos e Formações Táticas", desc: "Drag & drop dos jogadores com múltiplas formações disponíveis" },
-  { icon: Palette, title: "Exportar como PNG", desc: "Guarda o tabuleiro em imagem de alta qualidade" },
-  { icon: Palette, title: "Fotos de Jogadores", desc: "Upload de foto personalizada para cada jogador" },
-  { icon: Palette, title: "Cores das Equipas", desc: "Altera a cor dos pinos para distinguir equipa da casa e visitante" },
-  { icon: Palette, title: "Limpar Tabuleiro", desc: "Reset rápido para recomeçar a análise" },
+  { icon: Palette, title: "Player Names", desc: "Edit each player's name directly on the board" },
+  { icon: Palette, title: "Match Score", desc: "Editable scoreboard with real-time result" },
+  { icon: Palette, title: "Pins and Tactical Formations", desc: "Drag & drop players with multiple formations available" },
+  { icon: Palette, title: "Export as PNG", desc: "Save the board as a high-quality image" },
+  { icon: Palette, title: "Player Photos", desc: "Upload a custom photo for each player" },
+  { icon: Palette, title: "Team Colours", desc: "Change pin colours to distinguish home and away teams" },
+  { icon: Palette, title: "Clear Board", desc: "Quick reset to start the analysis over" },
 ]
 
 const proModules = [
-  { icon: Users, title: "Gestão do Plantel", desc: "Presenças, disciplina, estado e carga de minutos", color: "#00D66C" },
-  { icon: Calendar, title: "Planeamento de Treino", desc: "Microciclo semanal, objetivos táticos e carga de treino", color: "#0066FF" },
-  { icon: BarChart3, title: "Análise de Jogo", desc: "Relatórios pós-jogo, estatísticas e xG", color: "#8B5CF6" },
-  { icon: Search, title: "Scouting", desc: "Base de dados de jogadores observados e fichas de observação", color: "#FF6B35" },
-  { icon: Heart, title: "Dep. Médico", desc: "Registo de lesões, recuperação e avaliações físicas", color: "#00D66C" },
-  { icon: Zap, title: "Monitorização Física", desc: "Métricas GPS, distância, sprints e RPE", color: "#0066FF" },
-  { icon: Target, title: "Preparação do Adversário", desc: "Análise tática, padrões e relatório pré-jogo", color: "#8B5CF6" },
-  { icon: MessageSquare, title: "Comunicação Interna", desc: "Calendário, tarefas e notas da equipa técnica", color: "#FF6B35" },
+  { icon: Users, title: "Squad Management", desc: "Attendance, discipline, status and minute loads", color: "#00D66C" },
+  { icon: Calendar, title: "Training Planning", desc: "Weekly microcycle, tactical objectives and training load", color: "#0066FF" },
+  { icon: BarChart3, title: "Match Analysis", desc: "Post-match reports, statistics and xG", color: "#8B5CF6" },
+  { icon: Search, title: "Scouting", desc: "Database of scouted players and observation profiles", color: "#FF6B35" },
+  { icon: Heart, title: "Medical Dept.", desc: "Injury records, recovery and physical assessments", color: "#00D66C" },
+  { icon: Zap, title: "Physical Monitoring", desc: "GPS metrics, distance, sprints and RPE", color: "#0066FF" },
+  { icon: Target, title: "Opposition Prep.", desc: "Tactical analysis, patterns and pre-match report", color: "#8B5CF6" },
+  { icon: MessageSquare, title: "Internal Communication", desc: "Calendar, tasks and coaching staff notes", color: "#FF6B35" },
 ]
 
 export function FeaturesSection() {
@@ -39,14 +39,14 @@ export function FeaturesSection() {
           className="text-center mb-16"
         >
           <div className="text-[#00D66C] text-sm font-semibold uppercase tracking-wider mb-3">
-            Funcionalidades
+            Features
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-            Tudo o que um treinador{" "}
-            <span className="text-gradient-brand">moderno precisa</span>
+            Everything a{" "}
+            <span className="text-gradient-brand">modern coach needs</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Do tabuleiro tático ao scouting — ferramentas profissionais acessíveis a todos.
+            From the tactical board to scouting — professional tools accessible to everyone.
           </p>
         </motion.div>
 
@@ -61,7 +61,7 @@ export function FeaturesSection() {
           >
             <div className="flex items-center gap-3 mb-6">
               <span className="px-3 py-1 rounded-full bg-secondary text-sm font-semibold">Free</span>
-              <h3 className="text-xl font-bold">Tabuleiro Tático</h3>
+              <h3 className="text-xl font-bold">Tactical Board</h3>
             </div>
             <div className="space-y-4">
               {freeFeatures.map((f) => (
@@ -79,7 +79,7 @@ export function FeaturesSection() {
                 href="/board"
                 className="inline-flex items-center gap-2 text-sm font-medium text-[#00D66C] hover:opacity-80 transition-opacity"
               >
-                Aceder ao tabuleiro →
+                Open board →
               </a>
             </div>
           </motion.div>
@@ -101,7 +101,7 @@ export function FeaturesSection() {
 
             <div className="flex items-center gap-3 mb-6">
               <span className="px-3 py-1 rounded-full bg-[#00D66C]/20 text-[#00D66C] border border-[#00D66C]/30 text-sm font-semibold">PRO</span>
-              <h3 className="text-xl font-bold">Dashboard Completo</h3>
+              <h3 className="text-xl font-bold">Full Dashboard</h3>
               <Lock className="w-4 h-4 text-muted-foreground ml-auto" />
             </div>
             <div className="grid grid-cols-1 gap-3">
@@ -128,7 +128,7 @@ export function FeaturesSection() {
                 href="/dashboard/plantel"
                 className="inline-flex items-center gap-2 text-sm font-medium text-[#00D66C] hover:opacity-80 transition-opacity"
               >
-                Explorar dashboard →
+                Explore dashboard →
               </a>
             </div>
           </motion.div>

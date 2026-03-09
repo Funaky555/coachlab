@@ -19,10 +19,10 @@ function getFlag(nacionalidade?: string): string {
 
 const POSICOES_SCOUTING = ["GK","RB","CBR","CBL","LB","CM","CMR","CML","WR","OM","WL","ST"]
 const ESTADOS_SCOUTING: { value: EstadoScouting; label: string; color: string }[] = [
-  { value: "em_observacao", label: "Em Observação", color: "#0066FF" },
-  { value: "contactado", label: "Contactado", color: "#8B5CF6" },
-  { value: "contratado", label: "Contratado", color: "#00D66C" },
-  { value: "descartado", label: "Descartado", color: "#EF4444" },
+  { value: "em_observacao", label: "Scouted",   color: "#0066FF" },
+  { value: "contactado",    label: "Contacted", color: "#8B5CF6" },
+  { value: "contratado",    label: "Signed",    color: "#00D66C" },
+  { value: "descartado",    label: "Dismissed", color: "#EF4444" },
 ]
 
 interface Props {
@@ -105,7 +105,7 @@ function MinSlider({ label, min, max, value, onChange, unit = "" }: {
     <div>
       <div className="flex justify-between text-xs mb-2" style={{ color: "rgba(255,255,255,0.70)" }}>
         <span>{label}</span>
-        <span className="font-medium">mín {value}{unit}</span>
+        <span className="font-medium">min {value}{unit}</span>
       </div>
       <Slider
         min={min} max={max} step={1}
@@ -211,16 +211,9 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
       if (filtro.avaliacaoMin !== undefined && j.avaliacao < filtro.avaliacaoMin) return false
       if (filtro.potencialMin !== undefined && (j.potencial ?? 0) < filtro.potencialMin) return false
       if (filtro.clubeTexto && !j.clube?.toLowerCase().includes(filtro.clubeTexto.toLowerCase())) return false
-      if (filtro.velocidadeMin !== undefined && (j.velocidade ?? 0) < filtro.velocidadeMin) return false
-      if (filtro.aceleracaoMin !== undefined && (j.aceleracao ?? 0) < filtro.aceleracaoMin) return false
-      if (filtro.resistenciaMin !== undefined && (j.resistencia ?? 0) < filtro.resistenciaMin) return false
-      if (filtro.forcaMin !== undefined && (j.forca ?? 0) < filtro.forcaMin) return false
       if (filtro.golosMin !== undefined && (j.golos ?? 0) < filtro.golosMin) return false
       if (filtro.assistenciasMin !== undefined && (j.assistencias ?? 0) < filtro.assistenciasMin) return false
       if (filtro.jogosMin !== undefined && (j.jogosDisputados ?? 0) < filtro.jogosMin) return false
-      if (filtro.sprintsMin !== undefined && (j.sprintsPorJogo ?? 0) < filtro.sprintsMin) return false
-      if (filtro.distanciaMin !== undefined && (j.distanciaPorJogo ?? 0) < filtro.distanciaMin) return false
-      if (filtro.velMaxMin !== undefined && (j.velocidadeMaxima ?? 0) < filtro.velMaxMin) return false
       if (ligaTexto && !j.liga?.toLowerCase().includes(ligaTexto.toLowerCase())) return false
       return true
     })
@@ -266,10 +259,10 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
       {/* PAINEL DE FILTROS */}
       <div className="w-60 shrink-0 overflow-y-auto" style={{ background: "rgba(4,10,22,0.58)", borderRight: "1px solid rgba(255,255,255,0.10)" }}>
         <div className="flex items-center justify-between px-3 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.10)" }}>
-          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.80)" }}>Filtros</span>
+          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.80)" }}>Filters</span>
           {hasFilters && (
             <button onClick={clearAll} className="text-xs text-[#FF6B35] hover:opacity-80 flex items-center gap-1">
-              <X className="w-3 h-3" /> Limpar
+              <X className="w-3 h-3" /> Clear
             </button>
           )}
         </div>
@@ -288,9 +281,9 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         </div>
 
         {/* Secção: Pessoal */}
-        <FilterSection title="Pessoal" id="pessoal" open={openSections.includes("pessoal")} onToggle={() => toggleSection("pessoal")}>
+        <FilterSection title="Personal" id="pessoal" open={openSections.includes("pessoal")} onToggle={() => toggleSection("pessoal")}>
           <div>
-            <div className="text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.70)" }}>Posição</div>
+            <div className="text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.70)" }}>Position</div>
             <div className="grid grid-cols-3 gap-1">
               {POSICOES_SCOUTING.map(p => (
                 <button
@@ -309,7 +302,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
             </div>
           </div>
           <div>
-            <div className="text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.70)" }}>Pé Preferido</div>
+            <div className="text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.70)" }}>Preferred Foot</div>
             <div className="flex gap-1">
               {(["direito","esquerdo","ambidestro"] as const).map(p => (
                 <button key={p} onClick={() => toggleArr(pePreferido, p, setPePreferido)}
@@ -320,18 +313,18 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
                     border: pePreferido.includes(p) ? "none" : "1px solid rgba(255,255,255,0.15)",
                   }}
                 >
-                  {p === "ambidestro" ? "Amb." : p === "direito" ? "Dir." : "Esq."}
+                  {p === "ambidestro" ? "Both" : p === "direito" ? "Right" : "Left"}
                 </button>
               ))}
             </div>
           </div>
-          <RangeSlider label="Idade" min={14} max={45} value={idade} onChange={setIdade} unit=" anos" />
-          <RangeSlider label="Altura" min={155} max={210} value={altura} onChange={setAltura} unit="cm" />
-          <RangeSlider label="Peso" min={50} max={110} value={peso} onChange={setPeso} unit="kg" />
+          <RangeSlider label="Age" min={14} max={45} value={idade} onChange={setIdade} unit=" yrs" />
+          <RangeSlider label="Height" min={155} max={210} value={altura} onChange={setAltura} unit="cm" />
+          <RangeSlider label="Weight" min={50} max={110} value={peso} onChange={setPeso} unit="kg" />
         </FilterSection>
 
         {/* Secção: Estado */}
-        <FilterSection title="Estado" id="estado" open={openSections.includes("estado")} onToggle={() => toggleSection("estado")}>
+        <FilterSection title="Status" id="estado" open={openSections.includes("estado")} onToggle={() => toggleSection("estado")}>
           <div className="space-y-1">
             {ESTADOS_SCOUTING.map(e => (
               <button key={e.value} onClick={() => toggleArr(estados, e.value, setEstados)}
@@ -346,18 +339,18 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         </FilterSection>
 
         {/* Secção: Clube */}
-        <FilterSection title="Clube" id="clube" open={openSections.includes("clube")} onToggle={() => toggleSection("clube")}>
+        <FilterSection title="Club" id="clube" open={openSections.includes("clube")} onToggle={() => toggleSection("clube")}>
           <div>
-            <div className="text-xs font-semibold mb-1" style={{ color: "rgba(255,255,255,0.70)" }}>Nome do Clube</div>
+            <div className="text-xs font-semibold mb-1" style={{ color: "rgba(255,255,255,0.70)" }}>Club Name</div>
             <Input placeholder="ex: Benfica" value={clubeTexto} onChange={e => setClubeTexto(e.target.value)} className="h-7 text-xs" />
           </div>
         </FilterSection>
 
         {/* Secção: Avaliação */}
-        <FilterSection title="Avaliação" id="avaliacao" open={openSections.includes("avaliacao")} onToggle={() => toggleSection("avaliacao")}>
+        <FilterSection title="Rating" id="avaliacao" open={openSections.includes("avaliacao")} onToggle={() => toggleSection("avaliacao")}>
           <div className="space-y-3">
             <div>
-              <div className="text-xs font-semibold mb-2" style={{ color: "rgba(255,255,255,0.70)" }}>A. Geral mín.</div>
+              <div className="text-xs font-semibold mb-2" style={{ color: "rgba(255,255,255,0.70)" }}>Min rating</div>
               <div className="flex gap-1">
                 {[1,2,3,4,5].map(v => (
                   <button key={v} onClick={() => setAvaliacaoMin(v)}
@@ -370,7 +363,7 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
               </div>
             </div>
             <div>
-              <div className="text-xs mb-2" style={{ color: "#8B5CF6" }}>Potencial mín.</div>
+              <div className="text-xs mb-2" style={{ color: "#8B5CF6" }}>Min potential</div>
               <div className="flex gap-1">
                 {[1,2,3,4,5].map(v => (
                   <button key={v} onClick={() => setPotencialMin(v)}
@@ -386,20 +379,20 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         </FilterSection>
 
         {/* Secção: Atributos */}
-        <FilterSection title="Atributos (0–20)" id="atributos" open={openSections.includes("atributos")} onToggle={() => toggleSection("atributos")}>
-          <MinSlider label="Velocidade mín" min={0} max={20} value={velocidadeMin} onChange={setVelocidadeMin} />
-          <MinSlider label="Aceleração mín" min={0} max={20} value={aceleracaoMin} onChange={setAceleracaoMin} />
-          <MinSlider label="Resistência mín" min={0} max={20} value={resistenciaMin} onChange={setResistenciaMin} />
-          <MinSlider label="Força mín" min={0} max={20} value={forcaMin} onChange={setForcaMin} />
+        <FilterSection title="Attributes (0–20)" id="atributos" open={openSections.includes("atributos")} onToggle={() => toggleSection("atributos")}>
+          <MinSlider label="Speed min" min={0} max={20} value={velocidadeMin} onChange={setVelocidadeMin} />
+          <MinSlider label="Acceleration min" min={0} max={20} value={aceleracaoMin} onChange={setAceleracaoMin} />
+          <MinSlider label="Stamina min" min={0} max={20} value={resistenciaMin} onChange={setResistenciaMin} />
+          <MinSlider label="Strength min" min={0} max={20} value={forcaMin} onChange={setForcaMin} />
         </FilterSection>
 
         {/* Secção: Estatísticas */}
-        <FilterSection title="Estatísticas" id="stats" open={openSections.includes("stats")} onToggle={() => toggleSection("stats")}>
+        <FilterSection title="Statistics" id="stats" open={openSections.includes("stats")} onToggle={() => toggleSection("stats")}>
           <div className="space-y-2">
             {[
-              { label: "Golos mín", value: golosMin, set: setGolosMin },
-              { label: "Assistências mín", value: assistenciasMin, set: setAssistenciasMin },
-              { label: "Jogos mín", value: jogosMin, set: setJogosMin },
+              { label: "Goals (min)", value: golosMin, set: setGolosMin },
+              { label: "Assists (min)", value: assistenciasMin, set: setAssistenciasMin },
+              { label: "Games (min)", value: jogosMin, set: setJogosMin },
             ].map(f => (
               <div key={f.label}>
                 <div className="text-xs font-semibold mb-1" style={{ color: "rgba(255,255,255,0.70)" }}>{f.label}</div>
@@ -410,12 +403,12 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
         </FilterSection>
 
         {/* Secção: Métricas GPS */}
-        <FilterSection title="Métricas GPS" id="gps" open={openSections.includes("gps")} onToggle={() => toggleSection("gps")}>
+        <FilterSection title="GPS Metrics" id="gps" open={openSections.includes("gps")} onToggle={() => toggleSection("gps")}>
           <div className="space-y-2">
             {[
-              { label: "Sprints/jogo mín", value: sprintsMin, set: setSprintsMin },
-              { label: "Distância/jogo mín (km)", value: distanciaMin, set: setDistanciaMin },
-              { label: "Vel. máxima mín (km/h)", value: velMaxMin, set: setVelMaxMin },
+              { label: "Sprints/game (min)", value: sprintsMin, set: setSprintsMin },
+              { label: "Dist./game km (min)", value: distanciaMin, set: setDistanciaMin },
+              { label: "Max speed km/h (min)", value: velMaxMin, set: setVelMaxMin },
             ].map(f => (
               <div key={f.label}>
                 <div className="text-xs font-semibold mb-1" style={{ color: "rgba(255,255,255,0.70)" }}>{f.label}</div>
@@ -430,8 +423,8 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
       <div className="flex-1 flex flex-col min-w-0">
         <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.10)", background: "rgba(4,10,22,0.45)" }}>
           <span className="text-sm" style={{ color: "rgba(255,255,255,0.70)" }}>
-            <span className="font-bold text-white">{filtered.length}</span> resultado{filtered.length !== 1 ? "s" : ""}
-            {jogadores.length !== filtered.length && <span> de {jogadores.length}</span>}
+            <span className="font-bold text-white">{filtered.length}</span> result{filtered.length !== 1 ? "s" : ""}
+            {jogadores.length !== filtered.length && <span> of {jogadores.length}</span>}
           </span>
         </div>
 
@@ -439,29 +432,27 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <Search className="w-10 h-10 mb-2 opacity-30" />
-              <p className="text-sm">Nenhum resultado encontrado</p>
-              <button onClick={clearAll} className="text-xs text-[#00D66C] mt-1 hover:opacity-80">Limpar filtros</button>
+              <p className="text-sm">No results found</p>
+              <button onClick={clearAll} className="text-xs text-[#00D66C] mt-1 hover:opacity-80">Clear filters</button>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="text-xs">
                   {[
-                    { col: "nome" as SortKey, label: "Nome" },
+                    { col: "nome" as SortKey, label: "Name" },
                     { col: "posicao" as SortKey, label: "Pos" },
-                    { col: "clube" as SortKey, label: "Clube" },
-                    { col: "nacionalidade" as SortKey, label: "País" },
-                    { col: "liga" as SortKey, label: "Liga" },
-                    { col: "avaliacao" as SortKey, label: "Aval" },
+                    { col: "clube" as SortKey, label: "Club" },
+                    { col: "nacionalidade" as SortKey, label: "Country" },
+                    { col: "liga" as SortKey, label: "League" },
+                    { col: "avaliacao" as SortKey, label: "Rating" },
                     { col: "potencial" as SortKey, label: "Pot" },
-                    { col: "velocidade" as SortKey, label: "Vel" },
                     { col: "golos" as SortKey, label: "G" },
                     { col: "assistencias" as SortKey, label: "A" },
-                    { col: "jogosDisputados" as SortKey, label: "J" },
-                    { col: "valorMercado" as SortKey, label: "Valor" },
-                    { col: "estado" as SortKey, label: "Estado" },
+                    { col: "valorMercado" as SortKey, label: "Value" },
+                    { col: "estado" as SortKey, label: "Status" },
                   ].map(({ col, label }) => (
-                    <TableHead key={col} className="cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort(col)}>
+                    <TableHead key={col} className="cursor-pointer select-none whitespace-nowrap text-[11px]" onClick={() => handleSort(col)}>
                       <div className="flex items-center gap-1">
                         {label} <SortIcon col={col} />
                       </div>
@@ -475,50 +466,48 @@ export function ScoutSearch({ jogadores, onEdit, onRefresh }: Props) {
                   const ec = estadoCfg[j.estado]
                   return (
                     <TableRow key={j.id} className="cursor-pointer hover:bg-muted/20" onClick={() => onEdit(j)}>
-                      <TableCell className="font-medium text-sm whitespace-nowrap">
-                        <div className="flex items-center gap-2">
+                      <TableCell className="font-medium text-[11px] whitespace-nowrap py-1.5">
+                        <div className="flex items-center gap-1.5">
                           {j.fotoUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={j.fotoUrl} alt={j.nome} className="w-7 h-7 rounded-full object-cover shrink-0" />
+                            <img src={j.fotoUrl} alt={j.nome} className="w-6 h-6 rounded-full object-cover shrink-0" />
                           ) : (
-                            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0 text-xs font-bold">{j.nome[0]}</div>
+                            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-[10px] font-bold">{j.nome[0]}</div>
                           )}
                           {j.nome}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs font-bold">{j.posicao}</Badge>
+                      <TableCell className="py-1.5">
+                        <Badge variant="outline" className="text-[10px] font-bold px-1 py-0">{j.posicao}</Badge>
                       </TableCell>
-                      <TableCell className="text-sm whitespace-nowrap" style={{ color: "rgba(255,255,255,0.65)" }}>{j.clube || "—"}</TableCell>
-                      <TableCell className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
+                      <TableCell className="text-[11px] whitespace-nowrap py-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>{j.clube || "—"}</TableCell>
+                      <TableCell className="text-[11px] py-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>
                         {j.nacionalidade ? (
-                          <span title={j.nacionalidade} className="text-base">{getFlag(j.nacionalidade) || j.nacionalidade}</span>
+                          <span title={j.nacionalidade} className="text-sm">{getFlag(j.nacionalidade) || j.nacionalidade}</span>
                         ) : "—"}
                       </TableCell>
-                      <TableCell className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>{j.liga || "—"}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-[11px] py-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>{j.liga || "—"}</TableCell>
+                      <TableCell className="py-1.5">
                         <div className="flex gap-0.5">
                           {[1,2,3,4,5].map(i => (
-                            <Star key={i} className={`w-3 h-3 ${i <= j.avaliacao ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`} />
+                            <Star key={i} className={`w-2.5 h-2.5 ${i <= j.avaliacao ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`} />
                           ))}
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-1.5">
                         {j.potencial !== undefined ? (
                           <div className="flex gap-0.5">
                             {[1,2,3,4,5].map(i => (
-                              <Star key={i} className={`w-3 h-3 ${i <= j.potencial! ? "text-[#8B5CF6] fill-[#8B5CF6]" : "text-muted-foreground"}`} />
+                              <Star key={i} className={`w-2.5 h-2.5 ${i <= j.potencial! ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`} />
                             ))}
                           </div>
                         ) : <span style={{ color: "rgba(255,255,255,0.45)" }}>—</span>}
                       </TableCell>
-                      <TableCell className="text-sm text-center" style={{ color: "rgba(255,255,255,0.65)" }}>{j.velocidade ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-center" style={{ color: "rgba(255,255,255,0.65)" }}>{j.golos ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-center" style={{ color: "rgba(255,255,255,0.65)" }}>{j.assistencias ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-center" style={{ color: "rgba(255,255,255,0.65)" }}>{j.jogosDisputados ?? "—"}</TableCell>
-                      <TableCell className="text-sm whitespace-nowrap" style={{ color: "rgba(255,255,255,0.65)" }}>{formatValor(j.valorMercado)}</TableCell>
-                      <TableCell>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
+                      <TableCell className="text-[11px] text-center py-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>{j.golos ?? "—"}</TableCell>
+                      <TableCell className="text-[11px] text-center py-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>{j.assistencias ?? "—"}</TableCell>
+                      <TableCell className="text-[11px] whitespace-nowrap py-1.5" style={{ color: "rgba(255,255,255,0.65)" }}>{formatValor(j.valorMercado)}</TableCell>
+                      <TableCell className="py-1.5">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap"
                           style={{ background: `${ec?.color}20`, color: ec?.color, border: `1px solid ${ec?.color}40` }}>
                           {ec?.label}
                         </span>

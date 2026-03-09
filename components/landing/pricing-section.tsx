@@ -9,58 +9,58 @@ const plans = [
   {
     name: "Free",
     price: "€0",
-    period: "/mês",
-    description: "Para treinadores que querem começar",
+    period: "/mo",
+    description: "For coaches who want to get started",
     color: "border-border",
-    cta: "Começar grátis",
+    cta: "Start for free",
     href: "/board",
     features: [
-      "Nomes de Jogadores",
-      "Score do Jogo",
-      "Pinos e Formações Táticas",
-      "Exportar como PNG",
-      "Fotos de Jogadores",
-      "Cores das Equipas",
-      "Limpar Tabuleiro",
+      "Player Names",
+      "Match Score",
+      "Pins & Tactical Formations",
+      "Export as PNG",
+      "Player Photos",
+      "Team Colours",
+      "Clear Board",
     ],
     highlight: false,
   },
   {
     name: "Pro",
     price: "€9",
-    period: "/mês",
-    description: "Para treinadores profissionais",
+    period: "/mo",
+    description: "For professional coaches",
     color: "border-[#00D66C]",
-    cta: "Começar Pro",
+    cta: "Start Pro",
     href: "/dashboard/plantel",
     features: [
-      "Tudo do plano Free",
-      "Gestão completa do plantel",
-      "Planeamento de treino",
-      "Análise de jogo e estatísticas",
-      "Scouting e base de dados",
-      "Dep. médico e monitorização",
-      "Preparação do adversário",
-      "Comunicação interna",
+      "Everything in Free",
+      "Full squad management",
+      "Training planning",
+      "Match analysis & statistics",
+      "Scouting & database",
+      "Medical dept. & monitoring",
+      "Opposition preparation",
+      "Internal communication",
     ],
     highlight: true,
-    badge: "Mais Popular",
+    badge: "Most Popular",
   },
   {
     name: "Elite",
     price: "€19",
-    period: "/mês",
-    description: "Para clubes e equipas técnicas",
+    period: "/mo",
+    description: "For clubs & coaching staffs",
     color: "border-[#8B5CF6]/50",
-    cta: "Em breve",
+    cta: "Coming soon",
     href: "#",
     features: [
-      "Tudo do plano Pro",
-      "Multi-equipa e multi-utilizador",
-      "Exportação PDF de relatórios",
-      "Partilha com jogadores",
-      "Integração com GPS (em breve)",
-      "Suporte prioritário",
+      "Everything in Pro",
+      "Multi-team & multi-user",
+      "PDF report export",
+      "Share with players",
+      "GPS integration (coming soon)",
+      "Priority support",
     ],
     highlight: false,
     comingSoon: true,
@@ -78,11 +78,11 @@ export function PricingSection() {
           className="text-center mb-6"
         >
           <div className="text-[#00D66C] text-sm font-semibold uppercase tracking-wider mb-3">
-            Preços
+            Pricing
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-            Simples e{" "}
-            <span className="text-gradient-brand">transparente</span>
+            Simple and{" "}
+            <span className="text-gradient-brand">transparent</span>
           </h2>
         </motion.div>
 

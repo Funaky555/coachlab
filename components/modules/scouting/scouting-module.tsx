@@ -11,10 +11,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Plus, Search, Star, User, Pencil, Trash2, Users, Globe2, Filter,
-  Upload, Camera, FileText, BarChart3, Award, Eye, Phone, Handshake, XCircle, X, ChevronDown
+  Upload, Camera, FileText, BarChart3, Award, Eye, Phone, Handshake, XCircle, X, ChevronDown,
+  Video, Link2, ExternalLink
 } from "lucide-react"
 import {
-  type JogadorObservado, type EstadoScouting, type PePreferido,
+  type JogadorObservado, type EstadoScouting, type PePreferido, type VideoClip,
   getJogadoresObservados, addJogadorObservado, updateJogadorObservado, deleteJogadorObservado
 } from "@/lib/storage/scouting"
 import { NATIONALITY_TO_CODE, COUNTRY_FLAGS, COUNTRY_NAMES } from "./world-map-data"
@@ -22,19 +23,66 @@ import { ScoutSearch } from "./scout-search"
 import { WorldMap } from "./world-map"
 
 const ESTADOS: { value: EstadoScouting; label: string; color: string; icon: React.ElementType }[] = [
-  { value: "em_observacao", label: "Referenciados", color: "#0066FF", icon: Eye },
-  { value: "contactado",    label: "Contactado",    color: "#8B5CF6", icon: Phone },
-  { value: "contratado",    label: "Contratado",    color: "#00D66C", icon: Handshake },
-  { value: "descartado",    label: "Descartado",    color: "#EF4444", icon: XCircle },
+  { value: "em_observacao", label: "Scouted",    color: "#0066FF", icon: Eye },
+  { value: "contactado",    label: "Contacted",  color: "#8B5CF6", icon: Phone },
+  { value: "contratado",    label: "Signed",     color: "#00D66C", icon: Handshake },
+  { value: "descartado",    label: "Dismissed",  color: "#EF4444", icon: XCircle },
 ]
 
 const ESTADOS_ACAO: { value: EstadoScouting; label: string; color: string }[] = [
-  { value: "contactado", label: "Contactado", color: "#8B5CF6" },
-  { value: "contratado", label: "Contratado", color: "#00D66C" },
-  { value: "descartado", label: "Descartado", color: "#EF4444" },
+  { value: "contactado", label: "Contacted", color: "#8B5CF6" },
+  { value: "contratado", label: "Signed",    color: "#00D66C" },
+  { value: "descartado", label: "Dismissed", color: "#EF4444" },
 ]
 
-const POSICOES = ["GK","RB","CBR","CBL","LB","CM","CMR","CML","WR","OM","WL","ST"]
+const POSICOES = ["GK","RB","CBR","CBL","LB","Libero","CM","CMR","CML","Defensive Midfielder","WR","OM","WL","Left Winger","Right Winger","ST","Target Forward","Forward"]
+
+const CLIP_CATEGORIES = [
+  { id: "ofensivo", label: "Offensive Actions", color: "#00D66C", subcategorias: [
+    { id: "finalizacao", label: "Finishing" }, { id: "golos", label: "Goals" },
+    { id: "remates_fora", label: "Long-range shots" }, { id: "remates_area", label: "Shots in the box" },
+    { id: "movimentos_rutura", label: "Runs in behind" }, { id: "ataque_prof", label: "Depth attacks" },
+    { id: "1v1_of", label: "1v1 attack" }, { id: "drible", label: "Dribbling" },
+    { id: "conducao", label: "Progressive carrying" }, { id: "assistencias_clip", label: "Assists" },
+    { id: "ultimo_passe", label: "Final pass" }, { id: "cruzamentos", label: "Crosses" },
+  ]},
+  { id: "decisao", label: "Decision Making", color: "#0066FF", subcategorias: [
+    { id: "jogo_linhas", label: "Plays between lines" }, { id: "criatividade", label: "Creativity" },
+    { id: "escolha_passe", label: "Pass choice" },
+  ]},
+  { id: "passe", label: "Passing", color: "#8B5CF6", subcategorias: [
+    { id: "passe_curto", label: "Short pass" }, { id: "passe_longo", label: "Long pass" },
+    { id: "mudanca_flanco", label: "Switch of play" }, { id: "passe_vertical", label: "Vertical pass" },
+  ]},
+  { id: "defensivo", label: "Defensive Actions", color: "#EF4444", subcategorias: [
+    { id: "desarmes", label: "Tackles" }, { id: "intercecoes", label: "Interceptions" },
+    { id: "pressao", label: "Pressing" }, { id: "recuperacoes", label: "Recoveries" },
+    { id: "1v1_def", label: "1v1 defense" }, { id: "coberturas", label: "Defensive cover" },
+    { id: "aereo", label: "Aerial duels" },
+  ]},
+  { id: "fisico", label: "Physical / Intensity", color: "#FF6B35", subcategorias: [
+    { id: "velocidade_clip", label: "Speed" }, { id: "aceleracao_clip", label: "Acceleration" },
+    { id: "sprint_clip", label: "Sprint" }, { id: "repeticao_esforcos", label: "Repeated efforts" },
+    { id: "duelos_fisicos", label: "Physical duels" },
+  ]},
+  { id: "posicionamento", label: "Positioning", color: "#06B6D4", subcategorias: [
+    { id: "apoios", label: "Support play" }, { id: "ocupacao_espacos", label: "Space occupation" },
+    { id: "pos_defensivo", label: "Defensive positioning" }, { id: "pos_ofensivo", label: "Offensive positioning" },
+  ]},
+  { id: "mentalidade", label: "Mentality / Leadership", color: "#F59E0B", subcategorias: [
+    { id: "lideranca", label: "Leadership" }, { id: "comunicacao", label: "Communication" },
+    { id: "reacao_erro", label: "Reaction to mistakes" }, { id: "competitividade", label: "Competitiveness" },
+  ]},
+  { id: "highlights", label: "Highlights", color: "#EC4899", subcategorias: [
+    { id: "melhores_momentos", label: "Best moments (1-3 min)" },
+  ]},
+]
+
+function getYoutubeThumbnail(url: string): string | null {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s?]+)/)
+  if (match) return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`
+  return null
+}
 
 function getCountryInfo(nacionalidade?: string): { flag: string; name: string } {
   if (!nacionalidade) return { flag: "", name: "" }
@@ -82,9 +130,185 @@ const emptyForm: Omit<JogadorObservado, "id"> = {
   caracteristicasTecnicas: "", caracteristicasTaticas: "",
   caracteristicasFisicas: "", caracteristicasMentais: "",
   pontosFortess: "", pontosFracos: "", notas: "",
-  dataObservacao: new Date().toISOString().split("T")[0], jogosObservados: [],
+  dataObservacao: new Date().toISOString().split("T")[0], jogosObservados: [], clips: [],
 }
 
+
+function ClipsTab({ clips, onChange }: { clips: VideoClip[]; onChange: (clips: VideoClip[]) => void }) {
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const [adding, setAdding] = useState<{ cat: string; sub: string } | null>(null)
+  const [urlInput, setUrlInput] = useState("")
+  const [titleInput, setTitleInput] = useState("")
+
+  function addClip(catId: string, subId: string) {
+    if (!urlInput.trim()) return
+    const novo: VideoClip = {
+      id: crypto.randomUUID(),
+      categoria: catId,
+      subcategoria: subId,
+      url: urlInput.trim(),
+      titulo: titleInput.trim() || undefined,
+      dataAdicionado: new Date().toISOString().split("T")[0],
+    }
+    onChange([...clips, novo])
+    setUrlInput("")
+    setTitleInput("")
+    setAdding(null)
+  }
+
+  function removeClip(id: string) {
+    onChange(clips.filter(c => c.id !== id))
+  }
+
+  return (
+    <div className="space-y-2">
+      {CLIP_CATEGORIES.map(cat => {
+        const catClips = clips.filter(c => c.categoria === cat.id)
+        const isOpen = expanded === cat.id
+        return (
+          <div key={cat.id} className="rounded-lg border overflow-hidden" style={{ borderColor: `${cat.color}40`, background: "rgba(4,10,22,0.50)" }}>
+            {/* Header da categoria */}
+            <button
+              type="button"
+              className="w-full flex items-center justify-between px-3 py-2 text-left transition-colors hover:bg-white/5"
+              onClick={() => setExpanded(isOpen ? null : cat.id)}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ background: cat.color }} />
+                <span className="text-sm font-bold" style={{ color: cat.color }}>{cat.label}</span>
+                {catClips.length > 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: `${cat.color}25`, color: cat.color }}>
+                    {catClips.length}
+                  </span>
+                )}
+              </div>
+              <ChevronDown className="w-4 h-4 transition-transform" style={{ color: cat.color, transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+            </button>
+
+            {/* Conteúdo expandido */}
+            {isOpen && (
+              <div className="border-t px-3 py-3 space-y-3" style={{ borderColor: `${cat.color}20` }}>
+                {cat.subcategorias.map(sub => {
+                  const subClips = catClips.filter(c => c.subcategoria === sub.id)
+                  const isAdding = adding?.cat === cat.id && adding?.sub === sub.id
+                  return (
+                    <div key={sub.id}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-semibold text-white/70">{sub.label}</span>
+                        <button
+                          type="button"
+                          className="w-5 h-5 rounded flex items-center justify-center transition-colors hover:bg-white/10"
+                          style={{ color: cat.color, border: `1px solid ${cat.color}50` }}
+                          onClick={() => {
+                            if (isAdding) { setAdding(null); setUrlInput(""); setTitleInput("") }
+                            else { setAdding({ cat: cat.id, sub: sub.id }); setUrlInput(""); setTitleInput("") }
+                          }}
+                          title="Add clip"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+
+                      {/* Form de adicionar */}
+                      {isAdding && (
+                        <div className="mb-2 p-2 rounded-lg space-y-1.5" style={{ background: `${cat.color}10`, border: `1px solid ${cat.color}30` }}>
+                          <Input
+                            placeholder="Video URL (YouTube, Vimeo...)"
+                            value={urlInput}
+                            onChange={e => setUrlInput(e.target.value)}
+                            className="h-7 text-xs"
+                            style={{ background: "rgba(4,10,22,0.60)" }}
+                            autoFocus
+                          />
+                          <Input
+                            placeholder="Title (optional)"
+                            value={titleInput}
+                            onChange={e => setTitleInput(e.target.value)}
+                            className="h-7 text-xs"
+                            style={{ background: "rgba(4,10,22,0.60)" }}
+                            onKeyDown={e => { if (e.key === "Enter") addClip(cat.id, sub.id) }}
+                          />
+                          <div className="flex gap-1.5">
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="h-6 text-[11px] px-2 text-white"
+                              style={{ background: cat.color }}
+                              onClick={() => addClip(cat.id, sub.id)}
+                              disabled={!urlInput.trim()}
+                            >
+                              Add
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 text-[11px] px-2"
+                              onClick={() => { setAdding(null); setUrlInput(""); setTitleInput("") }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Lista de clips existentes */}
+                      {subClips.length > 0 && (
+                        <div className="space-y-1">
+                          {subClips.map(clip => {
+                            const thumb = getYoutubeThumbnail(clip.url)
+                            return (
+                              <div
+                                key={clip.id}
+                                className="flex items-center gap-2 p-1.5 rounded-lg group/clip"
+                                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                              >
+                                {/* Thumbnail ou ícone */}
+                                <a href={clip.url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                                  {thumb ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={thumb} alt={clip.titulo ?? sub.label} className="w-16 h-9 object-cover rounded" />
+                                  ) : (
+                                    <div className="w-16 h-9 rounded flex items-center justify-center" style={{ background: `${cat.color}15`, border: `1px solid ${cat.color}30` }}>
+                                      <Link2 className="w-4 h-4" style={{ color: cat.color }} />
+                                    </div>
+                                  )}
+                                </a>
+                                <div className="flex-1 min-w-0">
+                                  <a href={clip.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:opacity-80 transition-opacity">
+                                    <span className="text-xs font-medium text-white/80 truncate">{clip.titulo || sub.label}</span>
+                                    <ExternalLink className="w-3 h-3 shrink-0 text-white/30" />
+                                  </a>
+                                  <span className="text-[10px] text-white/30">{clip.dataAdicionado}</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="w-5 h-5 rounded flex items-center justify-center opacity-0 group-hover/clip:opacity-100 transition-opacity hover:bg-red-500/20 text-red-400 shrink-0"
+                                  onClick={() => removeClip(clip.id)}
+                                  title="Remove clip"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+
+                      {subClips.length === 0 && !isAdding && (
+                        <p className="text-[11px] text-white/25 italic">No clips — click + to add</p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 export function ScoutingModule() {
   const [jogadores, setJogadores] = useState<JogadorObservado[]>([])
@@ -189,7 +413,7 @@ export function ScoutingModule() {
             </div>
           </div>
           <Button onClick={openAdd} className="gap-2 shrink-0 text-white hover:opacity-90 shadow-lg" style={{ background: "linear-gradient(135deg, #FF6B35, #FF8C5A)", boxShadow: "0 4px 20px #FF6B3540" }}>
-            <Plus className="w-4 h-4" /> Adicionar Atleta
+            <Plus className="w-4 h-4" /> Add Athlete
           </Button>
         </div>
 
@@ -212,7 +436,7 @@ export function ScoutingModule() {
                 data-[state=active]:text-white data-[state=active]:shadow-lg"
               style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "16px", letterSpacing: "0.05em" }}
             >
-              <Users className="w-4 h-4" /> Atletas <span className="font-bold text-white">{jogadores.length}</span>
+              <Users className="w-4 h-4" /> Athletes <span className="font-bold text-white">{jogadores.length}</span>
             </TabsTrigger>
             <TabsTrigger
               value="pesquisa"
@@ -221,7 +445,7 @@ export function ScoutingModule() {
                 data-[state=active]:text-white data-[state=active]:shadow-lg"
               style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "16px", letterSpacing: "0.05em" }}
             >
-              <Filter className="w-4 h-4" /> Super Pesquisa <span className="font-bold text-white">{jogadores.length}</span>
+              <Filter className="w-4 h-4" /> Super Search <span className="font-bold text-white">{jogadores.length}</span>
             </TabsTrigger>
             <TabsTrigger
               value="mapa"
@@ -230,7 +454,7 @@ export function ScoutingModule() {
                 data-[state=active]:text-white data-[state=active]:shadow-lg"
               style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "16px", letterSpacing: "0.05em" }}
             >
-              <Globe2 className="w-4 h-4" /> Mapa Mundial <span className="font-bold text-white">{jogadores.length}</span>
+              <Globe2 className="w-4 h-4" /> World Map <span className="font-bold text-white">{jogadores.length}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -316,14 +540,14 @@ export function ScoutingModule() {
                     <div className="flex items-center gap-2">
                       <estado.icon className="w-4 h-4" style={{ color: estado.color }} />
                       <span className="text-sm font-bold" style={{ color: estado.color }}>{estado.label}</span>
-                      <span className="text-xs text-muted-foreground">({jogadoresNestadoEstado.length} atletas)</span>
+                      <span className="text-xs text-muted-foreground">({jogadoresNestadoEstado.length} athletes)</span>
                     </div>
                     <button onClick={() => setExpandedEstado(null)} className="text-muted-foreground hover:text-foreground transition-colors">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                   {jogadoresNestadoEstado.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-4">Nenhum atleta neste estado</p>
+                    <p className="text-xs text-muted-foreground text-center py-4">No athletes in this status</p>
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {jogadoresNestadoEstado.map(j => {
@@ -346,7 +570,7 @@ export function ScoutingModule() {
                             <button
                               onClick={e => { e.stopPropagation(); removeFromEstado(j.id) }}
                               className="ml-1 hover:text-destructive transition-colors text-muted-foreground"
-                              title="Voltar a Referenciados"
+                              title="Back to Scouted"
                             >
                               <X className="w-3 h-3" />
                             </button>
@@ -363,7 +587,7 @@ export function ScoutingModule() {
               <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Pesquisar por nome ou clube..."
+                  placeholder="Search by name or club..."
                   value={searchText}
                   onChange={e => setSearchText(e.target.value)}
                   className="pl-9"
@@ -380,7 +604,7 @@ export function ScoutingModule() {
               <Select value={filtroPosicao} onValueChange={setFiltroPosicao}>
                 <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todos">Posições</SelectItem>
+                  <SelectItem value="todos">Positions</SelectItem>
                   {POSICOES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -389,8 +613,8 @@ export function ScoutingModule() {
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
                 <Search className="w-12 h-12 mb-3 opacity-30" />
-                <p className="text-lg font-medium">Nenhum atleta encontrado</p>
-                <p className="text-sm">Adiciona o primeiro jogador observado</p>
+                <p className="text-lg font-medium">No athletes found</p>
+                <p className="text-sm">Add your first scouted player</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -460,7 +684,7 @@ export function ScoutingModule() {
                                   color: isAtivo ? "#fff" : e.color,
                                   border: `1px solid ${e.color}${isAtivo ? "ff" : "40"}`,
                                 }}
-                                title={isAtivo ? `Voltar a Referenciados` : `Marcar como ${e.label}`}
+                                title={isAtivo ? `Back to Scouted` : `Mark as ${e.label}`}
                               >
                                 {e.label}
                               </button>
@@ -548,10 +772,10 @@ export function ScoutingModule() {
               </div>
               <div className="flex-1 min-w-0">
                 <DialogTitle className="text-lg font-bold mb-0.5">
-                  {editingId ? "Editar Ficha de Scouting" : "Nova Ficha de Scouting"}
+                  {editingId ? "Edit Scouting Profile" : "New Scouting Profile"}
                 </DialogTitle>
                 <p className="text-xs text-muted-foreground">
-                  {form.nome || "Novo atleta"} {form.posicao ? `· ${form.posicao}` : ""}
+                  {form.nome || "New athlete"} {form.posicao ? `· ${form.posicao}` : ""}
                 </p>
               </div>
             </div>
@@ -559,81 +783,80 @@ export function ScoutingModule() {
 
           <div className="px-6 pt-4 pb-2">
             <Tabs defaultValue="info" className="w-full">
-              <TabsList className="w-full mb-5 grid grid-cols-4 h-auto p-1" style={{ background: "hsl(var(--muted)/0.4)" }}>
+              <TabsList className="w-full mb-5 grid grid-cols-5 h-auto p-1" style={{ background: "hsl(var(--muted)/0.4)" }}>
                 <TabsTrigger value="info" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#00D66C]">
                   <User className="w-4 h-4" /><span>Info</span>
                 </TabsTrigger>
                 <TabsTrigger value="contrato" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#0066FF]">
-                  <FileText className="w-4 h-4" /><span>Contrato</span>
+                  <FileText className="w-4 h-4" /><span>Contract</span>
                 </TabsTrigger>
                 <TabsTrigger value="caracteristicas" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#8B5CF6]">
-                  <Award className="w-4 h-4" /><span>Características</span>
+                  <Award className="w-4 h-4" /><span>Atributos</span>
                 </TabsTrigger>
                 <TabsTrigger value="stats" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#FF6B35]">
                   <BarChart3 className="w-4 h-4" /><span>Stats</span>
+                </TabsTrigger>
+                <TabsTrigger value="clips" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#EC4899]">
+                  <Video className="w-4 h-4" /><span>Videos</span>
                 </TabsTrigger>
               </TabsList>
 
               {/* INFO */}
               <TabsContent value="info" className="space-y-4">
                 <div className="p-3 rounded-lg border border-[#00D66C]/20" style={{ background: "#00D66C08" }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#00D66C] mb-3">Identificação</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#00D66C] mb-3">Identification</div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-xs">Nome *</Label>
+                      <Label className="text-xs">Name *</Label>
                       <Input value={form.nome} onChange={e => setForm({...form, nome: e.target.value})} className="mt-1" />
                     </div>
                     <div>
-                      <Label className="text-xs">Data de Nascimento</Label>
+                      <Label className="text-xs">Date of Birth</Label>
                       <Input type="date" value={form.dataNascimento} onChange={e => setForm({...form, dataNascimento: e.target.value})} className="mt-1" />
                     </div>
                     <div>
-                      <Label className="text-xs">Clube Atual</Label>
+                      <Label className="text-xs">Current Club</Label>
                       <Input value={form.clube} onChange={e => setForm({...form, clube: e.target.value})} className="mt-1" />
                     </div>
                     <div>
-                      <Label className="text-xs">Nacionalidade</Label>
+                      <Label className="text-xs">Country</Label>
                       <div className="relative mt-1">
-                        <Input value={form.nacionalidade} onChange={e => setForm({...form, nacionalidade: e.target.value})} placeholder="ex: Portugal" />
+                        <Input value={form.nacionalidade} onChange={e => setForm({...form, nacionalidade: e.target.value})} placeholder="e.g.: Portugal" />
                         {form.nacionalidade && getCountryInfo(form.nacionalidade).flag && (
                           <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-lg">{getCountryInfo(form.nacionalidade).flag}</span>
                         )}
                       </div>
                     </div>
                     <div>
-                      <Label className="text-xs">Liga</Label>
-                      <Input placeholder="ex: Premier League" value={form.liga ?? ""} onChange={e => setForm({...form, liga: e.target.value})} className="mt-1" />
-                    </div>
-                    <div>
-                      <Label className="text-xs">País do Clube</Label>
-                      <Input placeholder="ex: Inglaterra" value={form.paisClube ?? ""} onChange={e => setForm({...form, paisClube: e.target.value})} className="mt-1" />
+                      <Label className="text-xs">League</Label>
+                      <Input placeholder="e.g.: Premier League" value={form.liga ?? ""} onChange={e => setForm({...form, liga: e.target.value})} className="mt-1" />
                     </div>
                   </div>
                 </div>
 
                 <div className="p-3 rounded-lg border border-border/40" style={{ background: "hsl(var(--muted)/0.2)" }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Perfil</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Profile</div>
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <Label className="text-xs">Posição</Label>
+                      <Label className="text-xs">Position</Label>
                       <Select value={form.posicao} onValueChange={v => setForm({...form, posicao: v})}>
                         <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                         <SelectContent>{POSICOES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-xs">Pé Preferido</Label>
+                      <Label className="text-xs">Preferred Foot</Label>
                       <Select value={form.pePreferido} onValueChange={v => setForm({...form, pePreferido: v as PePreferido})}>
                         <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="direito">Direito</SelectItem>
-                          <SelectItem value="esquerdo">Esquerdo</SelectItem>
-                          <SelectItem value="ambidestro">Ambidestro</SelectItem>
+                          <SelectItem value="direito">Right</SelectItem>
+                          <SelectItem value="esquerdo">Left</SelectItem>
+                          <SelectItem value="ambidestro">Both</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-xs">Estado</Label>
+                      <Label className="text-xs">Status</Label>
                       <Select value={form.estado} onValueChange={v => setForm({...form, estado: v as EstadoScouting})}>
                         <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                         <SelectContent>{ESTADOS.map(e => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent>
@@ -641,10 +864,10 @@ export function ScoutingModule() {
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-3 mt-3">
-                    <NumInput label="Altura (cm)" value={form.altura} onChange={v => setForm({...form, altura: v})} placeholder="180" min={140} max={220} />
-                    <NumInput label="Peso (kg)" value={form.peso} onChange={v => setForm({...form, peso: v})} placeholder="75" min={40} max={130} />
+                    <NumInput label="Height (cm)" value={form.altura} onChange={v => setForm({...form, altura: v})} placeholder="180" min={140} max={220} />
+                    <NumInput label="Weight (kg)" value={form.peso} onChange={v => setForm({...form, peso: v})} placeholder="75" min={40} max={130} />
                     <div>
-                      <Label className="text-xs">Data de Observação</Label>
+                      <Label className="text-xs">Observation Date</Label>
                       <Input type="date" value={form.dataObservacao} onChange={e => setForm({...form, dataObservacao: e.target.value})} className="mt-1 h-8" />
                     </div>
                   </div>
@@ -652,11 +875,11 @@ export function ScoutingModule() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 rounded-lg border border-yellow-400/20" style={{ background: "rgba(250,204,21,0.05)" }}>
-                    <div className="text-xs font-bold uppercase tracking-wider text-yellow-400/80 mb-2">Avaliação Geral</div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-yellow-400/80 mb-2">Overall Rating</div>
                     <StarRating value={form.avaliacao} onChange={v => setForm({...form, avaliacao: v})} size="md" />
                   </div>
                   <div className="p-3 rounded-lg border border-[#8B5CF6]/20" style={{ background: "rgba(139,92,246,0.05)" }}>
-                    <div className="text-xs font-bold uppercase tracking-wider text-[#8B5CF6] mb-2">Potencial</div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-[#8B5CF6] mb-2">Potential</div>
                     <StarRating value={form.potencial ?? 3} onChange={v => setForm({...form, potencial: v})} size="md" />
                   </div>
                 </div>
@@ -665,30 +888,30 @@ export function ScoutingModule() {
               {/* CONTRATO */}
               <TabsContent value="contrato" className="space-y-4">
                 <div className="p-3 rounded-lg border border-[#0066FF]/20" style={{ background: "#0066FF08" }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#0066FF] mb-3">Dados Contratuais</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#0066FF] mb-3">Contract Data</div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-xs">Fim de Contrato</Label>
+                      <Label className="text-xs">Contract End</Label>
                       <Input type="date" value={form.fimContrato ?? ""} onChange={e => setForm({...form, fimContrato: e.target.value})} className="mt-1" />
                     </div>
-                    <NumInput label="Valor de Mercado (€)" value={form.valorMercado} onChange={v => setForm({...form, valorMercado: v})} placeholder="1000000" />
-                    <NumInput label="Salário (€/mês)" value={form.salario} onChange={v => setForm({...form, salario: v})} placeholder="50000" />
+                    <NumInput label="Market Value (€)" value={form.valorMercado} onChange={v => setForm({...form, valorMercado: v})} placeholder="1000000" />
+                    <NumInput label="Salary (€/month)" value={form.salario} onChange={v => setForm({...form, salario: v})} placeholder="50000" />
                   </div>
                 </div>
                 <div className="p-3 rounded-lg border border-[#0066FF]/10" style={{ background: "#0066FF05" }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#0066FF]/70 mb-3">Representação</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#0066FF]/70 mb-3">Representation</div>
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <Label className="text-xs">Nome do Agente</Label>
-                      <Input placeholder="ex: Jorge Mendes" value={form.nomeAgente ?? ""} onChange={e => setForm({...form, nomeAgente: e.target.value})} className="mt-1" />
+                      <Label className="text-xs">Agent Name</Label>
+                      <Input placeholder="e.g.: Jorge Mendes" value={form.nomeAgente ?? ""} onChange={e => setForm({...form, nomeAgente: e.target.value})} className="mt-1" />
                     </div>
                     <div>
-                      <Label className="text-xs">Agência</Label>
-                      <Input placeholder="ex: Gestifute" value={form.agencia ?? ""} onChange={e => setForm({...form, agencia: e.target.value})} className="mt-1" />
+                      <Label className="text-xs">Agency</Label>
+                      <Input placeholder="e.g.: Gestifute" value={form.agencia ?? ""} onChange={e => setForm({...form, agencia: e.target.value})} className="mt-1" />
                     </div>
                     <div>
-                      <Label className="text-xs">Contacto do Agente</Label>
-                      <Input placeholder="email ou telefone" value={form.contactoAgente ?? ""} onChange={e => setForm({...form, contactoAgente: e.target.value})} className="mt-1" />
+                      <Label className="text-xs">Agent Contact</Label>
+                      <Input placeholder="email or phone" value={form.contactoAgente ?? ""} onChange={e => setForm({...form, contactoAgente: e.target.value})} className="mt-1" />
                     </div>
                   </div>
                 </div>
@@ -696,75 +919,148 @@ export function ScoutingModule() {
 
               {/* CARACTERÍSTICAS */}
               <TabsContent value="caracteristicas" className="space-y-4">
-                <div className="p-3 rounded-lg border border-[#8B5CF6]/20" style={{ background: "#8B5CF608" }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#8B5CF6] mb-3">Análise Técnica</div>
-                  {[
-                    { key: "caracteristicasTecnicas" as const, label: "Características Técnicas" },
-                    { key: "caracteristicasTaticas" as const, label: "Características Táticas" },
-                    { key: "caracteristicasFisicas" as const, label: "Características Físicas" },
-                    { key: "caracteristicasMentais" as const, label: "Características Mentais" },
-                  ].map(f => (
-                    <div key={f.key} className="mb-3 last:mb-0">
-                      <Label className="text-xs">{f.label}</Label>
-                      <Textarea placeholder="Descreve..." value={form[f.key]} onChange={e => setForm({...form, [f.key]: e.target.value})} className="mt-1 h-16" />
-                    </div>
-                  ))}
+                {/* FM-style attribute grid */}
+                <div className="grid grid-cols-3 gap-2">
+                  {/* TECHNICAL */}
+                  <div className="rounded-lg border p-2" style={{ borderColor: "#FF6B3540", background: "#FF6B3508" }}>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-[#FF6B35] mb-2">Technical</div>
+                    {([
+                      ["Corners", "attrCorners"], ["Crossing", "attrCrossing"], ["Dribbling", "attrDribbling"],
+                      ["Finishing", "attrFinishing"], ["First Touch", "attrFirstTouch"], ["Free Kick", "attrFreeKick"],
+                      ["Heading", "attrHeading"], ["Long Shots", "attrLongShots"], ["Long Throws", "attrLongThrows"],
+                      ["Marking", "attrMarking"], ["Passing", "attrPassing"], ["Pen. Taking", "attrPenaltyTaking"],
+                      ["Tackling", "attrTackling"], ["Technique", "attrTechnique"],
+                    ] as [string, keyof typeof form][]).map(([label, key]) => {
+                      const val = form[key] as number | undefined
+                      const color = val !== undefined ? (val >= 16 ? "#00D66C" : val >= 12 ? "#facc15" : "rgba(255,255,255,0.5)") : "rgba(255,255,255,0.3)"
+                      return (
+                        <div key={key} className="flex items-center justify-between py-0.5 border-b border-white/5 last:border-0">
+                          <span className="text-[10px] text-white/60 truncate mr-1">{label}</span>
+                          <input
+                            type="number" min={0} max={20}
+                            value={val ?? ""}
+                            placeholder="—"
+                            onChange={e => setForm({...form, [key]: e.target.value === "" ? undefined : Math.min(20, Math.max(0, Number(e.target.value)))})}
+                            className="w-9 h-5 text-[11px] font-bold text-right bg-transparent border-0 outline-none p-0 pr-0.5"
+                            style={{ color, caretColor: "#fff" }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {/* MENTAL */}
+                  <div className="rounded-lg border p-2" style={{ borderColor: "#0066FF40", background: "#0066FF08" }}>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-[#0066FF] mb-2">Mental</div>
+                    {([
+                      ["Aggression", "attrAggression"], ["Anticipation", "attrAnticipation"], ["Bravery", "attrBravery"],
+                      ["Composure", "attrComposure"], ["Concentration", "attrConcentration"], ["Decisions", "attrDecisions"],
+                      ["Determination", "attrDetermination"], ["Flair", "attrFlair"], ["Leadership", "attrLeadership"],
+                      ["Off The Ball", "attrOffTheBall"], ["Positioning", "attrPositioning"], ["Teamwork", "attrTeamwork"],
+                      ["Vision", "attrVision"], ["Work Rate", "attrWorkRate"],
+                    ] as [string, keyof typeof form][]).map(([label, key]) => {
+                      const val = form[key] as number | undefined
+                      const color = val !== undefined ? (val >= 16 ? "#00D66C" : val >= 12 ? "#facc15" : "rgba(255,255,255,0.5)") : "rgba(255,255,255,0.3)"
+                      return (
+                        <div key={key} className="flex items-center justify-between py-0.5 border-b border-white/5 last:border-0">
+                          <span className="text-[10px] text-white/60 truncate mr-1">{label}</span>
+                          <input
+                            type="number" min={0} max={20}
+                            value={val ?? ""}
+                            placeholder="—"
+                            onChange={e => setForm({...form, [key]: e.target.value === "" ? undefined : Math.min(20, Math.max(0, Number(e.target.value)))})}
+                            className="w-9 h-5 text-[11px] font-bold text-right bg-transparent border-0 outline-none p-0 pr-0.5"
+                            style={{ color, caretColor: "#fff" }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {/* PHYSICAL */}
+                  <div className="rounded-lg border p-2" style={{ borderColor: "#00D66C40", background: "#00D66C08" }}>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-[#00D66C] mb-2">Physical</div>
+                    {([
+                      ["Acceleration", "attrAcceleration"], ["Agility", "attrAgility"], ["Balance", "attrBalance"],
+                      ["Jumping Reach", "attrJumpingReach"], ["Nat. Fitness", "attrNaturalFitness"], ["Pace", "attrPace"],
+                      ["Stamina", "attrStamina"], ["Strength", "attrStrength"],
+                    ] as [string, keyof typeof form][]).map(([label, key]) => {
+                      const val = form[key] as number | undefined
+                      const color = val !== undefined ? (val >= 16 ? "#00D66C" : val >= 12 ? "#facc15" : "rgba(255,255,255,0.5)") : "rgba(255,255,255,0.3)"
+                      return (
+                        <div key={key} className="flex items-center justify-between py-0.5 border-b border-white/5 last:border-0">
+                          <span className="text-[10px] text-white/60 truncate mr-1">{label}</span>
+                          <input
+                            type="number" min={0} max={20}
+                            value={val ?? ""}
+                            placeholder="—"
+                            onChange={e => setForm({...form, [key]: e.target.value === "" ? undefined : Math.min(20, Math.max(0, Number(e.target.value)))})}
+                            className="w-9 h-5 text-[11px] font-bold text-right bg-transparent border-0 outline-none p-0 pr-0.5"
+                            style={{ color, caretColor: "#fff" }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-xs text-[#00D66C]">Pontos Fortes</Label>
-                    <Textarea placeholder="Lista os pontos fortes..." value={form.pontosFortess} onChange={e => setForm({...form, pontosFortess: e.target.value})} className="mt-1 h-20 border-[#00D66C]/20" />
+                    <Label className="text-xs text-[#00D66C]">Strengths</Label>
+                    <Textarea placeholder="List strengths..." value={form.pontosFortess} onChange={e => setForm({...form, pontosFortess: e.target.value})} className="mt-1 h-20 border-[#00D66C]/20" />
                   </div>
                   <div>
-                    <Label className="text-xs text-destructive">Pontos Fracos</Label>
-                    <Textarea placeholder="Pontos a melhorar..." value={form.pontosFracos} onChange={e => setForm({...form, pontosFracos: e.target.value})} className="mt-1 h-20 border-destructive/20" />
+                    <Label className="text-xs text-destructive">Weaknesses</Label>
+                    <Textarea placeholder="Areas to improve..." value={form.pontosFracos} onChange={e => setForm({...form, pontosFracos: e.target.value})} className="mt-1 h-20 border-destructive/20" />
                   </div>
                 </div>
                 <div>
-                  <Label className="text-xs">Notas</Label>
-                  <Textarea placeholder="Notas livres..." value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} className="mt-1 h-16" />
+                  <Label className="text-xs">Notes</Label>
+                  <Textarea placeholder="Free notes..." value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} className="mt-1 h-16" />
                 </div>
               </TabsContent>
 
               {/* STATS */}
               <TabsContent value="stats" className="space-y-5">
-                <div className="p-3 rounded-lg border border-[#FF6B35]/20" style={{ background: "#FF6B3508" }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#FF6B35] mb-3">Atributos Físicos (0–20)</div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <NumInput label="Velocidade" value={form.velocidade} onChange={v => setForm({...form, velocidade: v})} placeholder="15" min={0} max={20} />
-                    <NumInput label="Aceleração" value={form.aceleracao} onChange={v => setForm({...form, aceleracao: v})} placeholder="16" min={0} max={20} />
-                    <NumInput label="Resistência" value={form.resistencia} onChange={v => setForm({...form, resistencia: v})} placeholder="14" min={0} max={20} />
-                    <NumInput label="Força" value={form.forca} onChange={v => setForm({...form, forca: v})} placeholder="13" min={0} max={20} />
-                  </div>
-                </div>
                 <div className="p-3 rounded-lg border border-border/40" style={{ background: "hsl(var(--muted)/0.2)" }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Estatísticas de Jogo</div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Match Statistics</div>
                   <div className="grid grid-cols-3 gap-3">
-                    <NumInput label="Golos" value={form.golos} onChange={v => setForm({...form, golos: v})} placeholder="12" min={0} />
-                    <NumInput label="Assistências" value={form.assistencias} onChange={v => setForm({...form, assistencias: v})} placeholder="8" min={0} />
-                    <NumInput label="Jogos" value={form.jogosDisputados} onChange={v => setForm({...form, jogosDisputados: v})} placeholder="30" min={0} />
-                    <NumInput label="Minutos" value={form.minutosJogados} onChange={v => setForm({...form, minutosJogados: v})} placeholder="2400" min={0} />
-                    <NumInput label="Amarelos" value={form.cartoesAmarelos} onChange={v => setForm({...form, cartoesAmarelos: v})} placeholder="3" min={0} />
-                    <NumInput label="Vermelhos" value={form.cartoesVermelhos} onChange={v => setForm({...form, cartoesVermelhos: v})} placeholder="0" min={0} />
+                    <NumInput label="Goals" value={form.golos} onChange={v => setForm({...form, golos: v})} placeholder="12" min={0} />
+                    <NumInput label="Assists" value={form.assistencias} onChange={v => setForm({...form, assistencias: v})} placeholder="8" min={0} />
+                    <NumInput label="Games" value={form.jogosDisputados} onChange={v => setForm({...form, jogosDisputados: v})} placeholder="30" min={0} />
+                    <NumInput label="Minutes" value={form.minutosJogados} onChange={v => setForm({...form, minutosJogados: v})} placeholder="2400" min={0} />
+                    <NumInput label="Yellow Cards" value={form.cartoesAmarelos} onChange={v => setForm({...form, cartoesAmarelos: v})} placeholder="3" min={0} />
+                    <NumInput label="Red Cards" value={form.cartoesVermelhos} onChange={v => setForm({...form, cartoesVermelhos: v})} placeholder="0" min={0} />
                   </div>
                 </div>
-                <div className="p-3 rounded-lg border border-border/40" style={{ background: "hsl(var(--muted)/0.2)" }}>
-                  <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Métricas GPS</div>
+                <div className="p-3 rounded-lg border border-[#0066FF]/20" style={{ background: "#0066FF08" }}>
+                  <div className="text-xs font-bold uppercase tracking-wider text-[#0066FF] mb-3">Performance Metrics</div>
                   <div className="grid grid-cols-2 gap-3">
-                    <NumInput label="Sprints / jogo" value={form.sprintsPorJogo} onChange={v => setForm({...form, sprintsPorJogo: v})} placeholder="18" min={0} />
-                    <NumInput label="Distância / jogo (km)" value={form.distanciaPorJogo} onChange={v => setForm({...form, distanciaPorJogo: v})} placeholder="10.5" min={0} />
-                    <NumInput label="Vel. Máxima (km/h)" value={form.velocidadeMaxima} onChange={v => setForm({...form, velocidadeMaxima: v})} placeholder="32" min={0} />
-                    <NumInput label="FC Média (bpm)" value={form.fcMedia} onChange={v => setForm({...form, fcMedia: v})} placeholder="155" min={0} />
+                    <NumInput label="xG (Exp. Goals)" value={form.xg} onChange={v => setForm({...form, xg: v})} placeholder="0.45" min={0} />
+                    <NumInput label="xA (Exp. Assists)" value={form.xa} onChange={v => setForm({...form, xa: v})} placeholder="0.30" min={0} />
+                    <NumInput label="xGOT (on Target)" value={form.xgot} onChange={v => setForm({...form, xgot: v})} placeholder="0.60" min={0} />
+                    <NumInput label="Key Passes / game" value={form.keyPassesPorJogo} onChange={v => setForm({...form, keyPassesPorJogo: v})} placeholder="2.1" min={0} />
+                    <NumInput label="Shots / game" value={form.chutesPorJogo} onChange={v => setForm({...form, chutesPorJogo: v})} placeholder="3.5" min={0} />
+                    <NumInput label="Pass Accuracy (%)" value={form.precisaoPasses} onChange={v => setForm({...form, precisaoPasses: v})} placeholder="84" min={0} max={100} />
+                    <NumInput label="Dribbles Comp. / game" value={form.driblesCompletados} onChange={v => setForm({...form, driblesCompletados: v})} placeholder="1.8" min={0} />
+                    <NumInput label="Aerial Duels Won (%)" value={form.duelosAereos} onChange={v => setForm({...form, duelosAereos: v})} placeholder="55" min={0} max={100} />
+                    <NumInput label="Ground Duels Won (%)" value={form.duelosTerrestres} onChange={v => setForm({...form, duelosTerrestres: v})} placeholder="60" min={0} max={100} />
+                    <NumInput label="Interceptions / game" value={form.intercecoes} onChange={v => setForm({...form, intercecoes: v})} placeholder="1.2" min={0} />
                   </div>
                 </div>
+              </TabsContent>
+
+              {/* VÍDEOS / CLIPS */}
+              <TabsContent value="clips" className="space-y-2">
+                <ClipsTab
+                  clips={form.clips ?? []}
+                  onChange={clips => setForm({ ...form, clips })}
+                />
               </TabsContent>
             </Tabs>
           </div>
 
           <DialogFooter className="px-6 pb-6">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={save} disabled={!form.nome.trim()} className="text-white hover:opacity-90" style={{ background: "#FF6B35" }}>
-              {editingId ? "Guardar" : "Adicionar"}
+              {editingId ? "Save" : "Add"}
             </Button>
           </DialogFooter>
         </DialogContent>

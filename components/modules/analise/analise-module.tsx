@@ -38,9 +38,9 @@ const emptyForm: {
 
 function resultadoBadge(r: ResultadoJogo) {
   const map = {
-    vitoria: { variant: "success" as const, label: "Vitória", icon: Trophy },
-    empate: { variant: "info" as const, label: "Empate", icon: Minus },
-    derrota: { variant: "destructive" as const, label: "Derrota", icon: ShieldOff },
+    vitoria: { variant: "success" as const, label: "Win",  icon: Trophy },
+    empate: { variant: "info" as const, label: "Draw",  icon: Minus },
+    derrota: { variant: "destructive" as const, label: "Loss", icon: ShieldOff },
   }
   const { variant, label } = map[r]
   return <Badge variant={variant}>{label}</Badge>
@@ -83,19 +83,19 @@ export function AnaliseModule() {
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-          Análise de Jogo
+          Match Analysis
         </h1>
-        <p className="text-muted-foreground">Relatórios pós-jogo, estatísticas e análise tática</p>
+        <p className="text-muted-foreground">Post-match reports, statistics and tactical analysis</p>
       </div>
 
       {/* Stats globais */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Jogos", value: stats.totalJogos, color: "text-foreground" },
-            { label: "Vitórias", value: stats.vitorias, color: "text-[#00D66C]" },
-            { label: "Empates", value: stats.empates, color: "text-[#0066FF]" },
-            { label: "Derrotas", value: stats.derrotas, color: "text-destructive" },
+            { label: "Matches", value: stats.totalJogos, color: "text-foreground" },
+            { label: "Wins", value: stats.vitorias, color: "text-[#00D66C]" },
+            { label: "Draws", value: stats.empates, color: "text-[#0066FF]" },
+            { label: "Losses", value: stats.derrotas, color: "text-destructive" },
           ].map(s => (
             <Card key={s.label} className="glass-card border-border/50">
               <CardContent className="p-4">
@@ -113,17 +113,17 @@ export function AnaliseModule() {
         {/* Lista de relatórios */}
         <div className="md:col-span-1">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Relatórios ({relatorios.length})</h2>
+            <h2 className="font-semibold">Reports ({relatorios.length})</h2>
             <Button onClick={() => { setForm(emptyForm); setDialogOpen(true) }} size="sm" className="bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-white gap-1">
               <Plus className="w-3.5 h-3.5" />
-              Novo
+              New
             </Button>
           </div>
 
           {sortedRelatorios.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <BarChart3 className="w-10 h-10 mb-2 opacity-30" />
-              <p className="text-sm">Nenhum relatório ainda</p>
+              <p className="text-sm">No reports yet</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -158,7 +158,7 @@ export function AnaliseModule() {
           {!selected ? (
             <div className="flex flex-col items-center justify-center h-64 text-muted-foreground rounded-xl border border-dashed border-border">
               <BarChart3 className="w-12 h-12 mb-3 opacity-20" />
-              <p>Seleciona um relatório para ver os detalhes</p>
+              <p>Select a report to view details</p>
             </div>
           ) : (
             <Card className="glass-card border-border/50">
@@ -166,7 +166,7 @@ export function AnaliseModule() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-xl">{selected.adversario}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{selected.data} · {selected.local === "casa" ? "Casa" : selected.local === "fora" ? "Fora" : "Neutro"} · {selected.competicao}</p>
+                    <p className="text-sm text-muted-foreground">{selected.data} · {selected.local === "casa" ? "Home" : selected.local === "fora" ? "Away" : "Neutral"} · {selected.competicao}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-3xl font-bold" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
@@ -179,21 +179,21 @@ export function AnaliseModule() {
               <CardContent>
                 <Tabs defaultValue="stats">
                   <TabsList className="mb-4">
-                    <TabsTrigger value="stats">Estatísticas</TabsTrigger>
-                    <TabsTrigger value="analise">Análise</TabsTrigger>
+                    <TabsTrigger value="stats">Statistics</TabsTrigger>
+                    <TabsTrigger value="analise">Analysis</TabsTrigger>
                     <TabsTrigger value="clips">Clips</TabsTrigger>
                   </TabsList>
                   <TabsContent value="stats">
                     <div className="grid grid-cols-2 gap-4">
                       {[
-                        { label: "Posse de Bola", value: `${selected.stats.posseBola}%` },
-                        { label: "Remates (Total)", value: selected.stats.rematesTotal },
-                        { label: "Remates a Golo", value: selected.stats.rematesGolo },
-                        { label: "xG Próprio", value: selected.stats.xGProprio.toFixed(2) },
-                        { label: "xG Adversário", value: selected.stats.xGAdversario.toFixed(2) },
-                        { label: "Recuperações", value: selected.stats.recuperacoes },
-                        { label: "Perdas de Bola", value: selected.stats.perdasBola },
-                        { label: "Precisão de Passe", value: selected.stats.passesTotal ? `${Math.round((selected.stats.passesCompletos/selected.stats.passesTotal)*100)}%` : "—" },
+                        { label: "Ball Possession", value: `${selected.stats.posseBola}%` },
+                        { label: "Shots (Total)", value: selected.stats.rematesTotal },
+                        { label: "Shots on Target", value: selected.stats.rematesGolo },
+                        { label: "Own xG", value: selected.stats.xGProprio.toFixed(2) },
+                        { label: "Opponent xG", value: selected.stats.xGAdversario.toFixed(2) },
+                        { label: "Recoveries", value: selected.stats.recuperacoes },
+                        { label: "Ball Losses", value: selected.stats.perdasBola },
+                        { label: "Pass Accuracy", value: selected.stats.passesTotal ? `${Math.round((selected.stats.passesCompletos/selected.stats.passesTotal)*100)}%` : "—" },
                       ].map(stat => (
                         <div key={stat.label} className="bg-muted/30 rounded-lg p-3">
                           <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
@@ -206,13 +206,13 @@ export function AnaliseModule() {
                     <div className="space-y-4">
                       {selected.analiseNarrativa && (
                         <div>
-                          <h4 className="text-sm font-semibold mb-2">Análise Narrativa</h4>
+                          <h4 className="text-sm font-semibold mb-2">Narrative Analysis</h4>
                           <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selected.analiseNarrativa}</p>
                         </div>
                       )}
                       {selected.conclusoes && (
                         <div>
-                          <h4 className="text-sm font-semibold mb-2">Conclusões</h4>
+                          <h4 className="text-sm font-semibold mb-2">Conclusions</h4>
                           <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selected.conclusoes}</p>
                         </div>
                       )}
@@ -220,7 +220,7 @@ export function AnaliseModule() {
                   </TabsContent>
                   <TabsContent value="clips">
                     {selected.clipLinks.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Nenhum clip adicionado.</p>
+                      <p className="text-sm text-muted-foreground">No clips added.</p>
                     ) : (
                       <div className="space-y-2">
                         {selected.clipLinks.map((link, i) => (
@@ -237,7 +237,7 @@ export function AnaliseModule() {
                 <div className="flex justify-end mt-4">
                   <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive gap-1" onClick={() => removeRelatorio(selected.id)}>
                     <Trash2 className="w-3.5 h-3.5" />
-                    Eliminar
+                    Delete
                   </Button>
                 </div>
               </CardContent>
@@ -250,70 +250,70 @@ export function AnaliseModule() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Novo Relatório Pós-Jogo</DialogTitle>
+            <DialogTitle>New Post-Match Report</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-2">
             {/* Info base */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Adversário *</Label>
-                <Input placeholder="Nome da equipa adversária" value={form.adversario} onChange={e => setForm({...form, adversario: e.target.value})} className="mt-1" />
+                <Label>Opponent *</Label>
+                <Input placeholder="Opponent team name" value={form.adversario} onChange={e => setForm({...form, adversario: e.target.value})} className="mt-1" />
               </div>
               <div>
-                <Label>Data</Label>
+                <Label>Date</Label>
                 <Input type="date" value={form.data} onChange={e => setForm({...form, data: e.target.value})} className="mt-1" />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <Label>Local</Label>
+                <Label>Venue</Label>
                 <Select value={form.local} onValueChange={v => setForm({...form, local: v as "casa"|"fora"|"neutro"})}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="casa">Casa</SelectItem>
-                    <SelectItem value="fora">Fora</SelectItem>
-                    <SelectItem value="neutro">Neutro</SelectItem>
+                    <SelectItem value="casa">Home</SelectItem>
+                    <SelectItem value="fora">Away</SelectItem>
+                    <SelectItem value="neutro">Neutral</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>Resultado</Label>
+                <Label>Result</Label>
                 <Select value={form.resultado} onValueChange={v => setForm({...form, resultado: v as ResultadoJogo})}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="vitoria">Vitória</SelectItem>
-                    <SelectItem value="empate">Empate</SelectItem>
-                    <SelectItem value="derrota">Derrota</SelectItem>
+                    <SelectItem value="vitoria">Win</SelectItem>
+                    <SelectItem value="empate">Draw</SelectItem>
+                    <SelectItem value="derrota">Loss</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>Competição</Label>
-                <Input placeholder="Liga, Taça..." value={form.competicao} onChange={e => setForm({...form, competicao: e.target.value})} className="mt-1" />
+                <Label>Competition</Label>
+                <Input placeholder="League, Cup..." value={form.competicao} onChange={e => setForm({...form, competicao: e.target.value})} className="mt-1" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Golos Marcados</Label>
+                <Label>Goals Scored</Label>
                 <Input type="number" min={0} value={form.golosMarcados} onChange={e => setForm({...form, golosMarcados: parseInt(e.target.value)})} className="mt-1" />
               </div>
               <div>
-                <Label>Golos Sofridos</Label>
+                <Label>Goals Conceded</Label>
                 <Input type="number" min={0} value={form.golosSofridos} onChange={e => setForm({...form, golosSofridos: parseInt(e.target.value)})} className="mt-1" />
               </div>
             </div>
 
             {/* Stats */}
             <div className="border-t border-border pt-4">
-              <h4 className="text-sm font-semibold mb-3">Estatísticas</h4>
+              <h4 className="text-sm font-semibold mb-3">Statistics</h4>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { key: "posseBola" as const, label: "Posse (%)", min: 0, max: 100 },
-                  { key: "rematesTotal" as const, label: "Remates Total", min: 0, max: 50 },
-                  { key: "rematesGolo" as const, label: "A Golo", min: 0, max: 30 },
-                  { key: "recuperacoes" as const, label: "Recuperações", min: 0, max: 100 },
-                  { key: "perdasBola" as const, label: "Perdas de Bola", min: 0, max: 100 },
-                  { key: "passesTotal" as const, label: "Passes Total", min: 0, max: 1000 },
+                  { key: "posseBola" as const, label: "Possession (%)", min: 0, max: 100 },
+                  { key: "rematesTotal" as const, label: "Total Shots", min: 0, max: 50 },
+                  { key: "rematesGolo" as const, label: "On Target", min: 0, max: 30 },
+                  { key: "recuperacoes" as const, label: "Recoveries", min: 0, max: 100 },
+                  { key: "perdasBola" as const, label: "Ball Losses", min: 0, max: 100 },
+                  { key: "passesTotal" as const, label: "Total Passes", min: 0, max: 1000 },
                 ].map(f => (
                   <div key={f.key}>
                     <Label className="text-xs">{f.label}</Label>
@@ -323,11 +323,11 @@ export function AnaliseModule() {
               </div>
               <div className="grid grid-cols-2 gap-3 mt-3">
                 <div>
-                  <Label className="text-xs">xG Próprio</Label>
+                  <Label className="text-xs">Own xG</Label>
                   <Input type="number" min={0} max={10} step={0.01} value={form.stats.xGProprio} onChange={e => updateStat("xGProprio", parseFloat(e.target.value) || 0)} className="mt-1 h-8 text-sm" />
                 </div>
                 <div>
-                  <Label className="text-xs">xG Adversário</Label>
+                  <Label className="text-xs">Opponent xG</Label>
                   <Input type="number" min={0} max={10} step={0.01} value={form.stats.xGAdversario} onChange={e => updateStat("xGAdversario", parseFloat(e.target.value) || 0)} className="mt-1 h-8 text-sm" />
                 </div>
               </div>
@@ -335,20 +335,20 @@ export function AnaliseModule() {
 
             {/* Análise */}
             <div className="border-t border-border pt-4">
-              <h4 className="text-sm font-semibold mb-3">Análise</h4>
+              <h4 className="text-sm font-semibold mb-3">Analysis</h4>
               <div>
-                <Label>Análise Narrativa</Label>
-                <Textarea placeholder="Descreve o jogo, as fases, os momentos decisivos..." value={form.analiseNarrativa} onChange={e => setForm({...form, analiseNarrativa: e.target.value})} className="mt-1 h-24" />
+                <Label>Narrative Analysis</Label>
+                <Textarea placeholder="Describe the match, phases, decisive moments..." value={form.analiseNarrativa} onChange={e => setForm({...form, analiseNarrativa: e.target.value})} className="mt-1 h-24" />
               </div>
               <div className="mt-3">
-                <Label>Conclusões e Pontos a Trabalhar</Label>
-                <Textarea placeholder="Aspectos positivos, negativos, foco para próximos treinos..." value={form.conclusoes} onChange={e => setForm({...form, conclusoes: e.target.value})} className="mt-1 h-20" />
+                <Label>Conclusions and Areas to Work On</Label>
+                <Textarea placeholder="Positives, negatives, focus for upcoming training..." value={form.conclusoes} onChange={e => setForm({...form, conclusoes: e.target.value})} className="mt-1 h-20" />
               </div>
             </div>
 
             {/* Clips */}
             <div className="border-t border-border pt-4">
-              <h4 className="text-sm font-semibold mb-3">Links de Clips (YouTube/Vimeo)</h4>
+              <h4 className="text-sm font-semibold mb-3">Clip Links (YouTube/Vimeo)</h4>
               {form.clipLinks.map((link, i) => (
                 <div key={i} className="flex gap-2 mb-2">
                   <Input placeholder="https://..." value={link} onChange={e => {
@@ -366,9 +366,9 @@ export function AnaliseModule() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={saveRelatorio} className="bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-white">
-              Guardar Relatório
+              Save Report
             </Button>
           </DialogFooter>
         </DialogContent>

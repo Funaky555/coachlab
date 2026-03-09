@@ -83,15 +83,15 @@ export function FisicoModule() {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-barlow-condensed)" }}>Monitorização Física</h1>
-        <p className="text-muted-foreground">Métricas GPS, carga de treino e dados de performance física</p>
+        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-barlow-condensed)" }}>Physical Monitoring</h1>
+        <p className="text-muted-foreground">GPS metrics, training load and physical performance data</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         {[
-          { label: "Atletas", value: jogadores.length, color: "text-foreground" },
-          { label: "Com registos", value: comRegistos, color: "text-[#0066FF]" },
-          { label: "Total registos", value: totalRegistos, color: "text-[#8B5CF6]" },
+          { label: "Athletes", value: jogadores.length, color: "text-foreground" },
+          { label: "With records", value: comRegistos, color: "text-[#0066FF]" },
+          { label: "Total records", value: totalRegistos, color: "text-[#8B5CF6]" },
         ].map(s => (
           <Card key={s.label} className="glass-card border-border/50">
             <CardContent className="p-4">
@@ -103,17 +103,17 @@ export function FisicoModule() {
       </div>
 
       <div className="flex justify-between items-center mb-6">
-        <h2 className="font-semibold text-lg">Registos por Atleta</h2>
+        <h2 className="font-semibold text-lg">Records by Athlete</h2>
         <Button onClick={() => openAdd()} disabled={jogadores.length === 0} className="gap-2" style={{ background: "#0066FF" }}>
-          <Plus className="w-4 h-4" /> Adicionar Registo
+          <Plus className="w-4 h-4" /> Add Record
         </Button>
       </div>
 
       {jogadores.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
           <Activity className="w-12 h-12 mb-3 opacity-30" />
-          <p className="text-lg font-medium">Sem atletas no plantel</p>
-          <p className="text-sm">Adiciona atletas no módulo Gestão do Plantel</p>
+          <p className="text-lg font-medium">No athletes in squad</p>
+          <p className="text-sm">Add athletes in the Squad Management module</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -136,7 +136,7 @@ export function FisicoModule() {
                   <span className="text-xs text-muted-foreground ml-2">{j.posicoes[0]}</span>
                 </div>
                 <Badge variant="outline" className="text-xs mr-2">
-                  {j.registos.length} {j.registos.length === 1 ? "registo" : "registos"}
+                  {j.registos.length} {j.registos.length === 1 ? "record" : "records"}
                 </Badge>
                 <Button
                   size="sm"
@@ -144,7 +144,7 @@ export function FisicoModule() {
                   className="mr-2 h-7 text-xs gap-1 border-[#0066FF]/40 text-[#0066FF] hover:bg-[#0066FF]/10"
                   onClick={e => { e.stopPropagation(); openAdd(j.id) }}
                 >
-                  <Plus className="w-3 h-3" /> Adicionar
+                  <Plus className="w-3 h-3" /> Add
                 </Button>
                 {expandedIds.has(j.id) ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
               </button>
@@ -152,18 +152,18 @@ export function FisicoModule() {
               {expandedIds.has(j.id) && (
                 <div className="border-t border-border">
                   {j.registos.length === 0 ? (
-                    <div className="py-6 text-center text-sm text-muted-foreground">Sem registos para este atleta</div>
+                    <div className="py-6 text-center text-sm text-muted-foreground">No records for this athlete</div>
                   ) : (
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Data</TableHead>
-                          <TableHead>Duração</TableHead>
-                          <TableHead>Distância</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Duration</TableHead>
+                          <TableHead>Distance</TableHead>
                           <TableHead>Sprints</TableHead>
                           <TableHead>RPE</TableHead>
-                          <TableHead>FC Máx</TableHead>
-                          <TableHead>Peso</TableHead>
+                          <TableHead>Max HR</TableHead>
+                          <TableHead>Weight</TableHead>
                           <TableHead className="w-10"></TableHead>
                         </TableRow>
                       </TableHeader>
@@ -196,26 +196,26 @@ export function FisicoModule() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Adicionar Registo Físico</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Add Physical Record</DialogTitle></DialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <Label>Atleta *</Label>
+              <Label>Athlete *</Label>
               <Select value={form.jogadorId} onValueChange={v => setForm({ ...form, jogadorId: v })}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecionar atleta" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select athlete" /></SelectTrigger>
                 <SelectContent>{jogadores.map(j => <SelectItem key={j.id} value={j.id}>{j.nome}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Data *</Label>
+              <Label>Date *</Label>
               <Input type="date" value={form.data} onChange={e => setForm({ ...form, data: e.target.value })} className="mt-1" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Duração (min)</Label>
+                <Label>Duration (min)</Label>
                 <Input type="number" placeholder="90" value={form.duracao} onChange={e => setForm({ ...form, duracao: e.target.value })} className="mt-1" />
               </div>
               <div>
-                <Label>Distância (km)</Label>
+                <Label>Distance (km)</Label>
                 <Input type="number" step="0.1" placeholder="10.5" value={form.distancia} onChange={e => setForm({ ...form, distancia: e.target.value })} className="mt-1" />
               </div>
             </div>
@@ -229,22 +229,22 @@ export function FisicoModule() {
                 <Input type="number" min={1} max={10} placeholder="7" value={form.rpe} onChange={e => setForm({ ...form, rpe: e.target.value })} className="mt-1" />
               </div>
               <div>
-                <Label>FC Máx</Label>
+                <Label>Max HR</Label>
                 <Input type="number" placeholder="185" value={form.fcMax} onChange={e => setForm({ ...form, fcMax: e.target.value })} className="mt-1" />
               </div>
             </div>
             <div>
-              <Label>Peso atual (kg)</Label>
+              <Label>Current weight (kg)</Label>
               <Input type="number" step="0.1" placeholder="75.5" value={form.peso} onChange={e => setForm({ ...form, peso: e.target.value })} className="mt-1" />
             </div>
             <div>
-              <Label>Notas</Label>
-              <Textarea placeholder="Observações da sessão..." value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} className="mt-1 h-16" />
+              <Label>Notes</Label>
+              <Textarea placeholder="Session notes..." value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} className="mt-1 h-16" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={save} disabled={!form.jogadorId || !form.data} style={{ background: "#0066FF" }}>Guardar</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={save} disabled={!form.jogadorId || !form.data} style={{ background: "#0066FF" }}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

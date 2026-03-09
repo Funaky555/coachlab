@@ -1,6 +1,15 @@
 export type EstadoScouting = "em_observacao" | "contactado" | "descartado" | "contratado"
 export type PePreferido = "direito" | "esquerdo" | "ambidestro"
 
+export interface VideoClip {
+  id: string
+  categoria: string
+  subcategoria: string
+  url: string
+  titulo?: string
+  dataAdicionado: string
+}
+
 export interface JogadorObservado {
   id: string
   nome: string
@@ -32,12 +41,6 @@ export interface JogadorObservado {
   fimContrato?: string      // "YYYY-MM-DD"
   valorMercado?: number     // euros
 
-  // Atributos físicos (0-100)
-  velocidade?: number
-  aceleracao?: number
-  resistencia?: number
-  forca?: number
-
   // Estatísticas de jogo
   golos?: number
   assistencias?: number
@@ -46,11 +49,32 @@ export interface JogadorObservado {
   jogosDisputados?: number
   minutosJogados?: number
 
-  // Métricas GPS / físicas
-  sprintsPorJogo?: number
-  distanciaPorJogo?: number // km
-  velocidadeMaxima?: number // km/h
-  fcMedia?: number          // bpm
+  // Performance metrics
+  xg?: number
+  xa?: number
+  xgot?: number
+  keyPassesPorJogo?: number
+  chutesPorJogo?: number
+  precisaoPasses?: number       // %
+  driblesCompletados?: number
+  duelosAereos?: number         // %
+  duelosTerrestres?: number     // %
+  intercecoes?: number
+
+  // FM-style attributes (0-20)
+  attrCorners?: number; attrCrossing?: number; attrDribbling?: number
+  attrFinishing?: number; attrFirstTouch?: number; attrFreeKick?: number
+  attrHeading?: number; attrLongShots?: number; attrLongThrows?: number
+  attrMarking?: number; attrPassing?: number; attrPenaltyTaking?: number
+  attrTackling?: number; attrTechnique?: number
+  attrAggression?: number; attrAnticipation?: number; attrBravery?: number
+  attrComposure?: number; attrConcentration?: number; attrDecisions?: number
+  attrDetermination?: number; attrFlair?: number; attrLeadership?: number
+  attrOffTheBall?: number; attrPositioning?: number; attrTeamwork?: number
+  attrVision?: number; attrWorkRate?: number
+  attrAcceleration?: number; attrAgility?: number; attrBalance?: number
+  attrJumpingReach?: number; attrNaturalFitness?: number; attrPace?: number
+  attrStamina?: number; attrStrength?: number
 
   // Contrato
   salario?: number          // €/mês
@@ -60,6 +84,9 @@ export interface JogadorObservado {
 
   // Avaliação de potencial
   potencial?: number        // estrelas 1-5
+
+  // Clips de vídeo
+  clips?: VideoClip[]
 }
 
 export interface FiltroScouting {
@@ -140,16 +167,9 @@ export function filtrarJogadoresAvancado(filtro: FiltroScouting): JogadorObserva
     if (filtro.avaliacaoMin !== undefined && j.avaliacao < filtro.avaliacaoMin) return false
     if (filtro.potencialMin !== undefined && (j.potencial ?? 0) < filtro.potencialMin) return false
     if (filtro.clubeTexto && !j.clube?.toLowerCase().includes(filtro.clubeTexto.toLowerCase())) return false
-    if (filtro.velocidadeMin !== undefined && (j.velocidade ?? 0) < filtro.velocidadeMin) return false
-    if (filtro.aceleracaoMin !== undefined && (j.aceleracao ?? 0) < filtro.aceleracaoMin) return false
-    if (filtro.resistenciaMin !== undefined && (j.resistencia ?? 0) < filtro.resistenciaMin) return false
-    if (filtro.forcaMin !== undefined && (j.forca ?? 0) < filtro.forcaMin) return false
     if (filtro.golosMin !== undefined && (j.golos ?? 0) < filtro.golosMin) return false
     if (filtro.assistenciasMin !== undefined && (j.assistencias ?? 0) < filtro.assistenciasMin) return false
     if (filtro.jogosMin !== undefined && (j.jogosDisputados ?? 0) < filtro.jogosMin) return false
-    if (filtro.sprintsMin !== undefined && (j.sprintsPorJogo ?? 0) < filtro.sprintsMin) return false
-    if (filtro.distanciaMin !== undefined && (j.distanciaPorJogo ?? 0) < filtro.distanciaMin) return false
-    if (filtro.velMaxMin !== undefined && (j.velocidadeMaxima ?? 0) < filtro.velMaxMin) return false
     if (filtro.valorMercadoMax !== undefined && (j.valorMercado ?? Infinity) > filtro.valorMercadoMax) return false
     if (filtro.fimContratoAte && j.fimContrato && j.fimContrato > filtro.fimContratoAte) return false
     return true

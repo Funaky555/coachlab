@@ -23,17 +23,17 @@ import { PositionSelector } from "./position-selector"
 import { AthleteProfileModal } from "./athlete-profile-modal"
 
 const SETORES = [
-  { key: "GR" as const, label: "Guarda-Redes", color: "#FFD700" },
-  { key: "DEF" as const, label: "Defesas", color: "#0066FF" },
-  { key: "MED" as const, label: "Médios", color: "#8B5CF6" },
-  { key: "AV" as const, label: "Avançados", color: "#00D66C" },
+  { key: "GR" as const, label: "Goalkeepers", color: "#FFD700" },
+  { key: "DEF" as const, label: "Defenders",  color: "#0066FF" },
+  { key: "MED" as const, label: "Midfielders", color: "#8B5CF6" },
+  { key: "AV" as const, label: "Forwards",    color: "#00D66C" },
 ]
 
 function estadoBadge(estado: EstadoJogador) {
   const map = {
-    apto: { variant: "success" as const, label: "Apto" },
-    condicionado: { variant: "warning" as const, label: "Condicionado" },
-    lesionado: { variant: "destructive" as const, label: "Lesionado" },
+    apto: { variant: "success" as const, label: "Fit" },
+    condicionado: { variant: "warning" as const, label: "Limited" },
+    lesionado: { variant: "destructive" as const, label: "Injured" },
   }
   const { variant, label } = map[estado]
   return <Badge variant={variant}>{label}</Badge>
@@ -168,16 +168,16 @@ export function PlantelModule() {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-barlow-condensed)" }}>Gestão do Plantel</h1>
-        <p className="text-muted-foreground">Controlo completo dos jogadores, presenças e disciplina</p>
+        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-barlow-condensed)" }}>Squad Management</h1>
+        <p className="text-muted-foreground">Full control of players, attendance and discipline</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Total", value: jogadores.length, color: "text-foreground" },
-          { label: "Aptos", value: aptosCount, color: "text-[#00D66C]" },
-          { label: "Condicionados", value: condicionadosCount, color: "text-[#FF6B35]" },
-          { label: "Lesionados", value: lesionadosCount, color: "text-destructive" },
+            { label: "Fit", value: aptosCount, color: "text-[#00D66C]" },
+          { label: "Limited", value: condicionadosCount, color: "text-[#FF6B35]" },
+          { label: "Injured", value: lesionadosCount, color: "text-destructive" },
         ].map(s => (
           <Card key={s.label} className="glass-card border-border/50">
             <CardContent className="p-4">
@@ -190,23 +190,23 @@ export function PlantelModule() {
 
       <Tabs defaultValue="plantel">
         <TabsList className="mb-6">
-          <TabsTrigger value="plantel">Plantel</TabsTrigger>
-          <TabsTrigger value="disciplina">Disciplina</TabsTrigger>
+          <TabsTrigger value="plantel">Squad</TabsTrigger>
+          <TabsTrigger value="disciplina">Discipline</TabsTrigger>
         </TabsList>
 
         <TabsContent value="plantel">
           <div className="flex justify-between items-center mb-6">
             <h2 className="font-semibold text-lg">Jogadores ({jogadores.length})</h2>
             <Button onClick={openAdd} className="bg-[#00D66C] hover:bg-[#00D66C]/90 text-black gap-2">
-              <Plus className="w-4 h-4" /> Adicionar Jogador
+              <Plus className="w-4 h-4" /> Add Player
             </Button>
           </div>
 
           {jogadores.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
               <User className="w-12 h-12 mb-3 opacity-30" />
-              <p className="text-lg font-medium">Nenhum jogador adicionado</p>
-              <p className="text-sm">Clica em &quot;Adicionar Jogador&quot; para começar</p>
+              <p className="text-lg font-medium">No players added</p>
+              <p className="text-sm">Click &quot;Add Player&quot; to get started</p>
             </div>
           ) : (
             <div className="space-y-8">
@@ -266,25 +266,25 @@ export function PlantelModule() {
 
         <TabsContent value="disciplina">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold text-lg">Ocorrências Disciplinares ({ocorrencias.length})</h2>
+            <h2 className="font-semibold text-lg">Disciplinary Records ({ocorrencias.length})</h2>
             <Button onClick={() => { setDiscForm({ ...discForm, jogadorId: jogadores[0]?.id ?? "" }); setDiscDialogOpen(true) }}
               className="bg-[#FF6B35] hover:bg-[#FF6B35]/90 text-white gap-2" disabled={jogadores.length === 0}>
-              <AlertTriangle className="w-4 h-4" /> Registar Ocorrência
+              <AlertTriangle className="w-4 h-4" /> Add Record
             </Button>
           </div>
           {ocorrencias.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
               <CheckCircle2 className="w-12 h-12 mb-3 opacity-30 text-[#00D66C]" />
-              <p className="text-lg font-medium">Sem ocorrências registadas</p>
-              <p className="text-sm">Excelente comportamento!</p>
+              <p className="text-lg font-medium">No records</p>
+              <p className="text-sm">Great behaviour!</p>
             </div>
           ) : (
             <div className="rounded-lg border border-border overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Jogador</TableHead><TableHead>Data</TableHead>
-                    <TableHead>Tipo / Gravidade</TableHead><TableHead>Descrição</TableHead>
+                    <TableHead>Player</TableHead><TableHead>Date</TableHead>
+                    <TableHead>Type / Severity</TableHead><TableHead>Description</TableHead>
                     <TableHead className="w-10"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -316,94 +316,94 @@ export function PlantelModule() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Editar Jogador" : "Adicionar Jogador"}</DialogTitle>
+            <DialogTitle>{editingId ? "Edit Player" : "Add Player"}</DialogTitle>
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-6 py-2">
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2">
-                  <Label>Nome *</Label>
-                  <Input placeholder="Nome completo" value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} className="mt-1" />
+                  <Label>Name *</Label>
+                  <Input placeholder="Full name" value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} className="mt-1" />
                 </div>
                 <div>
-                  <Label>Nº</Label>
+                  <Label>No.</Label>
                   <Input type="number" min={1} max={99} value={form.numero} onChange={e => setForm({ ...form, numero: parseInt(e.target.value) || 1 })} className="mt-1" />
                 </div>
               </div>
               <div>
-                <Label>Estado</Label>
+                <Label>Status</Label>
                 <Select value={form.estado} onValueChange={v => setForm({ ...form, estado: v as EstadoJogador })}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="apto">Apto</SelectItem>
-                    <SelectItem value="condicionado">Condicionado</SelectItem>
-                    <SelectItem value="lesionado">Lesionado</SelectItem>
+                    <SelectItem value="apto">Fit</SelectItem>
+                    <SelectItem value="condicionado">Limited</SelectItem>
+                    <SelectItem value="lesionado">Injured</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Data de Nascimento</Label>
+                  <Label>Date of Birth</Label>
                   <Input type="date" value={form.dataNascimento} onChange={e => setForm({ ...form, dataNascimento: e.target.value })} className="mt-1" />
                 </div>
                 <div>
-                  <Label>Nacionalidade</Label>
+                  <Label>Country</Label>
                   <Input placeholder="Portugal" value={form.nacionalidade} onChange={e => setForm({ ...form, nacionalidade: e.target.value })} className="mt-1" />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <Label>Altura (cm)</Label>
+                  <Label>Height (cm)</Label>
                   <Input type="number" placeholder="180" value={form.altura} onChange={e => setForm({ ...form, altura: e.target.value })} className="mt-1" />
                 </div>
                 <div>
-                  <Label>Peso (kg)</Label>
+                  <Label>Weight (kg)</Label>
                   <Input type="number" placeholder="75" value={form.peso} onChange={e => setForm({ ...form, peso: e.target.value })} className="mt-1" />
                 </div>
                 <div>
-                  <Label>Pé</Label>
+                  <Label>Foot</Label>
                   <Select value={form.pePreferido} onValueChange={v => setForm({ ...form, pePreferido: v as PePreferido })}>
                     <SelectTrigger className="mt-1"><SelectValue placeholder="—" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="direito">Direito</SelectItem>
-                      <SelectItem value="esquerdo">Esquerdo</SelectItem>
-                      <SelectItem value="ambidestro">Ambidestro</SelectItem>
+                      <SelectItem value="direito">Right</SelectItem>
+                      <SelectItem value="esquerdo">Left</SelectItem>
+                      <SelectItem value="ambidestro">Both</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div>
-                <Label>Foto do Jogador</Label>
+                <Label>Player Photo</Label>
                 <div className="mt-1 flex items-center gap-3">
                   {form.foto && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={form.foto} alt="preview" className="w-12 h-12 rounded-full object-cover border border-border" />
                   )}
                   <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                    Selecionar ficheiro
+                    Choose file
                   </Button>
                   {form.foto && (
                     <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => setForm({ ...form, foto: "" })}>
-                      Remover
+                      Remove
                     </Button>
                   )}
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                 </div>
               </div>
               <div>
-                <Label>Notas</Label>
-                <Textarea placeholder="Notas sobre o jogador..." value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} className="mt-1 h-20" />
+                <Label>Notes</Label>
+                <Textarea placeholder="Notes about the player..." value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} className="mt-1 h-20" />
               </div>
             </div>
             <div className="flex flex-col items-center">
-              <Label className="mb-2 self-start">Posições no Campo *</Label>
+              <Label className="mb-2 self-start">Field Positions *</Label>
               <PositionSelector selected={form.posicoes} onChange={posicoes => setForm({ ...form, posicoes })} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={saveJogador} disabled={!form.nome.trim() || form.posicoes.length === 0} className="bg-[#00D66C] hover:bg-[#00D66C]/90 text-black">
-              {editingId ? "Guardar" : "Adicionar"}
+              {editingId ? "Save" : "Add"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -412,52 +412,52 @@ export function PlantelModule() {
       {/* Dialog: Ocorrência Disciplinar */}
       <Dialog open={discDialogOpen} onOpenChange={setDiscDialogOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Registar Ocorrência Disciplinar</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Add Disciplinary Record</DialogTitle></DialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <Label>Jogador *</Label>
+              <Label>Player *</Label>
               <Select value={discForm.jogadorId} onValueChange={v => setDiscForm({ ...discForm, jogadorId: v })}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecionar jogador" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select player" /></SelectTrigger>
                 <SelectContent>{jogadores.map(j => <SelectItem key={j.id} value={j.id}>{j.nome}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Data</Label>
+                <Label>Date</Label>
                 <Input type="date" value={discForm.data} onChange={e => setDiscForm({ ...discForm, data: e.target.value })} className="mt-1" />
               </div>
               <div>
-                <Label>Gravidade</Label>
+                <Label>Severity</Label>
                 <Select value={discForm.gravidade} onValueChange={v => setDiscForm({ ...discForm, gravidade: v as GravidadeOcorrencia })}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="leve">Leve</SelectItem>
-                    <SelectItem value="moderada">Moderada</SelectItem>
-                    <SelectItem value="grave">Grave</SelectItem>
+                    <SelectItem value="leve">Minor</SelectItem>
+                    <SelectItem value="moderada">Moderate</SelectItem>
+                    <SelectItem value="grave">Serious</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div>
-              <Label>Tipo</Label>
+              <Label>Type</Label>
               <Select value={discForm.tipo} onValueChange={v => setDiscForm({ ...discForm, tipo: v as TipoOcorrencia })}>
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="amarelo_interno">Amarelo Interno</SelectItem>
-                  <SelectItem value="vermelho_interno">Vermelho Interno</SelectItem>
-                  <SelectItem value="comportamento">Comportamento</SelectItem>
-                  <SelectItem value="disciplinar">Disciplinar</SelectItem>
+                  <SelectItem value="amarelo_interno">Internal Yellow</SelectItem>
+                  <SelectItem value="vermelho_interno">Internal Red</SelectItem>
+                  <SelectItem value="comportamento">Behaviour</SelectItem>
+                  <SelectItem value="disciplinar">Disciplinary</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Descrição *</Label>
-              <Textarea placeholder="Descreve a ocorrência..." value={discForm.descricao} onChange={e => setDiscForm({ ...discForm, descricao: e.target.value })} className="mt-1 h-20" />
+              <Label>Description *</Label>
+              <Textarea placeholder="Describe the incident..." value={discForm.descricao} onChange={e => setDiscForm({ ...discForm, descricao: e.target.value })} className="mt-1 h-20" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDiscDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={saveOcorrencia} className="bg-[#FF6B35] hover:bg-[#FF6B35]/90 text-white">Registar</Button>
+            <Button variant="outline" onClick={() => setDiscDialogOpen(false)}>Cancel</Button>
+            <Button onClick={saveOcorrencia} className="bg-[#FF6B35] hover:bg-[#FF6B35]/90 text-white">Add</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

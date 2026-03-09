@@ -20,9 +20,9 @@ interface Props {
 
 function estadoBadge(estado: EstadoJogador) {
   const map = {
-    apto: { className: "bg-[#00D66C]/20 text-[#00D66C] border-[#00D66C]/30", label: "Apto" },
-    condicionado: { className: "bg-[#FF6B35]/20 text-[#FF6B35] border-[#FF6B35]/30", label: "Condicionado" },
-    lesionado: { className: "bg-destructive/20 text-destructive border-destructive/30", label: "Lesionado" },
+    apto: { className: "bg-[#00D66C]/20 text-[#00D66C] border-[#00D66C]/30", label: "Fit" },
+    condicionado: { className: "bg-[#FF6B35]/20 text-[#FF6B35] border-[#FF6B35]/30", label: "Limited" },
+    lesionado: { className: "bg-destructive/20 text-destructive border-destructive/30", label: "Injured" },
   }
   const { className, label } = map[estado]
   return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${className}`}>{label}</span>
@@ -31,7 +31,7 @@ function estadoBadge(estado: EstadoJogador) {
 function calcIdade(dataNascimento?: string): string {
   if (!dataNascimento) return "—"
   const anos = Math.floor((Date.now() - new Date(dataNascimento).getTime()) / (365.25 * 24 * 3600 * 1000))
-  return `${anos} anos`
+  return `${anos} yrs`
 }
 
 export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
@@ -48,18 +48,18 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
     setMedico(getRegistosMedicosByJogador(jogador.id))
   }, [open, jogador.id])
 
-  const tipoPresencaLabel: Record<string, string> = { treino: "Treino", ginasio: "Ginásio", reuniao: "Reunião", jogo: "Jogo" }
+  const tipoPresencaLabel: Record<string, string> = { treino: "Training", ginasio: "Gym", reuniao: "Meeting", jogo: "Match" }
   const estadoPresencaLabel: Record<string, { label: string; color: string }> = {
-    presente: { label: "Presente", color: "text-[#00D66C]" },
-    falta: { label: "Falta", color: "text-destructive" },
-    atraso: { label: "Atraso", color: "text-[#FF6B35]" },
-    justificado: { label: "Justificado", color: "text-muted-foreground" },
+    presente: { label: "Present", color: "text-[#00D66C]" },
+    falta: { label: "Absent", color: "text-destructive" },
+    atraso: { label: "Late", color: "text-[#FF6B35]" },
+    justificado: { label: "Excused", color: "text-muted-foreground" },
   }
-  const tipoLesaoLabel: Record<string, string> = { muscular: "Muscular", ossea: "Óssea", ligamentar: "Ligamentar", articular: "Articular", outra: "Outra" }
+  const tipoLesaoLabel: Record<string, string> = { muscular: "Muscular", ossea: "Bone", ligamentar: "Ligament", articular: "Joint", outra: "Other" }
   const estadoLesaoLabel: Record<string, { label: string; color: string }> = {
-    ativa: { label: "Ativa", color: "text-destructive" },
-    em_recuperacao: { label: "Em recuperação", color: "text-[#FF6B35]" },
-    recuperado: { label: "Recuperado", color: "text-[#00D66C]" },
+    ativa: { label: "Active", color: "text-destructive" },
+    em_recuperacao: { label: "Recovering", color: "text-[#FF6B35]" },
+    recuperado: { label: "Recovered", color: "text-[#00D66C]" },
   }
 
   return (
@@ -86,7 +86,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
               </div>
             </div>
             <Button size="sm" variant="outline" className="shrink-0 gap-1.5" onClick={() => onEdit(jogador)}>
-              <Pencil className="w-3.5 h-3.5" /> Editar
+              <Pencil className="w-3.5 h-3.5" /> Edit
             </Button>
           </div>
         </DialogHeader>
@@ -94,22 +94,22 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
         <Tabs defaultValue="info" className="mt-2">
           <TabsList className="w-full">
             <TabsTrigger value="info" className="flex-1">Info</TabsTrigger>
-            <TabsTrigger value="fisico" className="flex-1">Físico {fisico.length > 0 && <span className="ml-1 text-xs opacity-60">({fisico.length})</span>}</TabsTrigger>
-            <TabsTrigger value="medico" className="flex-1">Médico {medico.length > 0 && <span className="ml-1 text-xs opacity-60">({medico.length})</span>}</TabsTrigger>
-            <TabsTrigger value="disciplina" className="flex-1">Disciplina {ocorrencias.length > 0 && <span className="ml-1 text-xs opacity-60">({ocorrencias.length})</span>}</TabsTrigger>
-            <TabsTrigger value="presencas" className="flex-1">Presenças {presencas.length > 0 && <span className="ml-1 text-xs opacity-60">({presencas.length})</span>}</TabsTrigger>
+            <TabsTrigger value="fisico" className="flex-1">Physical {fisico.length > 0 && <span className="ml-1 text-xs opacity-60">({fisico.length})</span>}</TabsTrigger>
+            <TabsTrigger value="medico" className="flex-1">Medical {medico.length > 0 && <span className="ml-1 text-xs opacity-60">({medico.length})</span>}</TabsTrigger>
+            <TabsTrigger value="disciplina" className="flex-1">Discipline {ocorrencias.length > 0 && <span className="ml-1 text-xs opacity-60">({ocorrencias.length})</span>}</TabsTrigger>
+            <TabsTrigger value="presencas" className="flex-1">Attendance {presencas.length > 0 && <span className="ml-1 text-xs opacity-60">({presencas.length})</span>}</TabsTrigger>
           </TabsList>
 
           {/* INFO */}
           <TabsContent value="info" className="mt-4">
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Idade", value: calcIdade(jogador.dataNascimento) },
-                { label: "Nascimento", value: jogador.dataNascimento ?? "—" },
-                { label: "Nacionalidade", value: jogador.nacionalidade ?? "—" },
-                { label: "Altura", value: jogador.altura ? `${jogador.altura} cm` : "—" },
-                { label: "Peso", value: jogador.peso ? `${jogador.peso} kg` : "—" },
-                { label: "Pé preferido", value: jogador.pePreferido ? (jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)) : "—" },
+                { label: "Age", value: calcIdade(jogador.dataNascimento) },
+                { label: "Birth", value: jogador.dataNascimento ?? "—" },
+                { label: "Country", value: jogador.nacionalidade ?? "—" },
+                { label: "Height", value: jogador.altura ? `${jogador.altura} cm` : "—" },
+                { label: "Weight", value: jogador.peso ? `${jogador.peso} kg` : "—" },
+                { label: "Preferred foot", value: jogador.pePreferido ? (jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)) : "—" },
               ].map(({ label, value }) => (
                 <div key={label} className="bg-muted/30 rounded-lg p-3">
                   <div className="text-xs text-muted-foreground mb-1">{label}</div>
@@ -119,7 +119,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
             </div>
             {jogador.notas && (
               <div className="mt-4 bg-muted/30 rounded-lg p-3">
-                <div className="text-xs text-muted-foreground mb-1">Notas</div>
+                <div className="text-xs text-muted-foreground mb-1">Notes</div>
                 <div className="text-sm">{jogador.notas}</div>
               </div>
             )}
@@ -130,20 +130,20 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
             {fisico.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <User className="w-8 h-8 mb-2 opacity-30" />
-                <p className="text-sm">Sem registos físicos</p>
-                <p className="text-xs opacity-60">Adiciona registos no módulo de Monitorização Física</p>
+                <p className="text-sm">No physical records</p>
+                <p className="text-xs opacity-60">Add records in the Physical Monitoring module</p>
               </div>
             ) : (
               <div className="rounded-lg border border-border overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Duração</TableHead>
-                      <TableHead>Distância</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Duration</TableHead>
+                      <TableHead>Distance</TableHead>
                       <TableHead>Sprints</TableHead>
                       <TableHead>RPE</TableHead>
-                      <TableHead>FC Máx</TableHead>
+                      <TableHead>Max HR</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -168,8 +168,8 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
             {medico.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <User className="w-8 h-8 mb-2 opacity-30" />
-                <p className="text-sm">Sem registos médicos</p>
-                <p className="text-xs opacity-60">Adiciona registos no módulo de Dep. Médico</p>
+                <p className="text-sm">No medical records</p>
+                <p className="text-xs opacity-60">Add records in the Medical Department module</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -183,7 +183,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
                       <span className={`text-xs font-medium ${estadoLesaoLabel[r.estado].color}`}>{estadoLesaoLabel[r.estado].label}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">{r.descricao}</p>
-                    {r.tratamento && <p className="text-xs text-muted-foreground mt-1"><span className="font-medium">Tratamento:</span> {r.tratamento}</p>}
+                    {r.tratamento && <p className="text-xs text-muted-foreground mt-1"><span className="font-medium">Treatment:</span> {r.tratamento}</p>}
                   </div>
                 ))}
               </div>
@@ -195,7 +195,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
             {ocorrencias.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <User className="w-8 h-8 mb-2 opacity-30 text-[#00D66C]" />
-                <p className="text-sm">Sem ocorrências disciplinares</p>
+                <p className="text-sm">No disciplinary records</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -218,17 +218,17 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
             {presencas.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <User className="w-8 h-8 mb-2 opacity-30" />
-                <p className="text-sm">Sem registos de presenças</p>
+                <p className="text-sm">No attendance records</p>
               </div>
             ) : (
               <div className="rounded-lg border border-border overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead>Notas</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Notes</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

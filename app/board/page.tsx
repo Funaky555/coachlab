@@ -13,7 +13,7 @@ export default function BoardPage() {
           href="/"
           className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          Voltar ao inicio
+          Back to Home
         </a>
       </header>
 

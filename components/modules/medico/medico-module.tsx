@@ -32,13 +32,13 @@ const emptyForm = {
 }
 
 const tipoLesaoLabel: Record<TipoLesao, string> = {
-  muscular: "Muscular", ossea: "Óssea", ligamentar: "Ligamentar", articular: "Articular", outra: "Outra",
+  muscular: "Muscular", ossea: "Bone", ligamentar: "Ligament", articular: "Joint", outra: "Other",
 }
 
 const estadoLesaoConfig: Record<EstadoLesao, { label: string; color: string; badgeClass: string }> = {
-  ativa: { label: "Ativa", color: "text-destructive", badgeClass: "bg-destructive/20 text-destructive border-destructive/30" },
-  em_recuperacao: { label: "Em recuperação", color: "text-[#FF6B35]", badgeClass: "bg-[#FF6B35]/20 text-[#FF6B35] border-[#FF6B35]/30" },
-  recuperado: { label: "Recuperado", color: "text-[#00D66C]", badgeClass: "bg-[#00D66C]/20 text-[#00D66C] border-[#00D66C]/30" },
+  ativa: { label: "Active", color: "text-destructive", badgeClass: "bg-destructive/20 text-destructive border-destructive/30" },
+  em_recuperacao: { label: "Recovering", color: "text-[#FF6B35]", badgeClass: "bg-[#FF6B35]/20 text-[#FF6B35] border-[#FF6B35]/30" },
+  recuperado: { label: "Recovered", color: "text-[#00D66C]", badgeClass: "bg-[#00D66C]/20 text-[#00D66C] border-[#00D66C]/30" },
 }
 
 export function MedicoModule() {
@@ -119,16 +119,16 @@ export function MedicoModule() {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-barlow-condensed)" }}>Departamento Médico</h1>
-        <p className="text-muted-foreground">Registo de lesões, recuperação e histórico médico dos atletas</p>
+        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-barlow-condensed)" }}>Medical Department</h1>
+        <p className="text-muted-foreground">Injury records, recovery and medical history of athletes</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "Atletas", value: jogadores.length, color: "text-foreground" },
-          { label: "Total lesões", value: totalLesoes, color: "text-muted-foreground" },
-          { label: "Lesões ativas", value: ativas, color: "text-destructive" },
-          { label: "Em recuperação", value: emRecuperacao, color: "text-[#FF6B35]" },
+          { label: "Athletes", value: jogadores.length, color: "text-foreground" },
+          { label: "Total injuries", value: totalLesoes, color: "text-muted-foreground" },
+          { label: "Active injuries", value: ativas, color: "text-destructive" },
+          { label: "Recovering", value: emRecuperacao, color: "text-[#FF6B35]" },
         ].map(s => (
           <Card key={s.label} className="glass-card border-border/50">
             <CardContent className="p-4">
@@ -140,17 +140,17 @@ export function MedicoModule() {
       </div>
 
       <div className="flex justify-between items-center mb-6">
-        <h2 className="font-semibold text-lg">Histórico por Atleta</h2>
+        <h2 className="font-semibold text-lg">History by Athlete</h2>
         <Button onClick={() => openAdd()} disabled={jogadores.length === 0} className="gap-2 bg-[#00D66C] hover:bg-[#00D66C]/90 text-black">
-          <Plus className="w-4 h-4" /> Registar Lesão
+          <Plus className="w-4 h-4" /> Add Injury
         </Button>
       </div>
 
       {jogadores.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
           <Heart className="w-12 h-12 mb-3 opacity-30" />
-          <p className="text-lg font-medium">Sem atletas no plantel</p>
-          <p className="text-sm">Adiciona atletas no módulo Gestão do Plantel</p>
+          <p className="text-lg font-medium">No athletes in squad</p>
+          <p className="text-sm">Add athletes in the Squad Management module</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -176,10 +176,10 @@ export function MedicoModule() {
                     <span className="text-xs text-muted-foreground ml-2">{j.posicoes[0]}</span>
                   </div>
                   <div className="flex items-center gap-2 mr-2">
-                    {lesaoAtiva && <Badge className="text-xs bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/20">Lesionado</Badge>}
-                    {!lesaoAtiva && emRecup && <Badge className="text-xs bg-[#FF6B35]/20 text-[#FF6B35] border border-[#FF6B35]/30 hover:bg-[#FF6B35]/20">Em recuperação</Badge>}
-                    {!lesaoAtiva && !emRecup && j.lesoes.length > 0 && <Badge variant="outline" className="text-xs">Sem lesão ativa</Badge>}
-                    <Badge variant="outline" className="text-xs">{j.lesoes.length} {j.lesoes.length === 1 ? "registo" : "registos"}</Badge>
+                    {lesaoAtiva && <Badge className="text-xs bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/20">Injured</Badge>}
+                    {!lesaoAtiva && emRecup && <Badge className="text-xs bg-[#FF6B35]/20 text-[#FF6B35] border border-[#FF6B35]/30 hover:bg-[#FF6B35]/20">Recovering</Badge>}
+                    {!lesaoAtiva && !emRecup && j.lesoes.length > 0 && <Badge variant="outline" className="text-xs">No active injury</Badge>}
+                    <Badge variant="outline" className="text-xs">{j.lesoes.length} {j.lesoes.length === 1 ? "record" : "records"}</Badge>
                   </div>
                   <Button
                     size="sm"
@@ -187,7 +187,7 @@ export function MedicoModule() {
                     className="mr-2 h-7 text-xs gap-1 border-[#00D66C]/40 text-[#00D66C] hover:bg-[#00D66C]/10"
                     onClick={e => { e.stopPropagation(); openAdd(j.id) }}
                   >
-                    <Plus className="w-3 h-3" /> Adicionar
+                    <Plus className="w-3 h-3" /> Add
                   </Button>
                   {expandedIds.has(j.id) ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
                 </button>
@@ -195,7 +195,7 @@ export function MedicoModule() {
                 {expandedIds.has(j.id) && (
                   <div className="border-t border-border p-4">
                     {j.lesoes.length === 0 ? (
-                      <div className="py-4 text-center text-sm text-muted-foreground">Sem registos médicos para este atleta</div>
+                      <div className="py-4 text-center text-sm text-muted-foreground">No medical records for this athlete</div>
                     ) : (
                       <div className="space-y-3">
                         {j.lesoes.sort((a, b) => b.dataInicio.localeCompare(a.dataInicio)).map(r => (
@@ -207,7 +207,7 @@ export function MedicoModule() {
                               </div>
                               <div className="text-xs text-muted-foreground mb-1">{r.dataInicio}{r.dataRetorno ? ` → ${r.dataRetorno}` : ""}</div>
                               <p className="text-sm text-muted-foreground">{r.descricao}</p>
-                              {r.tratamento && <p className="text-xs text-muted-foreground mt-1"><span className="font-medium">Tratamento:</span> {r.tratamento}</p>}
+                              {r.tratamento && <p className="text-xs text-muted-foreground mt-1"><span className="font-medium">Treatment:</span> {r.tratamento}</p>}
                             </div>
                             <div className="flex flex-col gap-1 shrink-0">
                               <Button size="icon" variant="ghost" className="w-7 h-7" onClick={() => openEditLesao(r)}>
@@ -231,18 +231,18 @@ export function MedicoModule() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>{editingId ? "Editar Lesão" : "Registar Lesão"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingId ? "Edit Injury" : "Add Injury"}</DialogTitle></DialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <Label>Atleta *</Label>
+              <Label>Athlete *</Label>
               <Select value={form.jogadorId} onValueChange={v => setForm({ ...form, jogadorId: v })} disabled={!!editingId}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecionar atleta" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select athlete" /></SelectTrigger>
                 <SelectContent>{jogadores.map(j => <SelectItem key={j.id} value={j.id}>{j.nome}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Tipo de lesão</Label>
+                <Label>Injury type</Label>
                 <Select value={form.tipo} onValueChange={v => setForm({ ...form, tipo: v as TipoLesao })}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -251,7 +251,7 @@ export function MedicoModule() {
                 </Select>
               </div>
               <div>
-                <Label>Estado</Label>
+                <Label>Status</Label>
                 <Select value={form.estado} onValueChange={v => setForm({ ...form, estado: v as EstadoLesao })}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -261,32 +261,32 @@ export function MedicoModule() {
               </div>
             </div>
             <div>
-              <Label>Localização *</Label>
-              <Input placeholder="ex: Isquiotibial direito" value={form.localizacao} onChange={e => setForm({ ...form, localizacao: e.target.value })} className="mt-1" />
+              <Label>Location *</Label>
+              <Input placeholder="e.g.: Right hamstring" value={form.localizacao} onChange={e => setForm({ ...form, localizacao: e.target.value })} className="mt-1" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Data início</Label>
+                <Label>Start date</Label>
                 <Input type="date" value={form.dataInicio} onChange={e => setForm({ ...form, dataInicio: e.target.value })} className="mt-1" />
               </div>
               <div>
-                <Label>Data retorno</Label>
+                <Label>Return date</Label>
                 <Input type="date" value={form.dataRetorno} onChange={e => setForm({ ...form, dataRetorno: e.target.value })} className="mt-1" />
               </div>
             </div>
             <div>
-              <Label>Descrição *</Label>
-              <Textarea placeholder="Descreve a lesão..." value={form.descricao} onChange={e => setForm({ ...form, descricao: e.target.value })} className="mt-1 h-16" />
+              <Label>Description *</Label>
+              <Textarea placeholder="Describe the injury..." value={form.descricao} onChange={e => setForm({ ...form, descricao: e.target.value })} className="mt-1 h-16" />
             </div>
             <div>
-              <Label>Tratamento</Label>
-              <Textarea placeholder="Protocolo de tratamento..." value={form.tratamento} onChange={e => setForm({ ...form, tratamento: e.target.value })} className="mt-1 h-16" />
+              <Label>Treatment</Label>
+              <Textarea placeholder="Treatment protocol..." value={form.tratamento} onChange={e => setForm({ ...form, tratamento: e.target.value })} className="mt-1 h-16" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={save} disabled={!form.jogadorId || !form.localizacao.trim() || !form.descricao.trim()} className="bg-[#00D66C] hover:bg-[#00D66C]/90 text-black">
-              {editingId ? "Guardar" : "Registar"}
+              {editingId ? "Save" : "Add"}
             </Button>
           </DialogFooter>
         </DialogContent>

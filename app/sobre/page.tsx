@@ -11,11 +11,11 @@ export default function SobrePage() {
           {/* Page title */}
           <div className="text-center mb-16">
             <div className="text-[#00D66C] text-sm font-semibold uppercase tracking-wider mb-3">
-              Sobre o CoachLab
+              About CoachLab
             </div>
             <h1 className="text-5xl md:text-6xl font-bold" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-              Construído por um{" "}
-              <span className="text-gradient-brand">Treinador de Futebol</span>
+              Built by a{" "}
+              <span className="text-gradient-brand">Football Coach</span>
             </h1>
           </div>
 
@@ -39,14 +39,14 @@ export default function SobrePage() {
                   />
                   <div>
                     <h3 className="font-bold text-xl">Daniel de Sousa</h3>
-                    <p className="text-[#00D66C] text-sm font-medium">Fundador & Treinador</p>
+                    <p className="text-[#00D66C] text-sm font-medium">Founder & Coach</p>
                   </div>
                 </div>
               </div>
 
               {/* Floating card */}
               <div className="absolute -bottom-4 -right-4 glass rounded-xl p-4 shadow-xl border border-[#0066FF]/20">
-                <div className="text-xs text-muted-foreground mb-1">Criado com paixão pelo futebol</div>
+                <div className="text-xs text-muted-foreground mb-1">Built with passion for football</div>
                 <div className="text-sm font-semibold text-[#0066FF]">coachlab-six.vercel.app</div>
               </div>
             </div>
@@ -54,18 +54,18 @@ export default function SobrePage() {
             {/* Text content */}
             <div className="space-y-6 text-muted-foreground leading-relaxed">
               <p className="text-base">
-                O CoachLab nasceu da frustração de não existir uma ferramenta que combinasse
-                tudo o que um treinador moderno precisa: planeamento, análise, gestão de plantel
-                e scouting — numa só plataforma.
+                CoachLab was born out of the frustration of not having a single tool that combined
+                everything a modern coach needs: planning, analysis, squad management,
+                and scouting — all in one platform.
               </p>
               <p className="text-base">
-                Com experiência a trabalhar em Portugal e na China, Daniel de Sousa criou o
-                CoachLab para democratizar o acesso a ferramentas profissionais de coaching,
-                tornando-as acessíveis a treinadores amadores e profissionais.
+                With experience working in Portugal and China, Daniel de Sousa created
+                CoachLab to democratise access to professional coaching tools,
+                making them accessible to both amateur and professional coaches.
               </p>
               <p className="text-base">
-                O tabuleiro tático é gratuito para sempre. Os módulos avançados estão disponíveis
-                através do pagamento das respetivas subscrições.
+                The tactical board is free forever. Advanced modules are available
+                through their respective subscription plans.
               </p>
 
               <a
@@ -74,7 +74,7 @@ export default function SobrePage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-[#0066FF] hover:text-[#0066FF]/80 transition-colors text-sm font-medium"
               >
-                Ver portfólio do fundador →
+                View founder's portfolio →
               </a>
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function SobrePage() {
       {/* Footer */}
       <footer className="border-t border-border py-8 px-6 text-center text-sm text-muted-foreground">
         <p>
-          © 2025 CoachLab · Criado por{" "}
+          © 2025 CoachLab · Built by{" "}
           <a
             href="https://danieldesousa-portfolio.vercel.app/"
             target="_blank"
