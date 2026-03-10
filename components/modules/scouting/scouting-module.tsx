@@ -106,6 +106,57 @@ function StarRating({ value, onChange, size = "sm" }: { value: number; onChange?
   )
 }
 
+function getRatingInfo(v: number | undefined): { label: string; color: string } {
+  if (v === undefined) return { label: "", color: "rgba(255,255,255,0.25)" }
+  if (v <= 2) return { label: "Very Weak", color: "#EF4444" }
+  if (v <= 4) return { label: "Weak", color: "#FF6B35" }
+  if (v === 5) return { label: "Medium", color: "rgba(255,255,255,0.55)" }
+  if (v === 6) return { label: "Good", color: "rgba(255,255,255,0.75)" }
+  if (v === 7) return { label: "Very Good", color: "#facc15" }
+  if (v === 8) return { label: "Excellent", color: "#00D66C" }
+  if (v === 9) return { label: "Elite", color: "#00D66C" }
+  return { label: "World Class", color: "#00D66C" }
+}
+
+function AttrSection({ title, color, attrs, values, onChange }: {
+  title: string; color: string;
+  attrs: [string, string][];
+  values: Record<string, unknown>;
+  onChange: (key: string, val: number | undefined) => void
+}) {
+  return (
+    <div className="rounded-lg border p-2" style={{ borderColor: `${color}40`, background: `${color}08` }}>
+      <div className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color }}>{title}</div>
+      <table className="w-full">
+        <tbody>
+          {attrs.map(([label, key]) => {
+            const val = values[key] as number | undefined
+            const { label: rLabel, color: rColor } = getRatingInfo(val)
+            return (
+              <tr key={key} className="border-b border-white/5 last:border-0">
+                <td className="text-[10px] text-white/60 py-0.5 pr-1 w-full">{label}</td>
+                <td className="py-0.5 px-1">
+                  <input
+                    type="number" min={1} max={10}
+                    value={val ?? ""}
+                    placeholder="—"
+                    onChange={e => onChange(key, e.target.value === "" ? undefined : Math.min(10, Math.max(1, Number(e.target.value))))}
+                    className="w-7 h-5 text-[11px] font-bold text-center bg-transparent border-0 outline-none p-0"
+                    style={{ color: rColor, caretColor: "#fff" }}
+                  />
+                </td>
+                <td className="py-0.5 pl-1 text-right whitespace-nowrap">
+                  <span className="text-[9px] font-semibold" style={{ color: rColor }}>{rLabel}</span>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 function NumInput({ label, value, onChange, placeholder, min, max }: {
   label: string; value: number | undefined; onChange: (v: number | undefined) => void;
   placeholder?: string; min?: number; max?: number
@@ -917,90 +968,122 @@ export function ScoutingModule() {
                 </div>
               </TabsContent>
 
-              {/* CARACTERÍSTICAS */}
-              <TabsContent value="caracteristicas" className="space-y-4">
-                {/* FM-style attribute grid */}
-                <div className="grid grid-cols-3 gap-2">
-                  {/* TECHNICAL */}
-                  <div className="rounded-lg border p-2" style={{ borderColor: "#FF6B3540", background: "#FF6B3508" }}>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-[#FF6B35] mb-2">Technical</div>
-                    {([
-                      ["Corners", "attrCorners"], ["Crossing", "attrCrossing"], ["Dribbling", "attrDribbling"],
-                      ["Finishing", "attrFinishing"], ["First Touch", "attrFirstTouch"], ["Free Kick", "attrFreeKick"],
-                      ["Heading", "attrHeading"], ["Long Shots", "attrLongShots"], ["Long Throws", "attrLongThrows"],
-                      ["Marking", "attrMarking"], ["Passing", "attrPassing"], ["Pen. Taking", "attrPenaltyTaking"],
-                      ["Tackling", "attrTackling"], ["Technique", "attrTechnique"],
-                    ] as [string, keyof typeof form][]).map(([label, key]) => {
-                      const val = form[key] as number | undefined
-                      const color = val !== undefined ? (val >= 16 ? "#00D66C" : val >= 12 ? "#facc15" : "rgba(255,255,255,0.5)") : "rgba(255,255,255,0.3)"
-                      return (
-                        <div key={key} className="flex items-center justify-between py-0.5 border-b border-white/5 last:border-0">
-                          <span className="text-[10px] text-white/60 truncate mr-1">{label}</span>
-                          <input
-                            type="number" min={0} max={20}
-                            value={val ?? ""}
-                            placeholder="—"
-                            onChange={e => setForm({...form, [key]: e.target.value === "" ? undefined : Math.min(20, Math.max(0, Number(e.target.value)))})}
-                            className="w-9 h-5 text-[11px] font-bold text-right bg-transparent border-0 outline-none p-0 pr-0.5"
-                            style={{ color, caretColor: "#fff" }}
-                          />
-                        </div>
-                      )
-                    })}
-                  </div>
-                  {/* MENTAL */}
-                  <div className="rounded-lg border p-2" style={{ borderColor: "#0066FF40", background: "#0066FF08" }}>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-[#0066FF] mb-2">Mental</div>
-                    {([
-                      ["Aggression", "attrAggression"], ["Anticipation", "attrAnticipation"], ["Bravery", "attrBravery"],
-                      ["Composure", "attrComposure"], ["Concentration", "attrConcentration"], ["Decisions", "attrDecisions"],
-                      ["Determination", "attrDetermination"], ["Flair", "attrFlair"], ["Leadership", "attrLeadership"],
-                      ["Off The Ball", "attrOffTheBall"], ["Positioning", "attrPositioning"], ["Teamwork", "attrTeamwork"],
-                      ["Vision", "attrVision"], ["Work Rate", "attrWorkRate"],
-                    ] as [string, keyof typeof form][]).map(([label, key]) => {
-                      const val = form[key] as number | undefined
-                      const color = val !== undefined ? (val >= 16 ? "#00D66C" : val >= 12 ? "#facc15" : "rgba(255,255,255,0.5)") : "rgba(255,255,255,0.3)"
-                      return (
-                        <div key={key} className="flex items-center justify-between py-0.5 border-b border-white/5 last:border-0">
-                          <span className="text-[10px] text-white/60 truncate mr-1">{label}</span>
-                          <input
-                            type="number" min={0} max={20}
-                            value={val ?? ""}
-                            placeholder="—"
-                            onChange={e => setForm({...form, [key]: e.target.value === "" ? undefined : Math.min(20, Math.max(0, Number(e.target.value)))})}
-                            className="w-9 h-5 text-[11px] font-bold text-right bg-transparent border-0 outline-none p-0 pr-0.5"
-                            style={{ color, caretColor: "#fff" }}
-                          />
-                        </div>
-                      )
-                    })}
-                  </div>
-                  {/* PHYSICAL */}
-                  <div className="rounded-lg border p-2" style={{ borderColor: "#00D66C40", background: "#00D66C08" }}>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-[#00D66C] mb-2">Physical</div>
-                    {([
-                      ["Acceleration", "attrAcceleration"], ["Agility", "attrAgility"], ["Balance", "attrBalance"],
-                      ["Jumping Reach", "attrJumpingReach"], ["Nat. Fitness", "attrNaturalFitness"], ["Pace", "attrPace"],
-                      ["Stamina", "attrStamina"], ["Strength", "attrStrength"],
-                    ] as [string, keyof typeof form][]).map(([label, key]) => {
-                      const val = form[key] as number | undefined
-                      const color = val !== undefined ? (val >= 16 ? "#00D66C" : val >= 12 ? "#facc15" : "rgba(255,255,255,0.5)") : "rgba(255,255,255,0.3)"
-                      return (
-                        <div key={key} className="flex items-center justify-between py-0.5 border-b border-white/5 last:border-0">
-                          <span className="text-[10px] text-white/60 truncate mr-1">{label}</span>
-                          <input
-                            type="number" min={0} max={20}
-                            value={val ?? ""}
-                            placeholder="—"
-                            onChange={e => setForm({...form, [key]: e.target.value === "" ? undefined : Math.min(20, Math.max(0, Number(e.target.value)))})}
-                            className="w-9 h-5 text-[11px] font-bold text-right bg-transparent border-0 outline-none p-0 pr-0.5"
-                            style={{ color, caretColor: "#fff" }}
-                          />
-                        </div>
-                      )
-                    })}
+              {/* ATRIBUTOS */}
+              <TabsContent value="caracteristicas" className="space-y-3">
+                {/* Rating legend */}
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-[9px] px-1 pb-1">
+                  {[["1–2","Very Weak","#EF4444"],["3–4","Weak","#FF6B35"],["5","Medium","rgba(255,255,255,0.5)"],["6","Good","rgba(255,255,255,0.75)"],["7","Very Good","#facc15"],["8","Excellent","#00D66C"],["9","Elite","#00D66C"],["10","World Class","#00D66C"]].map(([n,l,c]) => (
+                    <span key={n} className="font-semibold" style={{ color: c as string }}>{n} {l}</span>
+                  ))}
+                </div>
+
+                {/* Row 1: Offensive + Defensive */}
+                <div className="grid grid-cols-2 gap-2">
+                  <AttrSection title="Offensive" color="#00D66C"
+                    attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm({...form, [k]: v})}
+                  />
+                  <AttrSection title="Defensive" color="#EF4444"
+                    attrs={[["Positioning","aDPositioning"],["Defensive Awareness","aDDefensiveAwareness"],["Marcation","aDMarcation"],["Interceptions","aDInterceptions"],["Tackling","aDTackling"],["Aerial Duels","aDAerialDuels"],["Aggression","aDAggression"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm({...form, [k]: v})}
+                  />
+                </div>
+
+                {/* Row 2: Attacking Impact + Set Pieces */}
+                <div className="grid grid-cols-2 gap-2">
+                  <AttrSection title="Attacking Impact" color="#FF6B35"
+                    attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm({...form, [k]: v})}
+                  />
+                  <AttrSection title="Set Pieces" color="#8B5CF6"
+                    attrs={[["Penalty","aSPPenalty"],["Corners","aSPCorners"],["Free Kicks","aSPFreeKicks"],["Long Throws","aSPLongThrows"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm({...form, [k]: v})}
+                  />
+                </div>
+
+                {/* Row 3: Physical + Mental */}
+                <div className="grid grid-cols-2 gap-2">
+                  <AttrSection title="Physical" color="#0066FF"
+                    attrs={[["Acceleration","aPAcceleration"],["Sprint","aPSprint"],["Agility","aPAgility"],["Balance","aPBalance"],["Jumping","aPJumping"],["Strength","aPStrength"],["Endurance","aPEndurance"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm({...form, [k]: v})}
+                  />
+                  <AttrSection title="Mental" color="#facc15"
+                    attrs={[["Mentality","aMentality"],["Competitive","aCompetitive"],["Concentration","aConcentration"],["Composure","aComposure"],["Courage","aCourage"],["Leadership","aLeadership"],["Work Ethic","aWorkEthic"],["Team Work","aTeamWork"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm({...form, [k]: v})}
+                  />
+                </div>
+
+                {/* Row 4: Game Intelligence + Biometric Data */}
+                <div className="grid grid-cols-2 gap-2">
+                  <AttrSection title="Game Intelligence" color="#06B6D4"
+                    attrs={[["Game Reading","aGIGameReading"],["Decision Making","aGIDecisionMaking"],["Spatial Awareness","aGISpatialAwareness"],["Tactical Discipline","aGITacticalDiscipline"],["Off-Ball Movement","aGIOffBallMovement"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm({...form, [k]: v})}
+                  />
+                  {/* Biometric Data */}
+                  <div className="rounded-lg border p-2" style={{ borderColor: "rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.03)" }}>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-2">Biometric Data</div>
+                    <table className="w-full">
+                      <tbody>
+                        <tr className="border-b border-white/5">
+                          <td className="text-[10px] text-white/60 py-0.5 pr-1">Height</td>
+                          <td className="text-[10px] font-bold text-white/80 py-0.5 text-right" colSpan={2}>{form.altura ? `${form.altura} cm` : "—"}</td>
+                        </tr>
+                        <tr className="border-b border-white/5">
+                          <td className="text-[10px] text-white/60 py-0.5 pr-1">Weight</td>
+                          <td className="text-[10px] font-bold text-white/80 py-0.5 text-right" colSpan={2}>{form.peso ? `${form.peso} kg` : "—"}</td>
+                        </tr>
+                        <tr className="border-b border-white/5">
+                          <td className="text-[10px] text-white/60 py-0.5 pr-1">Pref. Foot</td>
+                          <td className="text-[10px] font-bold text-white/80 py-0.5 text-right capitalize" colSpan={2}>{form.pePreferido === "direito" ? "Right" : form.pePreferido === "esquerdo" ? "Left" : "Both"}</td>
+                        </tr>
+                        <tr className="border-b border-white/5">
+                          <td className="text-[10px] text-white/60 py-0.5 pr-1">2nd Foot</td>
+                          <td colSpan={2} className="py-0.5">
+                            <Select value={form.secondaryFoot ?? ""} onValueChange={v => setForm({...form, secondaryFoot: v})}>
+                              <SelectTrigger className="h-5 text-[10px] border-0 bg-transparent p-0 pr-1 shadow-none"><SelectValue placeholder="—" /></SelectTrigger>
+                              <SelectContent><SelectItem value="Right">Right</SelectItem><SelectItem value="Left">Left</SelectItem><SelectItem value="Both">Both</SelectItem><SelectItem value="None">None</SelectItem></SelectContent>
+                            </Select>
+                          </td>
+                        </tr>
+                        <tr className="border-b border-white/5">
+                          <td className="text-[10px] text-white/60 py-0.5 pr-1">Body Type</td>
+                          <td colSpan={2} className="py-0.5">
+                            <Select value={form.bodyType ?? ""} onValueChange={v => setForm({...form, bodyType: v})}>
+                              <SelectTrigger className="h-5 text-[10px] border-0 bg-transparent p-0 pr-1 shadow-none"><SelectValue placeholder="—" /></SelectTrigger>
+                              <SelectContent><SelectItem value="Slim">Slim</SelectItem><SelectItem value="Athletic">Athletic</SelectItem><SelectItem value="Stocky">Stocky</SelectItem><SelectItem value="Robust">Robust</SelectItem></SelectContent>
+                            </Select>
+                          </td>
+                        </tr>
+                        {[["Injury Risk","injuryRisk"],["Natural Fitness","bioNaturalFitness"]].map(([label, key]) => {
+                          const val = (form as unknown as Record<string, number | undefined>)[key]
+                          const { label: rLabel, color: rColor } = getRatingInfo(val)
+                          return (
+                            <tr key={key} className="border-b border-white/5 last:border-0">
+                              <td className="text-[10px] text-white/60 py-0.5 pr-1">{label}</td>
+                              <td className="py-0.5 px-1">
+                                <input type="number" min={1} max={10} value={val ?? ""} placeholder="—"
+                                  onChange={e => setForm({...form, [key]: e.target.value === "" ? undefined : Math.min(10, Math.max(1, Number(e.target.value)))})}
+                                  className="w-7 h-5 text-[11px] font-bold text-center bg-transparent border-0 outline-none p-0"
+                                  style={{ color: rColor, caretColor: "#fff" }}
+                                />
+                              </td>
+                              <td className="py-0.5 pl-1 text-right"><span className="text-[9px] font-semibold" style={{ color: rColor }}>{rLabel}</span></td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
+
+                {/* Strengths + Weaknesses + Notes */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs text-[#00D66C]">Strengths</Label>

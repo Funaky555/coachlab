@@ -61,20 +61,41 @@ export interface JogadorObservado {
   duelosTerrestres?: number     // %
   intercecoes?: number
 
-  // FM-style attributes (0-20)
-  attrCorners?: number; attrCrossing?: number; attrDribbling?: number
-  attrFinishing?: number; attrFirstTouch?: number; attrFreeKick?: number
-  attrHeading?: number; attrLongShots?: number; attrLongThrows?: number
-  attrMarking?: number; attrPassing?: number; attrPenaltyTaking?: number
-  attrTackling?: number; attrTechnique?: number
-  attrAggression?: number; attrAnticipation?: number; attrBravery?: number
-  attrComposure?: number; attrConcentration?: number; attrDecisions?: number
-  attrDetermination?: number; attrFlair?: number; attrLeadership?: number
-  attrOffTheBall?: number; attrPositioning?: number; attrTeamwork?: number
-  attrVision?: number; attrWorkRate?: number
-  attrAcceleration?: number; attrAgility?: number; attrBalance?: number
-  attrJumpingReach?: number; attrNaturalFitness?: number; attrPace?: number
-  attrStamina?: number; attrStrength?: number
+  // Technique — Offensive (1-10)
+  aOBallControl?: number; aOFirstTouch?: number; aOShortPass?: number
+  aOLongPass?: number; aOCrossing?: number; aOHeading?: number
+  aOFinishing?: number; aODribbling?: number; aOFeint?: number
+
+  // Technique — Defensive (1-10)
+  aDPositioning?: number; aDDefensiveAwareness?: number; aDMarcation?: number
+  aDInterceptions?: number; aDTackling?: number; aDAerialDuels?: number
+  aDAggression?: number
+
+  // Technique — Attacking Impact (1-10)
+  aIPenetration?: number; aIOffBall?: number; aIVision?: number
+  aIChanceCreation?: number; aICreativity?: number; aIDesmarcation?: number
+
+  // Set Pieces (1-10)
+  aSPPenalty?: number; aSPCorners?: number; aSPFreeKicks?: number; aSPLongThrows?: number
+
+  // Physical (1-10)
+  aPAcceleration?: number; aPSprint?: number; aPAgility?: number
+  aPBalance?: number; aPJumping?: number; aPStrength?: number; aPEndurance?: number
+
+  // Mental (1-10)
+  aMentality?: number; aCompetitive?: number; aConcentration?: number
+  aComposure?: number; aCourage?: number; aLeadership?: number
+  aWorkEthic?: number; aTeamWork?: number
+
+  // Game Intelligence (1-10)
+  aGIGameReading?: number; aGIDecisionMaking?: number; aGISpatialAwareness?: number
+  aGITacticalDiscipline?: number; aGIOffBallMovement?: number
+
+  // Biometric Data
+  secondaryFoot?: string    // "Right" | "Left" | "Both" | "None"
+  bodyType?: string         // "Slim" | "Athletic" | "Stocky" | "Robust"
+  injuryRisk?: number       // 1-10
+  bioNaturalFitness?: number // 1-10
 
   // Contrato
   salario?: number          // €/mês
