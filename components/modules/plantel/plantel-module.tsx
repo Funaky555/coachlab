@@ -132,14 +132,10 @@ const emptyForm = {
 
 function getRatingInfo(v: number | undefined): { label: string; color: string } {
   if (v === undefined) return { label: "", color: "rgba(255,255,255,0.25)" }
-  if (v <= 2) return { label: "Very Weak", color: "#EF4444" }
-  if (v <= 4) return { label: "Weak", color: "#FF6B35" }
-  if (v === 5) return { label: "Medium", color: "rgba(255,255,255,0.55)" }
-  if (v === 6) return { label: "Good", color: "rgba(255,255,255,0.75)" }
-  if (v === 7) return { label: "Very Good", color: "#facc15" }
-  if (v === 8) return { label: "Excellent", color: "#00D66C" }
-  if (v === 9) return { label: "Elite", color: "#00D66C" }
-  return { label: "World Class", color: "#00D66C" }
+  if (v <= 2) return { label: "Poor",      color: "#EF4444" }
+  if (v <= 5) return { label: "Average",   color: "#FF6B35" }
+  if (v <= 8) return { label: "Good",      color: "#facc15" }
+  return             { label: "Excellent", color: "#00D66C" }
 }
 
 function AttrSection({ title, color, attrs, values, onChange }: {
