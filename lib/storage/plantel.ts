@@ -30,32 +30,32 @@ export interface Jogador {
   notas?: string
   avaliacao?: number // 1-5 stars
 
-  // Atributos técnicos — ofensivos (1-10)
+  // Atributos técnicos — ofensivos (1-20)
   aOBallControl?: number; aOFirstTouch?: number; aOShortPass?: number
   aOLongPass?: number; aOCrossing?: number; aOHeading?: number
   aOFinishing?: number; aODribbling?: number; aOFeint?: number
 
-  // Atributos técnicos — defensivos (1-10)
+  // Atributos técnicos — defensivos (1-20)
   aDPositioning?: number; aDDefensiveAwareness?: number; aDMarcation?: number
   aDInterceptions?: number; aDTackling?: number; aDAerialDuels?: number; aDAggression?: number
 
-  // Impacto ofensivo (1-10)
+  // Impacto ofensivo (1-20)
   aIPenetration?: number; aIOffBall?: number; aIVision?: number
   aIChanceCreation?: number; aICreativity?: number; aIDesmarcation?: number
 
-  // Bolas paradas (1-10)
+  // Bolas paradas (1-20)
   aSPPenalty?: number; aSPCorners?: number; aSPFreeKicks?: number; aSPLongThrows?: number
 
-  // Físico (1-10)
+  // Físico (1-20)
   aPAcceleration?: number; aPSprint?: number; aPAgility?: number
   aPBalance?: number; aPJumping?: number; aPStrength?: number; aPEndurance?: number
 
-  // Mental (1-10)
+  // Mental (1-20)
   aMentality?: number; aCompetitive?: number; aConcentration?: number
   aComposure?: number; aCourage?: number; aLeadership?: number
   aWorkEthic?: number; aTeamWork?: number
 
-  // Inteligência de jogo (1-10)
+  // Inteligência de jogo (1-20)
   aGIGameReading?: number; aGIDecisionMaking?: number; aGISpatialAwareness?: number
   aGITacticalDiscipline?: number; aGIOffBallMovement?: number
 }

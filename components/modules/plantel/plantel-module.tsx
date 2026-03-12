@@ -132,10 +132,11 @@ const emptyForm = {
 
 function getRatingInfo(v: number | undefined): { label: string; color: string } {
   if (v === undefined) return { label: "", color: "rgba(255,255,255,0.25)" }
-  if (v <= 2) return { label: "Poor",      color: "#EF4444" }
-  if (v <= 5) return { label: "Average",   color: "#FF6B35" }
-  if (v <= 8) return { label: "Good",      color: "#facc15" }
-  return             { label: "Excellent", color: "#00D66C" }
+  if (v <= 5)  return { label: "Poor",      color: "#EF4444" }
+  if (v <= 10) return { label: "Average",   color: "#FF6B35" }
+  if (v <= 14) return { label: "Good",      color: "#facc15" }
+  if (v <= 18) return { label: "Excellent", color: "#00D66C" }
+  return               { label: "Elite",    color: "#0066FF" }
 }
 
 function AttrSection({ title, color, attrs, values, onChange }: {
@@ -158,7 +159,7 @@ function AttrSection({ title, color, attrs, values, onChange }: {
             <div key={key} className="flex items-center gap-2">
               <span className="text-[9px] text-white/45 shrink-0 w-[72px] truncate">{label}</span>
               <div className="flex gap-[2px] flex-1">
-                {Array.from({ length: 10 }, (_, i) => {
+                {Array.from({ length: 20 }, (_, i) => {
                   const filled = val !== undefined && i < val
                   const isLast = val !== undefined && i === val - 1
                   return (
@@ -175,7 +176,7 @@ function AttrSection({ title, color, attrs, values, onChange }: {
                   )
                 })}
               </div>
-              <span className="text-[10px] font-bold w-3.5 text-right shrink-0 tabular-nums"
+              <span className="text-[10px] font-bold w-5 text-right shrink-0 tabular-nums"
                 style={{ color: val ? rColor : 'rgba(255,255,255,0.18)' }}>
                 {val ?? '—'}
               </span>
