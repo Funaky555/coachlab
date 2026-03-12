@@ -48,9 +48,9 @@ export function HeroSection() {
           <img
             src="/logo.png"
             alt="CoachLab"
-            width={160}
-            height={160}
-            className="rounded-full glow-green mx-auto"
+            width={220}
+            height={220}
+            className="mx-auto"
           />
         </motion.div>
 
