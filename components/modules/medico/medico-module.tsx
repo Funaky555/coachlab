@@ -9,12 +9,24 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
-import { Plus, Trash2, Heart, ChevronDown, ChevronRight } from "lucide-react"
+import { Plus, Trash2, Heart, ChevronDown, ChevronRight, Upload } from "lucide-react"
 import { getJogadores, type Jogador } from "@/lib/storage/plantel"
 import {
   getRegistosMedicosByJogador, addRegistoMedico, updateRegistoMedico, deleteRegistoMedico,
   type RegistoMedico, type TipoLesao, type EstadoLesao
 } from "@/lib/storage/medico"
+import { ImportDataDialog, type ImportField } from "@/components/ui/import-data-dialog"
+
+const MEDICO_IMPORT_SCHEMA: ImportField[] = [
+  { key: "nomeJogador",  label: "Nome do Jogador", required: true, type: "text" },
+  { key: "dataInicio",   label: "Data Início",      required: true, type: "date" },
+  { key: "tipo",         label: "Tipo Lesão",       required: true, type: "text" },
+  { key: "localizacao",  label: "Localização",      required: true, type: "text" },
+  { key: "descricao",    label: "Descrição",                        type: "text" },
+  { key: "estado",       label: "Estado",                           type: "text" },
+  { key: "dataRetorno",  label: "Data Retorno",                     type: "date" },
+  { key: "tratamento",   label: "Tratamento",                       type: "text" },
+]
 
 interface JogadorComLesoes extends Jogador {
   lesoes: RegistoMedico[]
@@ -56,6 +68,35 @@ export function MedicoModule() {
   }
 
   useEffect(() => { refresh() }, [])
+
+  function handleImportMedico(rows: Record<string, string>[]) {
+    const tipoMap: Record<string, TipoLesao> = {
+      muscular: "muscular", ossea: "ossea", óssea: "ossea",
+      ligamentar: "ligamentar", articular: "articular", outra: "outra", other: "outra",
+    }
+    const estadoMap: Record<string, EstadoLesao> = {
+      ativa: "ativa", active: "ativa",
+      em_recuperacao: "em_recuperacao", recovering: "em_recuperacao",
+      recuperado: "recuperado", recovered: "recuperado",
+    }
+    const allJogs = getJogadores()
+    rows.forEach(row => {
+      const nomeJog = (row.nomeJogador ?? "").toLowerCase().trim()
+      const jog = allJogs.find(j => j.nome.toLowerCase().trim() === nomeJog)
+      if (!jog) return
+      addRegistoMedico({
+        jogadorId: jog.id,
+        dataInicio: row.dataInicio?.trim() ?? new Date().toISOString().split("T")[0],
+        tipo: tipoMap[(row.tipo ?? "").toLowerCase().trim()] ?? "outra",
+        localizacao: row.localizacao?.trim() ?? "",
+        descricao: row.descricao?.trim() ?? "",
+        estado: estadoMap[(row.estado ?? "").toLowerCase().trim()] ?? "ativa",
+        dataRetorno: row.dataRetorno?.trim() || undefined,
+        tratamento: row.tratamento?.trim() || undefined,
+      })
+    })
+    refresh()
+  }
 
   function toggleExpand(id: string) {
     setExpandedIds(prev => {
@@ -141,9 +182,22 @@ export function MedicoModule() {
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="font-semibold text-lg">History by Athlete</h2>
-        <Button onClick={() => openAdd()} disabled={jogadores.length === 0} className="gap-2 bg-[#00D66C] hover:bg-[#00D66C]/90 text-black">
-          <Plus className="w-4 h-4" /> Add Injury
-        </Button>
+        <div className="flex items-center gap-2">
+          <ImportDataDialog
+            title="Importar Registos Médicos"
+            description="Importa lesões por nome do atleta. O atleta já deve existir no plantel."
+            schema={MEDICO_IMPORT_SCHEMA}
+            onImport={handleImportMedico}
+            trigger={
+              <Button variant="outline" className="gap-2 border-[#00D66C]/40 text-[#00D66C] hover:bg-[#00D66C]/10">
+                <Upload className="w-4 h-4" /> Import
+              </Button>
+            }
+          />
+          <Button onClick={() => openAdd()} disabled={jogadores.length === 0} className="gap-2 bg-[#00D66C] hover:bg-[#00D66C]/90 text-black">
+            <Plus className="w-4 h-4" /> Add Injury
+          </Button>
+        </div>
       </div>
 
       {jogadores.length === 0 ? (

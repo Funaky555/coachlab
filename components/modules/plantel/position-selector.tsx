@@ -5,18 +5,30 @@ import type { PosicaoJogador } from "@/lib/storage/plantel"
 type PosCoord = { x: number; y: number; label: string; fontSize: number }
 
 const POSITIONS: Record<PosicaoJogador, PosCoord> = {
-  GK:  { x: 0.50, y: 0.08, label: "GK",  fontSize: 9 },
-  RB:  { x: 0.85, y: 0.24, label: "RB",  fontSize: 9 },
-  CBR: { x: 0.63, y: 0.24, label: "CBR", fontSize: 7 },
-  CBL: { x: 0.37, y: 0.24, label: "CBL", fontSize: 7 },
-  LB:  { x: 0.15, y: 0.24, label: "LB",  fontSize: 9 },
-  CM:  { x: 0.50, y: 0.42, label: "CM",  fontSize: 9 },
-  CMR: { x: 0.68, y: 0.56, label: "CMR", fontSize: 7 },
-  CML: { x: 0.32, y: 0.56, label: "CML", fontSize: 7 },
-  WR:  { x: 0.85, y: 0.70, label: "WR",  fontSize: 9 },
-  OM:  { x: 0.50, y: 0.70, label: "OM",  fontSize: 9 },
-  WL:  { x: 0.15, y: 0.70, label: "WL",  fontSize: 9 },
-  ST:  { x: 0.50, y: 0.86, label: "ST",  fontSize: 9 },
+  GK:  { x: 0.50, y: 0.07, label: "GK",  fontSize: 9 },
+  // DEF — SW (líbero) entre GK e linha defensiva; CB ao centro da defesa
+  SW:  { x: 0.50, y: 0.15, label: "SW",  fontSize: 9 },
+  RB:  { x: 0.13, y: 0.23, label: "RB",  fontSize: 9 },
+  CBR: { x: 0.32, y: 0.23, label: "CBR", fontSize: 7 },
+  CB:  { x: 0.50, y: 0.23, label: "CB",  fontSize: 9 },
+  CBL: { x: 0.68, y: 0.23, label: "CBL", fontSize: 7 },
+  LB:  { x: 0.87, y: 0.23, label: "LB",  fontSize: 9 },
+  RWB: { x: 0.13, y: 0.33, label: "RWB", fontSize: 7 },
+  LWB: { x: 0.87, y: 0.33, label: "LWB", fontSize: 7 },
+  // MID
+  DM:  { x: 0.50, y: 0.41, label: "DM",  fontSize: 9 },
+  CM:  { x: 0.50, y: 0.50, label: "CM",  fontSize: 9 },
+  RM:  { x: 0.13, y: 0.57, label: "RM",  fontSize: 9 },
+  CMR: { x: 0.32, y: 0.57, label: "CMR", fontSize: 7 },
+  CML: { x: 0.68, y: 0.57, label: "CML", fontSize: 7 },
+  LM:  { x: 0.87, y: 0.57, label: "LM",  fontSize: 9 },
+  CAM: { x: 0.50, y: 0.65, label: "CAM", fontSize: 7 },
+  // FWD
+  WR:  { x: 0.13, y: 0.74, label: "WR",  fontSize: 9 },
+  OM:  { x: 0.50, y: 0.74, label: "OM",  fontSize: 9 },
+  WL:  { x: 0.87, y: 0.74, label: "WL",  fontSize: 9 },
+  CF:  { x: 0.50, y: 0.82, label: "CF",  fontSize: 9 },
+  ST:  { x: 0.50, y: 0.91, label: "ST",  fontSize: 9 },
 }
 
 interface PositionSelectorProps {
@@ -27,6 +39,7 @@ interface PositionSelectorProps {
 export function PositionSelector({ selected, onChange }: PositionSelectorProps) {
   function toggle(pos: PosicaoJogador) {
     if (selected.includes(pos)) {
+      if (selected.length === 1) return
       onChange(selected.filter(p => p !== pos))
     } else {
       onChange([...selected, pos])
@@ -34,11 +47,11 @@ export function PositionSelector({ selected, onChange }: PositionSelectorProps) 
   }
 
   const W = 220
-  const H = 330
+  const H = 400
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <p className="text-xs text-muted-foreground">Clica para seleccionar posições (múltiplas permitidas)</p>
+      <p className="text-xs text-muted-foreground">Click to select positions (multiple allowed)</p>
       <svg
         width={W}
         height={H}
@@ -69,14 +82,13 @@ export function PositionSelector({ selected, onChange }: PositionSelectorProps) 
           const isPrimary = selected[0] === pos
           return (
             <g key={pos} onClick={() => toggle(pos)} style={{ cursor: "pointer" }}>
-              {/* Outer glow for selected */}
               {isSelected && (
-                <circle cx={cx} cy={cy} r={20} fill={isPrimary ? "#00D66C30" : "#00D66C18"} />
+                <circle cx={cx} cy={cy} r={18} fill={isPrimary ? "#00D66C30" : "#00D66C18"} />
               )}
               <circle
                 cx={cx}
                 cy={cy}
-                r={16}
+                r={14}
                 fill={isSelected ? (isPrimary ? "#00D66C" : "#00D66C88") : "rgba(0,0,0,0.6)"}
                 stroke={isSelected ? "#00D66C" : "rgba(255,255,255,0.4)"}
                 strokeWidth={isSelected ? 2 : 1.5}

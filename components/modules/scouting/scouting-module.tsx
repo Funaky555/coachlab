@@ -21,6 +21,7 @@ import {
 import { NATIONALITY_TO_CODE, COUNTRY_FLAGS, COUNTRY_NAMES } from "./world-map-data"
 import { ScoutSearch } from "./scout-search"
 import { WorldMap } from "./world-map"
+import { ImportDataDialog, type ImportField } from "@/components/ui/import-data-dialog"
 
 const ESTADOS: { value: EstadoScouting; label: string; color: string; icon: React.ElementType }[] = [
   { value: "em_observacao", label: "Scouted",    color: "#0066FF", icon: Eye },
@@ -361,6 +362,19 @@ function ClipsTab({ clips, onChange }: { clips: VideoClip[]; onChange: (clips: V
   )
 }
 
+const SCOUTING_IMPORT_SCHEMA: ImportField[] = [
+  { key: "nome",           label: "Nome",            required: true,  type: "text" },
+  { key: "clube",          label: "Clube",           required: true,  type: "text" },
+  { key: "posicao",        label: "Posição",         required: true,  type: "text" },
+  { key: "avaliacao",      label: "Avaliação (1-5)",                  type: "number" },
+  { key: "estado",         label: "Estado",                           type: "text" },
+  { key: "dataNascimento", label: "Data Nascimento",                  type: "date" },
+  { key: "liga",           label: "Liga",                             type: "text" },
+  { key: "valorMercado",   label: "Valor Mercado (€)",                type: "number" },
+  { key: "nacionalidade",  label: "Nacionalidade",                    type: "text" },
+  { key: "notas",          label: "Notas",                            type: "text" },
+]
+
 export function ScoutingModule() {
   const [jogadores, setJogadores] = useState<JogadorObservado[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -375,6 +389,36 @@ export function ScoutingModule() {
   useEffect(() => { setJogadores(getJogadoresObservados()) }, [])
 
   function refresh() { setJogadores(getJogadoresObservados()) }
+
+  function handleImportScouting(rows: Record<string, string>[]) {
+    const estadoMap: Record<string, EstadoScouting> = {
+      em_observacao: "em_observacao", observing: "em_observacao",
+      contactado: "contactado", contacted: "contactado",
+      descartado: "descartado", discarded: "descartado",
+      contratado: "contratado", signed: "contratado",
+    }
+    rows.forEach(row => {
+      addJogadorObservado({
+        nome: row.nome?.trim() ?? "",
+        clube: row.clube?.trim() ?? "",
+        posicao: row.posicao?.trim() ?? "",
+        avaliacao: row.avaliacao ? parseFloat(row.avaliacao) || 0 : 0,
+        estado: estadoMap[(row.estado ?? "").toLowerCase().trim()] ?? "em_observacao",
+        dataNascimento: row.dataNascimento?.trim() || undefined,
+        liga: row.liga?.trim() || undefined,
+        valorMercado: row.valorMercado ? parseFloat(row.valorMercado) || undefined : undefined,
+        nacionalidade: row.nacionalidade?.trim() || undefined,
+        notas: row.notas?.trim() ?? "",
+        dataObservacao: new Date().toISOString().split("T")[0],
+        pePreferido: "direito",
+        caracteristicasTecnicas: "", caracteristicasTaticas: "",
+        caracteristicasFisicas: "", caracteristicasMentais: "",
+        pontosFortess: "", pontosFracos: "",
+        jogosObservados: [],
+      })
+    })
+    refresh()
+  }
 
   const filtered = jogadores.filter(j => {
     if (filtroEstado !== "todos" && j.estado !== filtroEstado) return false
@@ -463,9 +507,22 @@ export function ScoutingModule() {
               </h1>
             </div>
           </div>
-          <Button onClick={openAdd} className="gap-2 shrink-0 text-white hover:opacity-90 shadow-lg" style={{ background: "linear-gradient(135deg, #FF6B35, #FF8C5A)", boxShadow: "0 4px 20px #FF6B3540" }}>
-            <Plus className="w-4 h-4" /> Add Athlete
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <ImportDataDialog
+              title="Importar Scouting"
+              description="Importa jogadores observados de um ficheiro Excel ou CSV."
+              schema={SCOUTING_IMPORT_SCHEMA}
+              onImport={handleImportScouting}
+              trigger={
+                <Button variant="outline" className="gap-2 border-[#FF6B35]/40 text-[#FF6B35] hover:bg-[#FF6B35]/10">
+                  <Upload className="w-4 h-4" /> Import
+                </Button>
+              }
+            />
+            <Button onClick={openAdd} className="gap-2 text-white hover:opacity-90 shadow-lg" style={{ background: "linear-gradient(135deg, #FF6B35, #FF8C5A)", boxShadow: "0 4px 20px #FF6B3540" }}>
+              <Plus className="w-4 h-4" /> Add Athlete
+            </Button>
+          </div>
         </div>
 
         {/* Tabs principais */}
@@ -788,9 +845,9 @@ export function ScoutingModule() {
 
       {/* Dialog add/edit */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        <DialogContent className="max-w-3xl h-[92vh] flex flex-col overflow-hidden p-0 gap-0">
           {/* Header gradient */}
-          <div className="relative px-6 pt-6 pb-4" style={{ background: "linear-gradient(135deg, #00D66C15 0%, #0066FF15 50%, #8B5CF615 100%)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="relative px-6 pt-6 pb-4 flex-shrink-0" style={{ background: "linear-gradient(135deg, #00D66C15 0%, #0066FF15 50%, #8B5CF615 100%)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center gap-4">
               {/* Avatar com upload */}
               <div className="relative shrink-0">
@@ -832,9 +889,9 @@ export function ScoutingModule() {
             </div>
           </div>
 
-          <div className="px-6 pt-4 pb-2">
-            <Tabs defaultValue="info" className="w-full">
-              <TabsList className="w-full mb-5 grid grid-cols-5 h-auto p-1" style={{ background: "hsl(var(--muted)/0.4)" }}>
+          <div className="px-6 pt-4 flex-1 min-h-0 overflow-hidden flex flex-col">
+            <Tabs defaultValue="info" className="w-full flex flex-col flex-1 min-h-0">
+              <TabsList className="w-full mb-4 grid grid-cols-5 h-auto p-1 flex-shrink-0" style={{ background: "hsl(var(--muted)/0.4)" }}>
                 <TabsTrigger value="info" className="flex flex-col items-center gap-1 py-2 text-xs data-[state=active]:text-[#00D66C]">
                   <User className="w-4 h-4" /><span>Info</span>
                 </TabsTrigger>
@@ -853,7 +910,7 @@ export function ScoutingModule() {
               </TabsList>
 
               {/* INFO */}
-              <TabsContent value="info" className="space-y-4">
+              <TabsContent value="info" className="space-y-4 flex-1 min-h-0 overflow-y-auto pb-2 mt-0">
                 <div className="p-3 rounded-lg border border-[#00D66C]/20" style={{ background: "#00D66C08" }}>
                   <div className="text-xs font-bold uppercase tracking-wider text-[#00D66C] mb-3">Identification</div>
                   <div className="grid grid-cols-2 gap-3">
@@ -937,7 +994,7 @@ export function ScoutingModule() {
               </TabsContent>
 
               {/* CONTRATO */}
-              <TabsContent value="contrato" className="space-y-4">
+              <TabsContent value="contrato" className="space-y-4 flex-1 min-h-0 overflow-y-auto pb-2 mt-0">
                 <div className="p-3 rounded-lg border border-[#0066FF]/20" style={{ background: "#0066FF08" }}>
                   <div className="text-xs font-bold uppercase tracking-wider text-[#0066FF] mb-3">Contract Data</div>
                   <div className="grid grid-cols-2 gap-3">
@@ -969,7 +1026,7 @@ export function ScoutingModule() {
               </TabsContent>
 
               {/* ATRIBUTOS */}
-              <TabsContent value="caracteristicas" className="space-y-3">
+              <TabsContent value="caracteristicas" className="space-y-2 flex-1 min-h-0 overflow-y-auto pb-2 mt-0">
                 {/* Rating legend */}
                 <div className="flex flex-wrap gap-x-3 gap-y-1 text-[9px] px-1 pb-1">
                   {[["1–2","Very Weak","#EF4444"],["3–4","Weak","#FF6B35"],["5","Medium","rgba(255,255,255,0.5)"],["6","Good","rgba(255,255,255,0.75)"],["7","Very Good","#facc15"],["8","Excellent","#00D66C"],["9","Elite","#00D66C"],["10","World Class","#00D66C"]].map(([n,l,c]) => (
@@ -1101,7 +1158,7 @@ export function ScoutingModule() {
               </TabsContent>
 
               {/* STATS */}
-              <TabsContent value="stats" className="space-y-5">
+              <TabsContent value="stats" className="space-y-5 flex-1 min-h-0 overflow-y-auto pb-2 mt-0">
                 <div className="p-3 rounded-lg border border-border/40" style={{ background: "hsl(var(--muted)/0.2)" }}>
                   <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Match Statistics</div>
                   <div className="grid grid-cols-3 gap-3">
@@ -1131,7 +1188,7 @@ export function ScoutingModule() {
               </TabsContent>
 
               {/* VÍDEOS / CLIPS */}
-              <TabsContent value="clips" className="space-y-2">
+              <TabsContent value="clips" className="space-y-2 flex-1 min-h-0 overflow-y-auto pb-2 mt-0">
                 <ClipsTab
                   clips={form.clips ?? []}
                   onChange={clips => setForm({ ...form, clips })}
@@ -1140,7 +1197,7 @@ export function ScoutingModule() {
             </Tabs>
           </div>
 
-          <DialogFooter className="px-6 pb-6">
+          <DialogFooter className="px-6 pb-4 pt-3 flex-shrink-0 border-t border-white/5">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={save} disabled={!form.nome.trim()} className="text-white hover:opacity-90" style={{ background: "#FF6B35" }}>
               {editingId ? "Save" : "Add"}

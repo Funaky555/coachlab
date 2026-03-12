@@ -8,16 +8,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Pencil, Trash2, User, Eye, Users, Target, BookOpen, BarChart2, Heart, Crown, Layers, Upload, Shield, ShieldCheck, Crosshair, Zap } from "lucide-react"
+import { Plus, User, Users, Target, BookOpen, BarChart2, Heart, Crown, Layers, Upload, Shield, ShieldCheck, Crosshair, Zap } from "lucide-react"
 import {
   type Jogador, type EstadoJogador, type PosicaoJogador, type PePreferido,
-  getJogadores, addJogador, updateJogador, deleteJogador,
+  getJogadores, addJogador, updateJogador,
   getPrimarySetor, displayName,
-  getPresencasByJogador, getOcorrenciasByJogador, type RegistoPresenca, type OcorrenciaDisciplinar,
 } from "@/lib/storage/plantel"
-import { getRegistosFisicosByJogador, type RegistoFisico } from "@/lib/storage/fisico"
-import { getRegistosMedicosByJogador, type RegistoMedico } from "@/lib/storage/medico"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ImportDataDialog, type ImportField } from "@/components/ui/import-data-dialog"
 import { PositionSelector } from "./position-selector"
 import { AthleteProfileModal } from "./athlete-profile-modal"
@@ -75,38 +71,6 @@ function estadoCor(estado: EstadoJogador): string {
   if (estado === "condicionado") return "#FF6B35"
   if (estado === "lesionado") return "#EF4444"
   return "#6B7280"
-}
-
-function estadoBadge(estado: EstadoJogador) {
-  const map: Record<EstadoJogador, { color: string; label: string }> = {
-    apto: { color: "#00D66C", label: "Fit" },
-    condicionado: { color: "#FF6B35", label: "Limited" },
-    lesionado: { color: "#EF4444", label: "Injured" },
-    indisponivel: { color: "#6B7280", label: "Unavailable" },
-  }
-  const { color, label } = map[estado]
-  return (
-    <span
-      className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-      style={{ color, background: `${color}20`, border: `1px solid ${color}40` }}
-    >
-      {label}
-    </span>
-  )
-}
-
-const TIPO_PRESENCA: Record<string, string> = { treino: "Training", ginasio: "Gym", reuniao: "Meeting", jogo: "Match" }
-const ESTADO_PRESENCA: Record<string, { label: string; color: string }> = {
-  presente:    { label: "Present", color: "text-[#00D66C]" },
-  falta:       { label: "Absent",  color: "text-destructive" },
-  atraso:      { label: "Late",    color: "text-[#FF6B35]" },
-  justificado: { label: "Excused", color: "text-muted-foreground" },
-}
-const TIPO_LESAO: Record<string, string> = { muscular: "Muscular", ossea: "Bone", ligamentar: "Ligament", articular: "Joint", outra: "Other" }
-const ESTADO_LESAO: Record<string, { label: string; color: string }> = {
-  ativa:          { label: "Active",     color: "text-destructive" },
-  em_recuperacao: { label: "Recovering", color: "text-[#FF6B35]" },
-  recuperado:     { label: "Recovered",  color: "text-[#00D66C]" },
 }
 
 const emptyForm = {
@@ -185,34 +149,44 @@ function AttrSection({ title, color, attrs, values, onChange }: {
   onChange: (key: string, val: number | undefined) => void
 }) {
   return (
-    <div className="rounded-lg border p-2" style={{ borderColor: `${color}40`, background: `${color}08` }}>
-      <div className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color }}>{title}</div>
-      <table className="w-full">
-        <tbody>
-          {attrs.map(([label, key]) => {
-            const val = values[key] as number | undefined
-            const { label: rLabel, color: rColor } = getRatingInfo(val)
-            return (
-              <tr key={key} className="border-b border-white/5 last:border-0">
-                <td className="text-[10px] text-white/60 py-0.5 pr-1 w-full">{label}</td>
-                <td className="py-0.5 px-1">
-                  <input
-                    type="number" min={1} max={10}
-                    value={val ?? ""}
-                    placeholder="—"
-                    onChange={e => onChange(key, e.target.value === "" ? undefined : Math.min(10, Math.max(1, Number(e.target.value))))}
-                    className="w-7 h-5 text-[11px] font-bold text-center bg-transparent border-0 outline-none p-0"
-                    style={{ color: rColor, caretColor: "#fff" }}
-                  />
-                </td>
-                <td className="py-0.5 pl-1 text-right whitespace-nowrap">
-                  <span className="text-[9px] font-semibold" style={{ color: rColor }}>{rLabel}</span>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+    <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${color}25`, background: `linear-gradient(135deg, ${color}06 0%, transparent 60%)` }}>
+      <div className="flex items-center gap-2 px-3 py-2 border-b" style={{ borderColor: `${color}15`, background: `${color}10` }}>
+        <div className="w-1 h-3.5 rounded-full shrink-0" style={{ background: color }} />
+        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color }}>{title}</span>
+      </div>
+      <div className="px-2.5 py-2 space-y-1.5">
+        {attrs.map(([label, key]) => {
+          const val = values[key] as number | undefined
+          const { color: rColor } = getRatingInfo(val)
+          return (
+            <div key={key} className="flex items-center gap-2">
+              <span className="text-[9px] text-white/45 shrink-0 w-[72px] truncate">{label}</span>
+              <div className="flex gap-[2px] flex-1">
+                {Array.from({ length: 10 }, (_, i) => {
+                  const filled = val !== undefined && i < val
+                  const isLast = val !== undefined && i === val - 1
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => onChange(key, val === i + 1 ? undefined : i + 1)}
+                      className="h-2.5 flex-1 rounded-[2px] transition-all duration-75 hover:opacity-60"
+                      style={{
+                        background: filled ? rColor : 'rgba(255,255,255,0.07)',
+                        boxShadow: isLast ? `0 0 5px ${rColor}99` : undefined,
+                      }}
+                    />
+                  )
+                })}
+              </div>
+              <span className="text-[10px] font-bold w-3.5 text-right shrink-0 tabular-nums"
+                style={{ color: val ? rColor : 'rgba(255,255,255,0.18)' }}>
+                {val ?? '—'}
+              </span>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -225,11 +199,6 @@ export function PlantelModule() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [profileJogador, setProfileJogador] = useState<Jogador | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [editPresencas, setEditPresencas] = useState<RegistoPresenca[]>([])
-  const [editOcorrencias, setEditOcorrencias] = useState<OcorrenciaDisciplinar[]>([])
-  const [editFisico, setEditFisico] = useState<RegistoFisico[]>([])
-  const [editMedico, setEditMedico] = useState<RegistoMedico[]>([])
-
   useEffect(() => {
     setJogadores(getJogadores())
   }, [])
@@ -265,10 +234,6 @@ export function PlantelModule() {
     setForm(emptyForm)
     setSaveError(null)
     setDialogOpen(true)
-    setEditPresencas([])
-    setEditOcorrencias([])
-    setEditFisico([])
-    setEditMedico([])
   }
 
   function openEdit(j: Jogador) {
@@ -331,10 +296,6 @@ export function PlantelModule() {
       aGIOffBallMovement: j.aGIOffBallMovement,
     })
     setDialogOpen(true)
-    setEditPresencas(getPresencasByJogador(j.id))
-    setEditOcorrencias(getOcorrenciasByJogador(j.id))
-    setEditFisico(getRegistosFisicosByJogador(j.id))
-    setEditMedico(getRegistosMedicosByJogador(j.id))
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -423,12 +384,6 @@ export function PlantelModule() {
       console.error("Save player failed:", err)
       setSaveError("Failed to save. Try removing the photo or reducing its size.")
     }
-  }
-
-  function removeJogador(id: string, e: React.MouseEvent) {
-    e.stopPropagation()
-    deleteJogador(id)
-    refresh()
   }
 
   const aptosCount = jogadores.filter(j => j.estado === "apto").length
@@ -561,7 +516,7 @@ export function PlantelModule() {
                     {setor.jogadores.map(j => (
                       <div
                         key={j.id}
-                        className="flex flex-col items-center gap-1 cursor-pointer group"
+                        className="flex flex-col items-center gap-1 cursor-pointer"
                         style={{ width: 76 }}
                         onClick={() => setProfileJogador(j)}
                       >
@@ -581,17 +536,6 @@ export function PlantelModule() {
                           {/* Dot de estado */}
                           <div className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border-2 border-black"
                             style={{ background: estadoCor(j.estado) }} />
-                          {/* Hover overlay com edit/delete */}
-                          <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="text-white hover:text-blue-300 transition-colors"
-                              onClick={e => { e.stopPropagation(); openEdit(j) }}>
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-                            <button className="text-red-400 hover:text-red-300 transition-colors"
-                              onClick={e => removeJogador(j.id, e)}>
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
                         </div>
                         {/* Nome */}
                         <span className="text-[11px] font-bold text-white text-center leading-tight w-full truncate"
@@ -640,7 +584,7 @@ export function PlantelModule() {
 
       {/* Dialog: Add/Edit Player */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-5xl h-[92vh] flex flex-col overflow-hidden p-0 gap-0">
+        <DialogContent className="max-w-4xl h-[92vh] flex flex-col overflow-hidden p-0 gap-0">
           <DialogHeader className="px-6 pt-5 pb-3 flex-shrink-0 border-b border-white/5">
             <DialogTitle>{editingId ? "Edit Player" : "Add Player"}</DialogTitle>
           </DialogHeader>
@@ -649,10 +593,6 @@ export function PlantelModule() {
             <TabsList className="flex-shrink-0 w-full justify-start rounded-none border-b border-white/5 px-4 bg-transparent h-10 gap-1">
               <TabsTrigger value="info" className="text-xs">Info</TabsTrigger>
               <TabsTrigger value="attributes" className="text-xs">Attributes</TabsTrigger>
-              <TabsTrigger value="physical" className="text-xs">Physical</TabsTrigger>
-              <TabsTrigger value="medical" className="text-xs">Medical</TabsTrigger>
-              <TabsTrigger value="discipline" className="text-xs">Discipline</TabsTrigger>
-              <TabsTrigger value="attendance" className="text-xs">Attendance</TabsTrigger>
             </TabsList>
 
             {/* ── INFO TAB ── */}
@@ -795,177 +735,51 @@ export function PlantelModule() {
 
             {/* ── ATTRIBUTES TAB ── */}
             <TabsContent value="attributes" className="flex-1 min-h-0 overflow-y-auto px-6 py-4 mt-0">
-              <div className="grid grid-cols-2 gap-2">
-                <AttrSection title="Offensive" color="#00D66C"
-                  attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
-                  values={form as unknown as Record<string, unknown>}
-                  onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
-                />
-                <AttrSection title="Defensive" color="#EF4444"
-                  attrs={[["Positioning","aDPositioning"],["Def. Awareness","aDDefensiveAwareness"],["Marcation","aDMarcation"],["Interceptions","aDInterceptions"],["Tackling","aDTackling"],["Aerial Duels","aDAerialDuels"],["Aggression","aDAggression"]]}
-                  values={form as unknown as Record<string, unknown>}
-                  onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
-                />
-                <AttrSection title="Attacking Impact" color="#FF6B35"
-                  attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
-                  values={form as unknown as Record<string, unknown>}
-                  onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
-                />
-                <AttrSection title="Set Pieces" color="#8B5CF6"
-                  attrs={[["Penalty","aSPPenalty"],["Corners","aSPCorners"],["Free Kicks","aSPFreeKicks"],["Long Throws","aSPLongThrows"]]}
-                  values={form as unknown as Record<string, unknown>}
-                  onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
-                />
-                <AttrSection title="Physical" color="#0066FF"
-                  attrs={[["Acceleration","aPAcceleration"],["Sprint","aPSprint"],["Agility","aPAgility"],["Balance","aPBalance"],["Jumping","aPJumping"],["Strength","aPStrength"],["Endurance","aPEndurance"]]}
-                  values={form as unknown as Record<string, unknown>}
-                  onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
-                />
-                <AttrSection title="Mental" color="#facc15"
-                  attrs={[["Mentality","aMentality"],["Competitive","aCompetitive"],["Concentration","aConcentration"],["Composure","aComposure"],["Courage","aCourage"],["Leadership","aLeadership"],["Work Ethic","aWorkEthic"],["Team Work","aTeamWork"]]}
-                  values={form as unknown as Record<string, unknown>}
-                  onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
-                />
-                <AttrSection title="Game Intelligence" color="#06B6D4"
-                  attrs={[["Game Reading","aGIGameReading"],["Decision Making","aGIDecisionMaking"],["Spatial Awareness","aGISpatialAwareness"],["Tactical Discipline","aGITacticalDiscipline"],["Off-Ball Movement","aGIOffBallMovement"]]}
-                  values={form as unknown as Record<string, unknown>}
-                  onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
-                />
+              <div className="space-y-2">
+                {/* Linha 1: 3 colunas */}
+                <div className="grid grid-cols-3 gap-2">
+                  <AttrSection title="Offensive" color="#00D66C"
+                    attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
+                  />
+                  <AttrSection title="Defensive" color="#EF4444"
+                    attrs={[["Positioning","aDPositioning"],["Def. Awareness","aDDefensiveAwareness"],["Marcation","aDMarcation"],["Interceptions","aDInterceptions"],["Tackling","aDTackling"],["Aerial Duels","aDAerialDuels"],["Aggression","aDAggression"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
+                  />
+                  <AttrSection title="Physical" color="#0066FF"
+                    attrs={[["Acceleration","aPAcceleration"],["Sprint","aPSprint"],["Agility","aPAgility"],["Balance","aPBalance"],["Jumping","aPJumping"],["Strength","aPStrength"],["Endurance","aPEndurance"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
+                  />
+                </div>
+                {/* Linha 2: 4 colunas */}
+                <div className="grid grid-cols-4 gap-2">
+                  <AttrSection title="Attacking Impact" color="#FF6B35"
+                    attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
+                  />
+                  <AttrSection title="Game Intelligence" color="#06B6D4"
+                    attrs={[["Game Reading","aGIGameReading"],["Decision Making","aGIDecisionMaking"],["Spatial Awareness","aGISpatialAwareness"],["Tactical Discipline","aGITacticalDiscipline"],["Off-Ball Movement","aGIOffBallMovement"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
+                  />
+                  <AttrSection title="Mental" color="#facc15"
+                    attrs={[["Mentality","aMentality"],["Competitive","aCompetitive"],["Concentration","aConcentration"],["Composure","aComposure"],["Courage","aCourage"],["Leadership","aLeadership"],["Work Ethic","aWorkEthic"],["Team Work","aTeamWork"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
+                  />
+                  <AttrSection title="Set Pieces" color="#8B5CF6"
+                    attrs={[["Penalty","aSPPenalty"],["Corners","aSPCorners"],["Free Kicks","aSPFreeKicks"],["Long Throws","aSPLongThrows"]]}
+                    values={form as unknown as Record<string, unknown>}
+                    onChange={(k,v) => setForm(prev => ({ ...prev, [k]: v }))}
+                  />
+                </div>
               </div>
             </TabsContent>
 
-            {/* ── PHYSICAL TAB ── */}
-            <TabsContent value="physical" className="flex-1 min-h-0 overflow-y-auto px-6 py-4 mt-0">
-              {!editingId ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                  <p className="text-sm">Save the player first to view physical records.</p>
-                </div>
-              ) : editFisico.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                  <p className="text-sm">No physical records</p>
-                  <p className="text-xs opacity-60 mt-1">Add records in the Physical Monitoring module</p>
-                </div>
-              ) : (
-                <div className="rounded-lg border border-border overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Duration</TableHead>
-                        <TableHead>Distance</TableHead>
-                        <TableHead>Sprints</TableHead>
-                        <TableHead>RPE</TableHead>
-                        <TableHead>Max HR</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {[...editFisico].sort((a,b) => b.data.localeCompare(a.data)).map(r => (
-                        <TableRow key={r.id}>
-                          <TableCell className="text-sm">{r.data}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{r.duracao ? `${r.duracao} min` : "—"}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{r.distancia ? `${r.distancia} km` : "—"}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{r.sprints ?? "—"}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{r.rpe ?? "—"}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{r.fcMax ? `${r.fcMax} bpm` : "—"}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </TabsContent>
-
-            {/* ── MEDICAL TAB ── */}
-            <TabsContent value="medical" className="flex-1 min-h-0 overflow-y-auto px-6 py-4 mt-0">
-              {!editingId ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                  <p className="text-sm">Save the player first to view medical records.</p>
-                </div>
-              ) : editMedico.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                  <p className="text-sm">No medical records</p>
-                  <p className="text-xs opacity-60 mt-1">Add records in the Medical Department module</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {[...editMedico].sort((a,b) => b.dataInicio.localeCompare(a.dataInicio)).map(r => (
-                    <div key={r.id} className="bg-muted/30 rounded-lg p-4">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
-                          <span className="font-medium text-sm">{TIPO_LESAO[r.tipo] ?? r.tipo} — {r.localizacao}</span>
-                          <div className="text-xs text-muted-foreground mt-0.5">{r.dataInicio}{r.dataRetorno ? ` → ${r.dataRetorno}` : ""}</div>
-                        </div>
-                        <span className={`text-xs font-medium ${ESTADO_LESAO[r.estado]?.color ?? ""}`}>{ESTADO_LESAO[r.estado]?.label ?? r.estado}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{r.descricao}</p>
-                      {r.tratamento && <p className="text-xs text-muted-foreground mt-1"><span className="font-medium">Treatment:</span> {r.tratamento}</p>}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            {/* ── DISCIPLINE TAB ── */}
-            <TabsContent value="discipline" className="flex-1 min-h-0 overflow-y-auto px-6 py-4 mt-0">
-              {!editingId ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                  <p className="text-sm">Save the player first to view disciplinary records.</p>
-                </div>
-              ) : editOcorrencias.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                  <p className="text-sm">No disciplinary records</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {[...editOcorrencias].sort((a,b) => b.data.localeCompare(a.data)).map(o => (
-                    <div key={o.id} className="bg-muted/30 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-muted-foreground">{o.data}</span>
-                        <span className={`text-xs font-medium capitalize ${o.gravidade === "grave" ? "text-destructive" : o.gravidade === "moderada" ? "text-[#FF6B35]" : "text-muted-foreground"}`}>{o.gravidade}</span>
-                      </div>
-                      <div className="font-medium text-sm capitalize">{o.tipo.replace("_", " ")}</div>
-                      <p className="text-sm text-muted-foreground mt-1">{o.descricao}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            {/* ── ATTENDANCE TAB ── */}
-            <TabsContent value="attendance" className="flex-1 min-h-0 overflow-y-auto px-6 py-4 mt-0">
-              {!editingId ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                  <p className="text-sm">Save the player first to view attendance records.</p>
-                </div>
-              ) : editPresencas.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                  <p className="text-sm">No attendance records</p>
-                </div>
-              ) : (
-                <div className="rounded-lg border border-border overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Notes</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {[...editPresencas].sort((a,b) => b.data.localeCompare(a.data)).map(p => (
-                        <TableRow key={p.id}>
-                          <TableCell className="text-sm">{p.data}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{TIPO_PRESENCA[p.tipo] ?? p.tipo}</TableCell>
-                          <TableCell className={`text-sm font-medium ${ESTADO_PRESENCA[p.estado]?.color ?? ""}`}>{ESTADO_PRESENCA[p.estado]?.label ?? p.estado}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{p.notas ?? "—"}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </TabsContent>
           </Tabs>
 
           <DialogFooter className="px-6 py-3 flex-shrink-0 border-t border-white/5">
@@ -986,6 +800,7 @@ export function PlantelModule() {
           open={!!profileJogador}
           onClose={() => setProfileJogador(null)}
           onEdit={j => { setProfileJogador(null); openEdit(j) }}
+          onReset={() => { setProfileJogador(null); setJogadores(getJogadores()) }}
         />
       )}
     </div>

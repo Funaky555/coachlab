@@ -6,8 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Pencil, User } from "lucide-react"
-import { type Jogador, type EstadoJogador, getPresencasByJogador, getOcorrenciasByJogador } from "@/lib/storage/plantel"
+import { Pencil, User, RotateCcw } from "lucide-react"
+import { type Jogador, type EstadoJogador, getPresencasByJogador, getOcorrenciasByJogador, updateJogador } from "@/lib/storage/plantel"
 import { getRegistosFisicosByJogador, type RegistoFisico } from "@/lib/storage/fisico"
 import { getRegistosMedicosByJogador, type RegistoMedico } from "@/lib/storage/medico"
 
@@ -16,6 +16,7 @@ interface Props {
   open: boolean
   onClose: () => void
   onEdit: (j: Jogador) => void
+  onReset: () => void
 }
 
 function estadoBadge(estado: EstadoJogador) {
@@ -23,8 +24,9 @@ function estadoBadge(estado: EstadoJogador) {
     apto: { className: "bg-[#00D66C]/20 text-[#00D66C] border-[#00D66C]/30", label: "Fit" },
     condicionado: { className: "bg-[#FF6B35]/20 text-[#FF6B35] border-[#FF6B35]/30", label: "Limited" },
     lesionado: { className: "bg-destructive/20 text-destructive border-destructive/30", label: "Injured" },
+    indisponivel: { className: "bg-muted/40 text-muted-foreground border-border", label: "Unavailable" },
   }
-  const { className, label } = map[estado]
+  const { className, label } = map[estado] ?? map.apto
   return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${className}`}>{label}</span>
 }
 
@@ -34,11 +36,90 @@ function calcIdade(dataNascimento?: string): string {
   return `${anos} yrs`
 }
 
-export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
+function getRatingInfo(v: number | undefined): { label: string; color: string } {
+  if (v === undefined) return { label: "", color: "rgba(255,255,255,0.25)" }
+  if (v <= 2) return { label: "Very Weak", color: "#EF4444" }
+  if (v <= 4) return { label: "Weak", color: "#FF6B35" }
+  if (v === 5) return { label: "Medium", color: "rgba(255,255,255,0.55)" }
+  if (v === 6) return { label: "Good", color: "rgba(255,255,255,0.75)" }
+  if (v === 7) return { label: "Very Good", color: "#facc15" }
+  if (v === 8) return { label: "Excellent", color: "#00D66C" }
+  if (v === 9) return { label: "Elite", color: "#00D66C" }
+  return { label: "World Class", color: "#00D66C" }
+}
+
+function AttrSectionReadOnly({ title, color, attrs, values }: {
+  title: string; color: string;
+  attrs: [string, string][];
+  values: Record<string, unknown>;
+}) {
+  return (
+    <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${color}25`, background: `linear-gradient(135deg, ${color}06 0%, transparent 60%)` }}>
+      <div className="flex items-center gap-2 px-3 py-2 border-b" style={{ borderColor: `${color}15`, background: `${color}10` }}>
+        <div className="w-1 h-3.5 rounded-full shrink-0" style={{ background: color }} />
+        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color }}>{title}</span>
+      </div>
+      <div className="px-2.5 py-2 space-y-1.5">
+        {attrs.map(([label, key]) => {
+          const val = values[key] as number | undefined
+          const { color: rColor } = getRatingInfo(val)
+          return (
+            <div key={key} className="flex items-center gap-2">
+              <span className="text-[9px] text-white/45 shrink-0 w-[72px] truncate">{label}</span>
+              <div className="flex gap-[2px] flex-1">
+                {Array.from({ length: 10 }, (_, i) => {
+                  const filled = val !== undefined && i < val
+                  const isLast = val !== undefined && i === val - 1
+                  return (
+                    <div
+                      key={i}
+                      className="h-2.5 flex-1 rounded-[2px]"
+                      style={{
+                        background: filled ? rColor : 'rgba(255,255,255,0.07)',
+                        boxShadow: isLast ? `0 0 5px ${rColor}99` : undefined,
+                      }}
+                    />
+                  )
+                })}
+              </div>
+              <span className="text-[10px] font-bold w-3.5 text-right shrink-0 tabular-nums"
+                style={{ color: val ? rColor : 'rgba(255,255,255,0.18)' }}>
+                {val ?? '—'}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }: Props) {
   const [presencas, setPresencas] = useState<ReturnType<typeof getPresencasByJogador>>([])
   const [ocorrencias, setOcorrencias] = useState<ReturnType<typeof getOcorrenciasByJogador>>([])
   const [fisico, setFisico] = useState<RegistoFisico[]>([])
   const [medico, setMedico] = useState<RegistoMedico[]>([])
+
+  function handleReset() {
+    updateJogador(jogador.id, {
+      nome: "", alcunha: "", foto: "", dataNascimento: "", nacionalidade: "",
+      altura: undefined, peso: undefined, pePreferido: undefined, notas: "",
+      aOBallControl: undefined, aOFirstTouch: undefined, aOShortPass: undefined,
+      aOLongPass: undefined, aOCrossing: undefined, aOHeading: undefined,
+      aOFinishing: undefined, aODribbling: undefined, aOFeint: undefined,
+      aDPositioning: undefined, aDDefensiveAwareness: undefined, aDMarcation: undefined,
+      aDInterceptions: undefined, aDTackling: undefined, aDAerialDuels: undefined, aDAggression: undefined,
+      aIPenetration: undefined, aIOffBall: undefined, aIVision: undefined,
+      aIChanceCreation: undefined, aICreativity: undefined, aIDesmarcation: undefined,
+      aSPPenalty: undefined, aSPCorners: undefined, aSPFreeKicks: undefined, aSPLongThrows: undefined,
+      aPAcceleration: undefined, aPSprint: undefined, aPAgility: undefined,
+      aPBalance: undefined, aPJumping: undefined, aPStrength: undefined, aPEndurance: undefined,
+      aMentality: undefined, aCompetitive: undefined, aConcentration: undefined,
+      aGIGameReading: undefined, aGIDecisionMaking: undefined, aGISpatialAwareness: undefined,
+      aGITacticalDiscipline: undefined, aGIOffBallMovement: undefined,
+    })
+    onReset()
+  }
 
   useEffect(() => {
     if (!open) return
@@ -64,7 +145,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-4">
             {jogador.foto ? (
@@ -85,6 +166,9 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
                 {estadoBadge(jogador.estado)}
               </div>
             </div>
+            <Button size="sm" variant="outline" className="shrink-0 gap-1.5 border-red-500/40 text-red-400 hover:bg-red-500/10" onClick={handleReset}>
+              <RotateCcw className="w-3.5 h-3.5" /> Reset
+            </Button>
             <Button size="sm" variant="outline" className="shrink-0 gap-1.5" onClick={() => onEdit(jogador)}>
               <Pencil className="w-3.5 h-3.5" /> Edit
             </Button>
@@ -94,6 +178,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
         <Tabs defaultValue="info" className="mt-2">
           <TabsList className="w-full">
             <TabsTrigger value="info" className="flex-1">Info</TabsTrigger>
+            <TabsTrigger value="attributes" className="flex-1">Attributes</TabsTrigger>
             <TabsTrigger value="fisico" className="flex-1">Physical {fisico.length > 0 && <span className="ml-1 text-xs opacity-60">({fisico.length})</span>}</TabsTrigger>
             <TabsTrigger value="medico" className="flex-1">Medical {medico.length > 0 && <span className="ml-1 text-xs opacity-60">({medico.length})</span>}</TabsTrigger>
             <TabsTrigger value="disciplina" className="flex-1">Discipline {ocorrencias.length > 0 && <span className="ml-1 text-xs opacity-60">({ocorrencias.length})</span>}</TabsTrigger>
@@ -123,6 +208,44 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit }: Props) {
                 <div className="text-sm">{jogador.notas}</div>
               </div>
             )}
+          </TabsContent>
+
+          {/* ATTRIBUTES */}
+          <TabsContent value="attributes" className="mt-4 space-y-2">
+            {/* Linha 1: Offensive | Defensive | Physical */}
+            <div className="grid grid-cols-3 gap-2">
+              <AttrSectionReadOnly title="Offensive" color="#00D66C"
+                attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
+                values={jogador as unknown as Record<string, unknown>}
+              />
+              <AttrSectionReadOnly title="Defensive" color="#EF4444"
+                attrs={[["Positioning","aDPositioning"],["Def. Awareness","aDDefensiveAwareness"],["Marcation","aDMarcation"],["Interceptions","aDInterceptions"],["Tackling","aDTackling"],["Aerial Duels","aDAerialDuels"],["Aggression","aDAggression"]]}
+                values={jogador as unknown as Record<string, unknown>}
+              />
+              <AttrSectionReadOnly title="Physical" color="#0066FF"
+                attrs={[["Acceleration","aPAcceleration"],["Sprint","aPSprint"],["Agility","aPAgility"],["Balance","aPBalance"],["Jumping","aPJumping"],["Strength","aPStrength"],["Endurance","aPEndurance"]]}
+                values={jogador as unknown as Record<string, unknown>}
+              />
+            </div>
+            {/* Linha 2: Attacking Impact | Game Intelligence | Mental | Set Pieces */}
+            <div className="grid grid-cols-4 gap-2">
+              <AttrSectionReadOnly title="Attacking Impact" color="#FF6B35"
+                attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
+                values={jogador as unknown as Record<string, unknown>}
+              />
+              <AttrSectionReadOnly title="Game Intelligence" color="#06B6D4"
+                attrs={[["Game Reading","aGIGameReading"],["Decision Making","aGIDecisionMaking"],["Spatial Awareness","aGISpatialAwareness"],["Tactical Discipline","aGITacticalDiscipline"],["Off-Ball Movement","aGIOffBallMovement"]]}
+                values={jogador as unknown as Record<string, unknown>}
+              />
+              <AttrSectionReadOnly title="Mental" color="#facc15"
+                attrs={[["Mentality","aMentality"],["Competitive","aCompetitive"],["Concentration","aConcentration"],["Composure","aComposure"],["Courage","aCourage"],["Leadership","aLeadership"],["Work Ethic","aWorkEthic"],["Team Work","aTeamWork"]]}
+                values={jogador as unknown as Record<string, unknown>}
+              />
+              <AttrSectionReadOnly title="Set Pieces" color="#8B5CF6"
+                attrs={[["Penalty","aSPPenalty"],["Corners","aSPCorners"],["Free Kicks","aSPFreeKicks"],["Long Throws","aSPLongThrows"]]}
+                values={jogador as unknown as Record<string, unknown>}
+              />
+            </div>
           </TabsContent>
 
           {/* FÍSICO */}

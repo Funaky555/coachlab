@@ -10,12 +10,25 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent } from "@/components/ui/card"
-import { Plus, Trash2, Activity, ChevronDown, ChevronRight } from "lucide-react"
+import { Plus, Trash2, Activity, ChevronDown, ChevronRight, Upload } from "lucide-react"
 import { getJogadores, type Jogador } from "@/lib/storage/plantel"
 import {
   getRegistosFisicosByJogador, addRegistoFisico, deleteRegistoFisico,
   type RegistoFisico
 } from "@/lib/storage/fisico"
+import { ImportDataDialog, type ImportField } from "@/components/ui/import-data-dialog"
+
+const FISICO_IMPORT_SCHEMA: ImportField[] = [
+  { key: "nomeJogador", label: "Nome do Jogador", required: true,  type: "text" },
+  { key: "data",        label: "Data",            required: true,  type: "date" },
+  { key: "duracao",     label: "Duração (min)",                     type: "number" },
+  { key: "distancia",   label: "Distância (km)",                    type: "number" },
+  { key: "sprints",     label: "Sprints",                           type: "number" },
+  { key: "rpe",         label: "RPE (1-10)",                        type: "number" },
+  { key: "fcMax",       label: "FC Máx (bpm)",                      type: "number" },
+  { key: "peso",        label: "Peso (kg)",                         type: "number" },
+  { key: "notas",       label: "Notas",                             type: "text" },
+]
 
 interface JogadorComRegistos extends Jogador {
   registos: RegistoFisico[]
@@ -41,6 +54,27 @@ export function FisicoModule() {
   }
 
   useEffect(() => { refresh() }, [])
+
+  function handleImportFisico(rows: Record<string, string>[]) {
+    const allJogs = getJogadores()
+    rows.forEach(row => {
+      const nomeJog = (row.nomeJogador ?? "").toLowerCase().trim()
+      const jog = allJogs.find(j => j.nome.toLowerCase().trim() === nomeJog)
+      if (!jog) return
+      addRegistoFisico({
+        jogadorId: jog.id,
+        data: row.data?.trim() ?? new Date().toISOString().split("T")[0],
+        duracao: row.duracao ? parseFloat(row.duracao) || undefined : undefined,
+        distancia: row.distancia ? parseFloat(row.distancia) || undefined : undefined,
+        sprints: row.sprints ? parseInt(row.sprints) || undefined : undefined,
+        rpe: row.rpe ? parseFloat(row.rpe) || undefined : undefined,
+        fcMax: row.fcMax ? parseInt(row.fcMax) || undefined : undefined,
+        peso: row.peso ? parseFloat(row.peso) || undefined : undefined,
+        notas: row.notas?.trim() || undefined,
+      })
+    })
+    refresh()
+  }
 
   function toggleExpand(id: string) {
     setExpandedIds(prev => {
@@ -104,9 +138,22 @@ export function FisicoModule() {
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="font-semibold text-lg">Records by Athlete</h2>
-        <Button onClick={() => openAdd()} disabled={jogadores.length === 0} className="gap-2" style={{ background: "#0066FF" }}>
-          <Plus className="w-4 h-4" /> Add Record
-        </Button>
+        <div className="flex items-center gap-2">
+          <ImportDataDialog
+            title="Importar Dados Físicos"
+            description="Importa registos físicos por nome do atleta. O atleta já deve existir no plantel."
+            schema={FISICO_IMPORT_SCHEMA}
+            onImport={handleImportFisico}
+            trigger={
+              <Button variant="outline" className="gap-2 border-[#0066FF]/40 text-[#0066FF] hover:bg-[#0066FF]/10">
+                <Upload className="w-4 h-4" /> Import
+              </Button>
+            }
+          />
+          <Button onClick={() => openAdd()} disabled={jogadores.length === 0} className="gap-2" style={{ background: "#0066FF" }}>
+            <Plus className="w-4 h-4" /> Add Record
+          </Button>
+        </div>
       </div>
 
       {jogadores.length === 0 ? (
