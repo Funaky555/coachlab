@@ -130,13 +130,11 @@ const emptyForm = {
   aGIOffBallMovement: undefined as number | undefined,
 }
 
-function getRatingInfo(v: number | undefined): { label: string; color: string } {
-  if (v === undefined) return { label: "", color: "rgba(255,255,255,0.25)" }
-  if (v <= 5)  return { label: "Poor",      color: "#EF4444" }
-  if (v <= 10) return { label: "Average",   color: "#FF6B35" }
-  if (v <= 14) return { label: "Good",      color: "#facc15" }
-  if (v <= 18) return { label: "Excellent", color: "#00D66C" }
-  return               { label: "Elite",    color: "#0066FF" }
+function getSegmentColor(i: number): string {
+  if (i < 5)  return "#EF4444"
+  if (i < 10) return "#FF6B35"
+  if (i < 15) return "#facc15"
+  return "#00D66C"
 }
 
 function AttrSection({ title, color, attrs, values, onChange }: {
@@ -154,30 +152,28 @@ function AttrSection({ title, color, attrs, values, onChange }: {
       <div className="px-2.5 py-2 space-y-1.5">
         {attrs.map(([label, key]) => {
           const val = values[key] as number | undefined
-          const { color: rColor } = getRatingInfo(val)
           return (
             <div key={key} className="flex items-center gap-2">
-              <span className="text-[9px] text-white/45 shrink-0 w-[72px] truncate">{label}</span>
+              <span className="text-[9px] text-white/60 shrink-0 w-[80px]">{label}</span>
               <div className="flex gap-[2px] flex-1">
                 {Array.from({ length: 20 }, (_, i) => {
                   const filled = val !== undefined && i < val
-                  const isLast = val !== undefined && i === val - 1
+                  const segColor = getSegmentColor(i)
                   return (
                     <button
                       key={i}
                       type="button"
                       onClick={() => onChange(key, val === i + 1 ? undefined : i + 1)}
-                      className="h-2.5 flex-1 rounded-[2px] transition-all duration-75 hover:opacity-60"
+                      className="h-4 flex-1 rounded-[2px] transition-all duration-75 hover:opacity-70 active:scale-y-95"
                       style={{
-                        background: filled ? rColor : 'rgba(255,255,255,0.07)',
-                        boxShadow: isLast ? `0 0 5px ${rColor}99` : undefined,
+                        background: filled ? segColor : 'rgba(255,255,255,0.07)',
                       }}
                     />
                   )
                 })}
               </div>
-              <span className="text-[10px] font-bold w-5 text-right shrink-0 tabular-nums"
-                style={{ color: val ? rColor : 'rgba(255,255,255,0.18)' }}>
+              <span className="text-[10px] font-bold w-6 text-right shrink-0 tabular-nums"
+                style={{ color: val ? getSegmentColor(val - 1) : 'rgba(255,255,255,0.18)' }}>
                 {val ?? '—'}
               </span>
             </div>
