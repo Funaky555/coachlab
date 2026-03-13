@@ -62,10 +62,10 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
   const { color } = getRatingInfo(val)
   return (
     <div className="flex items-center gap-1.5 py-1">
-      <span className="text-[9px] font-semibold shrink-0 w-[90px]" style={{ color: "rgba(255,255,255,0.90)" }}>
+      <span className="text-[11px] font-bold shrink-0 w-[90px]" style={{ color: "rgba(255,255,255,0.90)" }}>
         {label}
       </span>
-      <div className="relative flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+      <div className="relative flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
         <div className="absolute inset-y-0 left-0 rounded-full"
           style={{
             width: val ? `${(val / 20) * 100}%` : "0%",
@@ -73,7 +73,7 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
             boxShadow: val ? `0 0 4px ${color}70` : undefined,
           }} />
       </div>
-      <div className="shrink-0 w-7 h-[17px] rounded text-[10px] font-black flex items-center justify-center tabular-nums"
+      <div className="shrink-0 w-8 h-[18px] rounded text-[10px] font-black flex items-center justify-center tabular-nums"
         style={{
           background: val ? `${color}20` : "rgba(255,255,255,0.04)",
           color: val ? color : "rgba(255,255,255,0.18)",
@@ -202,7 +202,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-[94vw] h-[92vh] flex flex-col overflow-hidden p-0 gap-0"
+      <DialogContent className="max-w-[94vw] h-[96vh] flex flex-col overflow-hidden p-0 gap-0"
         style={{ background: "linear-gradient(160deg, #080d18 0%, #040609 100%)", border: "1.5px solid rgba(255,255,255,0.09)" }}>
 
         {/* Linha gradiente */}
