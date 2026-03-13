@@ -22,18 +22,30 @@ interface Props {
 function calcIdade(dataNascimento?: string): string {
   if (!dataNascimento) return "—"
   const anos = Math.floor((Date.now() - new Date(dataNascimento).getTime()) / (365.25 * 24 * 3600 * 1000))
-  return `${anos} yrs`
+  return `${anos}`
+}
+
+const ESTADO_BORDER: Record<EstadoJogador, string> = {
+  apto: "#00D66C",
+  condicionado: "#FF6B35",
+  lesionado: "#EF4444",
+  indisponivel: "#6b7280",
 }
 
 function estadoBadge(estado: EstadoJogador) {
   const map = {
-    apto: { className: "bg-[#00D66C]/20 text-[#00D66C] border-[#00D66C]/30", label: "Fit" },
-    condicionado: { className: "bg-[#FF6B35]/20 text-[#FF6B35] border-[#FF6B35]/30", label: "Limited" },
-    lesionado: { className: "bg-destructive/20 text-destructive border-destructive/30", label: "Injured" },
-    indisponivel: { className: "bg-muted/40 text-muted-foreground border-border", label: "Unavailable" },
+    apto: { bg: "rgba(0,214,108,0.15)", color: "#00D66C", label: "Fit" },
+    condicionado: { bg: "rgba(255,107,53,0.15)", color: "#FF6B35", label: "Limited" },
+    lesionado: { bg: "rgba(239,68,68,0.15)", color: "#EF4444", label: "Injured" },
+    indisponivel: { bg: "rgba(107,114,128,0.15)", color: "#9ca3af", label: "Unavailable" },
   }
-  const { className, label } = map[estado] ?? map.apto
-  return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${className}`}>{label}</span>
+  const { bg, color, label } = map[estado] ?? map.apto
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border"
+      style={{ background: bg, color, borderColor: `${color}40` }}>
+      {label}
+    </span>
+  )
 }
 
 function getRatingInfo(v: number | undefined): { label: string; color: string } {
@@ -45,44 +57,72 @@ function getRatingInfo(v: number | undefined): { label: string; color: string } 
   return               { label: "Elite",    color: "#0066FF" }
 }
 
-function AttrSectionReadOnly({ title, color, attrs, values }: {
-  title: string; color: string
+function AttrSectionReadOnly({ title, icon, color, attrs, values }: {
+  title: string
+  icon: string
+  color: string
   attrs: [string, string][]
   values: Record<string, unknown>
 }) {
   return (
-    <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${color}22`, background: `linear-gradient(135deg, ${color}08 0%, transparent 70%)` }}>
-      <div className="flex items-center gap-1.5 px-3 py-1.5 border-b" style={{ borderColor: `${color}15`, background: `${color}12` }}>
-        <div className="w-1 h-3 rounded-full shrink-0" style={{ background: color }} />
-        <span className="text-[9px] font-black uppercase tracking-widest" style={{ color }}>{title}</span>
+    <div className="rounded-2xl overflow-hidden"
+      style={{
+        border: `1.5px solid ${color}35`,
+        background: `linear-gradient(160deg, ${color}10 0%, rgba(0,0,0,0.5) 100%)`,
+        boxShadow: `0 0 20px ${color}10`,
+      }}>
+      {/* Header */}
+      <div className="flex items-center gap-2 px-3 py-2"
+        style={{ background: `linear-gradient(90deg, ${color}28 0%, ${color}08 100%)`, borderBottom: `1px solid ${color}20` }}>
+        <span className="text-base leading-none">{icon}</span>
+        <span className="text-[11px] font-black uppercase tracking-wider" style={{ color }}>{title}</span>
       </div>
-      <div className="px-2 py-1.5 space-y-1">
+
+      {/* Atributos */}
+      <div className="px-3 py-2 space-y-1.5">
         {attrs.map(([label, key]) => {
           const val = values[key] as number | undefined
           const { color: rColor } = getRatingInfo(val)
           return (
-            <div key={key} className="flex items-center gap-1.5">
-              <span className="text-[8px] text-white/40 shrink-0 w-[62px] truncate leading-none">{label}</span>
-              <div className="flex gap-[1.5px] flex-1">
-                {Array.from({ length: 20 }, (_, i) => {
-                  const filled = val !== undefined && i < val
-                  const isLast = val !== undefined && i === val - 1
-                  return (
-                    <div
-                      key={i}
-                      className="h-2 flex-1 rounded-[1.5px]"
-                      style={{
-                        background: filled ? rColor : 'rgba(255,255,255,0.06)',
-                        boxShadow: isLast ? `0 0 4px ${rColor}88` : undefined,
-                      }}
-                    />
-                  )
-                })}
-              </div>
-              <span className="text-[9px] font-bold w-5 text-right shrink-0 tabular-nums"
-                style={{ color: val ? rColor : 'rgba(255,255,255,0.15)' }}>
-                {val ?? '—'}
+            <div key={key} className="flex items-center gap-2">
+              {/* Label visível */}
+              <span className="text-[10px] font-semibold shrink-0 w-[70px] truncate leading-none"
+                style={{ color: "rgba(255,255,255,0.80)" }}>
+                {label}
               </span>
+
+              {/* Barras em 4 grupos de 5 */}
+              <div className="flex gap-[3px] flex-1 items-center">
+                {[0, 1, 2, 3].map(group => (
+                  <div key={group} className="flex gap-[1.5px] flex-1">
+                    {[0, 1, 2, 3, 4].map(seg => {
+                      const i = group * 5 + seg
+                      const filled = val !== undefined && i < val
+                      const isLast = val !== undefined && i === val - 1
+                      return (
+                        <div
+                          key={i}
+                          className="h-[10px] flex-1 rounded-[2px]"
+                          style={{
+                            background: filled ? rColor : "rgba(255,255,255,0.07)",
+                            boxShadow: isLast ? `0 0 6px ${rColor}CC` : undefined,
+                          }}
+                        />
+                      )
+                    })}
+                  </div>
+                ))}
+              </div>
+
+              {/* Badge valor */}
+              <div className="shrink-0 w-7 h-5 rounded flex items-center justify-center text-[10px] font-black tabular-nums"
+                style={{
+                  background: val ? `${rColor}22` : "rgba(255,255,255,0.05)",
+                  color: val ? rColor : "rgba(255,255,255,0.2)",
+                  border: `1px solid ${val ? rColor + "45" : "rgba(255,255,255,0.08)"}`,
+                }}>
+                {val ?? "—"}
+              </div>
             </div>
           )
         })}
@@ -91,11 +131,14 @@ function AttrSectionReadOnly({ title, color, attrs, values }: {
   )
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoStat({ icon, label, value, color }: { icon: string; label: string; value: string; color?: string }) {
   return (
-    <div className="flex flex-col gap-0.5 py-1.5 border-b border-white/5 last:border-0">
-      <span className="text-[8px] uppercase tracking-widest text-white/35 font-semibold">{label}</span>
-      <span className="text-[11px] font-semibold text-white/90 leading-tight">{value}</span>
+    <div className="flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0">
+      <span className="text-sm shrink-0 mt-0.5 leading-none">{icon}</span>
+      <div>
+        <div className="text-[8px] uppercase tracking-widest font-semibold text-white/35">{label}</div>
+        <div className="text-[11px] font-bold leading-tight mt-0.5" style={{ color: color ?? "rgba(255,255,255,0.90)" }}>{value}</div>
+      </div>
     </div>
   )
 }
@@ -152,42 +195,69 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
   }
 
   const jv = jogador as unknown as Record<string, unknown>
+  const estadoBorderColor = ESTADO_BORDER[jogador.estado] ?? "#00D66C"
+  const idade = calcIdade(jogador.dataNascimento)
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-5xl h-[92vh] flex flex-col overflow-hidden p-0 gap-0 border-white/10"
-        style={{ background: "linear-gradient(160deg, #0a0f1a 0%, #050810 100%)" }}>
+      <DialogContent className="max-w-5xl h-[92vh] flex flex-col overflow-hidden p-0 gap-0"
+        style={{ background: "linear-gradient(160deg, #080d18 0%, #040609 100%)", border: "1.5px solid rgba(255,255,255,0.09)" }}>
+
+        {/* Linha decorativa topo */}
+        <div className="h-[3px] w-full flex-shrink-0"
+          style={{ background: "linear-gradient(90deg, #00D66C, #0066FF, #8B5CF6, #00D66C)" }} />
 
         {/* ── HEADER ── */}
-        <div className="flex items-center gap-4 px-5 py-4 border-b border-white/8 flex-shrink-0"
-          style={{ background: "linear-gradient(135deg, rgba(0,214,108,0.06) 0%, rgba(0,102,255,0.06) 100%)" }}>
+        <div className="flex items-center gap-4 px-5 py-4 border-b border-white/6 flex-shrink-0 relative overflow-hidden">
+          {/* Número decorativo */}
+          <div className="absolute right-4 top-0 text-[72px] font-black leading-none select-none pointer-events-none"
+            style={{ color: `${estadoBorderColor}12`, fontFamily: "var(--font-barlow-condensed)" }}>
+            {jogador.numero}
+          </div>
 
           {/* Foto */}
-          {jogador.foto ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={jogador.foto} alt={jogador.nome}
-              className="w-16 h-16 rounded-full object-cover shrink-0 border-2"
-              style={{ borderColor: "#00D66C55" }} />
-          ) : (
-            <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-black shrink-0 border-2"
-              style={{ background: "rgba(0,214,108,0.1)", borderColor: "#00D66C44", color: "#00D66C", fontFamily: "var(--font-barlow-condensed)" }}>
-              {jogador.numero}
-            </div>
-          )}
+          <div className="relative shrink-0">
+            {jogador.foto ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={jogador.foto} alt={jogador.nome}
+                className="w-16 h-16 rounded-full object-cover border-2"
+                style={{ borderColor: estadoBorderColor }} />
+            ) : (
+              <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-black border-2"
+                style={{ background: `${estadoBorderColor}15`, borderColor: estadoBorderColor, color: estadoBorderColor, fontFamily: "var(--font-barlow-condensed)" }}>
+                {jogador.numero}
+              </div>
+            )}
+            {/* Badge idade */}
+            {idade !== "—" && (
+              <div className="absolute -bottom-1 -right-1 text-[8px] font-black px-1 py-0.5 rounded-full"
+                style={{ background: "#0066FF", color: "#fff" }}>
+                {idade}
+              </div>
+            )}
+          </div>
 
-          {/* Nome + info */}
-          <div className="flex-1 min-w-0">
-            <div className="text-xl font-black tracking-tight text-white leading-tight">
+          {/* Nome + badges */}
+          <div className="flex-1 min-w-0 relative z-10">
+            <div className="text-2xl font-black tracking-tight text-white leading-tight">
               {jogador.nome}
             </div>
             {jogador.alcunha?.trim() && (
-              <div className="text-xs text-white/45 font-medium mt-0.5">&quot;{jogador.alcunha}&quot;</div>
+              <div className="text-xs font-medium mt-0.5" style={{ color: "rgba(255,255,255,0.40)" }}>
+                &quot;{jogador.alcunha}&quot;
+              </div>
             )}
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              <span className="text-[10px] font-bold text-white/30 bg-white/5 px-1.5 py-0.5 rounded">#{jogador.numero}</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.35)" }}>
+                #{jogador.numero}
+              </span>
               {jogador.posicoes.map((p, i) => (
                 <Badge key={p} variant={i === 0 ? "default" : "outline"}
-                  className={i === 0 ? "text-[10px] py-0 px-1.5 bg-[#00D66C]/15 text-[#00D66C] border-[#00D66C]/30 hover:bg-[#00D66C]/15" : "text-[10px] py-0 px-1.5"}>
+                  className={i === 0
+                    ? "text-[10px] py-0 px-1.5 hover:bg-[#00D66C]/15"
+                    : "text-[10px] py-0 px-1.5"}
+                  style={i === 0 ? { background: "rgba(0,214,108,0.15)", color: "#00D66C", borderColor: "rgba(0,214,108,0.30)" } : {}}>
                   {p}
                 </Badge>
               ))}
@@ -196,14 +266,16 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           </div>
 
           {/* Botões */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 relative z-10">
             <Button size="sm" variant="outline"
-              className="gap-1.5 border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs h-7 px-2.5"
+              className="gap-1.5 text-xs h-7 px-2.5"
+              style={{ borderColor: "rgba(239,68,68,0.35)", color: "#f87171" }}
               onClick={handleReset}>
               <RotateCcw className="w-3 h-3" /> Reset
             </Button>
             <Button size="sm" variant="outline"
-              className="gap-1.5 border-[#0066FF]/30 text-[#0066FF] hover:bg-[#0066FF]/10 text-xs h-7 px-2.5"
+              className="gap-1.5 text-xs h-7 px-2.5"
+              style={{ borderColor: "rgba(0,102,255,0.35)", color: "#60a5fa" }}
               onClick={() => onEdit(jogador)}>
               <Pencil className="w-3 h-3" /> Edit
             </Button>
@@ -214,64 +286,72 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
         <div className="flex flex-1 min-h-0 overflow-hidden">
 
           {/* Coluna esquerda — INFO */}
-          <div className="w-44 flex-shrink-0 border-r border-white/6 overflow-y-auto px-3 py-3"
-            style={{ background: "rgba(0,0,0,0.25)" }}>
-            <div className="text-[8px] font-black uppercase tracking-widest text-[#00D66C] mb-2 flex items-center gap-1">
-              <div className="w-3 h-0.5 rounded bg-[#00D66C]" />
+          <div className="w-44 flex-shrink-0 border-r overflow-y-auto px-3 py-3"
+            style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
+            <div className="text-[8px] font-black uppercase tracking-widest mb-2 flex items-center gap-1.5"
+              style={{ color: "#00D66C" }}>
+              <div className="w-3 h-0.5 rounded" style={{ background: "#00D66C" }} />
               Player Info
             </div>
-            <InfoRow label="Age" value={calcIdade(jogador.dataNascimento)} />
-            <InfoRow label="Born" value={jogador.dataNascimento ?? "—"} />
-            <InfoRow label="Country" value={jogador.nacionalidade ?? "—"} />
-            <InfoRow label="Height" value={jogador.altura ? `${jogador.altura} cm` : "—"} />
-            <InfoRow label="Weight" value={jogador.peso ? `${jogador.peso} kg` : "—"} />
-            <InfoRow label="Foot" value={jogador.pePreferido ? (jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)) : "—"} />
+            {idade !== "—" && <InfoStat icon="🎂" label="Age" value={`${idade} years`} />}
+            {jogador.dataNascimento && <InfoStat icon="📅" label="Born" value={jogador.dataNascimento} />}
+            {jogador.nacionalidade && <InfoStat icon="🌍" label="Country" value={jogador.nacionalidade} />}
+            {jogador.altura && <InfoStat icon="📏" label="Height" value={`${jogador.altura} cm`} />}
+            {jogador.peso && <InfoStat icon="⚖️" label="Weight" value={`${jogador.peso} kg`} />}
+            {jogador.pePreferido && (
+              <InfoStat icon="👟" label="Preferred Foot"
+                value={jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)} />
+            )}
+            {!jogador.dataNascimento && !jogador.nacionalidade && !jogador.altura && !jogador.peso && !jogador.pePreferido && (
+              <p className="text-[10px] text-white/20 italic mt-2">No info yet</p>
+            )}
             {jogador.notas && (
-              <div className="mt-2 pt-2 border-t border-white/5">
-                <div className="text-[8px] uppercase tracking-widest text-white/30 font-semibold mb-1">Notes</div>
-                <p className="text-[10px] text-white/60 leading-relaxed">{jogador.notas}</p>
+              <div className="mt-3 pt-2 border-t border-white/5">
+                <div className="text-[8px] uppercase tracking-widest font-semibold mb-1.5 text-white/30">📝 Notes</div>
+                <p className="text-[10px] leading-relaxed text-white/55">{jogador.notas}</p>
               </div>
             )}
           </div>
 
           {/* Coluna direita — ATTRIBUTES */}
           <div className="flex-1 overflow-y-auto px-4 py-3">
-            <div className="text-[8px] font-black uppercase tracking-widest text-[#0066FF] mb-2 flex items-center gap-1">
-              <div className="w-3 h-0.5 rounded bg-[#0066FF]" />
+            <div className="text-[8px] font-black uppercase tracking-widest mb-2.5 flex items-center gap-1.5"
+              style={{ color: "#0066FF" }}>
+              <div className="w-3 h-0.5 rounded" style={{ background: "#0066FF" }} />
               Attributes
             </div>
 
-            {/* Linha 1: Offensive | Defensive | Physical */}
-            <div className="grid grid-cols-3 gap-2 mb-2">
-              <AttrSectionReadOnly title="Offensive" color="#00D66C"
+            {/* Linha 1: 3 colunas */}
+            <div className="grid grid-cols-3 gap-2.5 mb-2.5">
+              <AttrSectionReadOnly title="Offensive" icon="⚡" color="#00D66C"
                 attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
                 values={jv}
               />
-              <AttrSectionReadOnly title="Defensive" color="#EF4444"
+              <AttrSectionReadOnly title="Defensive" icon="🛡️" color="#EF4444"
                 attrs={[["Positioning","aDPositioning"],["Def. Awareness","aDDefensiveAwareness"],["Marcation","aDMarcation"],["Interceptions","aDInterceptions"],["Tackling","aDTackling"],["Aerial Duels","aDAerialDuels"],["Aggression","aDAggression"]]}
                 values={jv}
               />
-              <AttrSectionReadOnly title="Physical" color="#0066FF"
+              <AttrSectionReadOnly title="Physical" icon="💪" color="#0066FF"
                 attrs={[["Acceleration","aPAcceleration"],["Sprint","aPSprint"],["Agility","aPAgility"],["Balance","aPBalance"],["Jumping","aPJumping"],["Strength","aPStrength"],["Endurance","aPEndurance"]]}
                 values={jv}
               />
             </div>
 
-            {/* Linha 2: Attacking Impact | Game Intelligence | Mental | Set Pieces */}
-            <div className="grid grid-cols-4 gap-2">
-              <AttrSectionReadOnly title="Attacking Impact" color="#FF6B35"
+            {/* Linha 2: 4 colunas */}
+            <div className="grid grid-cols-4 gap-2.5">
+              <AttrSectionReadOnly title="Atk. Impact" icon="🎯" color="#FF6B35"
                 attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
                 values={jv}
               />
-              <AttrSectionReadOnly title="Game Intelligence" color="#06B6D4"
-                attrs={[["Game Reading","aGIGameReading"],["Decision Making","aGIDecisionMaking"],["Spatial Awareness","aGISpatialAwareness"],["Tactical Discipline","aGITacticalDiscipline"],["Off-Ball Movement","aGIOffBallMovement"]]}
+              <AttrSectionReadOnly title="Intelligence" icon="🧠" color="#06B6D4"
+                attrs={[["Game Reading","aGIGameReading"],["Decision Making","aGIDecisionMaking"],["Spatial Aware.","aGISpatialAwareness"],["Tactical Disc.","aGITacticalDiscipline"],["Off-Ball Move.","aGIOffBallMovement"]]}
                 values={jv}
               />
-              <AttrSectionReadOnly title="Mental" color="#facc15"
+              <AttrSectionReadOnly title="Mental" icon="🔥" color="#facc15"
                 attrs={[["Mentality","aMentality"],["Competitive","aCompetitive"],["Concentration","aConcentration"],["Composure","aComposure"],["Courage","aCourage"],["Leadership","aLeadership"],["Work Ethic","aWorkEthic"],["Team Work","aTeamWork"]]}
                 values={jv}
               />
-              <AttrSectionReadOnly title="Set Pieces" color="#8B5CF6"
+              <AttrSectionReadOnly title="Set Pieces" icon="⚽" color="#8B5CF6"
                 attrs={[["Penalty","aSPPenalty"],["Corners","aSPCorners"],["Free Kicks","aSPFreeKicks"],["Long Throws","aSPLongThrows"]]}
                 values={jv}
               />
@@ -280,48 +360,50 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
         </div>
 
         {/* ── TABS INFERIORES ── */}
-        <div className="flex-shrink-0 border-t border-white/8"
-          style={{ background: "rgba(0,0,0,0.35)" }}>
+        <div className="flex-shrink-0 border-t"
+          style={{ borderColor: "rgba(255,255,255,0.07)", background: "rgba(0,0,0,0.4)" }}>
           <Tabs defaultValue="fisico">
-            <TabsList className="w-full rounded-none border-b border-white/6 bg-transparent h-9 px-4 gap-1">
-              <TabsTrigger value="fisico" className="text-[11px] h-7 data-[state=active]:bg-[#0066FF]/15 data-[state=active]:text-[#0066FF]">
-                Physical {fisico.length > 0 && <span className="ml-1 text-[9px] opacity-50">({fisico.length})</span>}
+            <TabsList className="w-full rounded-none border-b bg-transparent h-9 px-4 gap-1"
+              style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+              <TabsTrigger value="fisico"
+                className="text-[11px] h-7 data-[state=active]:bg-[#0066FF]/15 data-[state=active]:text-[#60a5fa] data-[state=active]:border-[#0066FF]/30 data-[state=active]:border">
+                💪 Physical {fisico.length > 0 && <span className="ml-1 text-[9px] opacity-50">({fisico.length})</span>}
               </TabsTrigger>
-              <TabsTrigger value="medico" className="text-[11px] h-7 data-[state=active]:bg-[#EF4444]/15 data-[state=active]:text-[#EF4444]">
-                Medical {medico.length > 0 && <span className="ml-1 text-[9px] opacity-50">({medico.length})</span>}
+              <TabsTrigger value="medico"
+                className="text-[11px] h-7 data-[state=active]:bg-[#EF4444]/15 data-[state=active]:text-[#f87171] data-[state=active]:border-[#EF4444]/30 data-[state=active]:border">
+                🏥 Medical {medico.length > 0 && <span className="ml-1 text-[9px] opacity-50">({medico.length})</span>}
               </TabsTrigger>
-              <TabsTrigger value="disciplina" className="text-[11px] h-7 data-[state=active]:bg-[#FF6B35]/15 data-[state=active]:text-[#FF6B35]">
-                Discipline {ocorrencias.length > 0 && <span className="ml-1 text-[9px] opacity-50">({ocorrencias.length})</span>}
+              <TabsTrigger value="disciplina"
+                className="text-[11px] h-7 data-[state=active]:bg-[#FF6B35]/15 data-[state=active]:text-[#fb923c] data-[state=active]:border-[#FF6B35]/30 data-[state=active]:border">
+                🟡 Discipline {ocorrencias.length > 0 && <span className="ml-1 text-[9px] opacity-50">({ocorrencias.length})</span>}
               </TabsTrigger>
-              <TabsTrigger value="presencas" className="text-[11px] h-7 data-[state=active]:bg-[#00D66C]/15 data-[state=active]:text-[#00D66C]">
-                Attendance {presencas.length > 0 && <span className="ml-1 text-[9px] opacity-50">({presencas.length})</span>}
+              <TabsTrigger value="presencas"
+                className="text-[11px] h-7 data-[state=active]:bg-[#00D66C]/15 data-[state=active]:text-[#4ade80] data-[state=active]:border-[#00D66C]/30 data-[state=active]:border">
+                📋 Attendance {presencas.length > 0 && <span className="ml-1 text-[9px] opacity-50">({presencas.length})</span>}
               </TabsTrigger>
             </TabsList>
 
             {/* FÍSICO */}
             <TabsContent value="fisico" className="px-4 py-2 max-h-44 overflow-y-auto mt-0">
               {fisico.length === 0 ? (
-                <div className="flex items-center justify-center gap-2 py-6 text-white/25">
+                <div className="flex items-center justify-center gap-2 py-6" style={{ color: "rgba(255,255,255,0.2)" }}>
                   <User className="w-4 h-4" />
                   <span className="text-xs">No physical records</span>
                 </div>
               ) : (
-                <div className="rounded-lg border border-white/8 overflow-hidden">
+                <div className="rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-white/8 hover:bg-transparent">
-                        <TableHead className="text-[10px] py-1.5">Date</TableHead>
-                        <TableHead className="text-[10px] py-1.5">Duration</TableHead>
-                        <TableHead className="text-[10px] py-1.5">Distance</TableHead>
-                        <TableHead className="text-[10px] py-1.5">Sprints</TableHead>
-                        <TableHead className="text-[10px] py-1.5">RPE</TableHead>
-                        <TableHead className="text-[10px] py-1.5">Max HR</TableHead>
+                      <TableRow className="border-white/6 hover:bg-transparent">
+                        {["Date","Duration","Distance","Sprints","RPE","Max HR"].map(h => (
+                          <TableHead key={h} className="text-[10px] py-1.5 text-white/40">{h}</TableHead>
+                        ))}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {fisico.sort((a, b) => b.data.localeCompare(a.data)).map(r => (
                         <TableRow key={r.id} className="border-white/5">
-                          <TableCell className="text-xs py-1">{r.data}</TableCell>
+                          <TableCell className="text-xs py-1 text-white/80">{r.data}</TableCell>
                           <TableCell className="text-xs py-1 text-white/50">{r.duracao ? `${r.duracao} min` : "—"}</TableCell>
                           <TableCell className="text-xs py-1 text-white/50">{r.distancia ? `${r.distancia} km` : "—"}</TableCell>
                           <TableCell className="text-xs py-1 text-white/50">{r.sprints ?? "—"}</TableCell>
@@ -338,17 +420,17 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             {/* MÉDICO */}
             <TabsContent value="medico" className="px-4 py-2 max-h-44 overflow-y-auto mt-0">
               {medico.length === 0 ? (
-                <div className="flex items-center justify-center gap-2 py-6 text-white/25">
+                <div className="flex items-center justify-center gap-2 py-6" style={{ color: "rgba(255,255,255,0.2)" }}>
                   <User className="w-4 h-4" />
                   <span className="text-xs">No medical records</span>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {medico.sort((a, b) => b.dataInicio.localeCompare(a.dataInicio)).map(r => (
-                    <div key={r.id} className="bg-white/4 rounded-lg p-3 border border-white/6">
+                    <div key={r.id} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
                       <div className="flex items-start justify-between gap-3 mb-1">
                         <div>
-                          <span className="font-medium text-xs">{tipoLesaoLabel[r.tipo]} — {r.localizacao}</span>
+                          <span className="font-medium text-xs text-white/90">{tipoLesaoLabel[r.tipo]} — {r.localizacao}</span>
                           <div className="text-[10px] text-white/40 mt-0.5">{r.dataInicio}{r.dataRetorno ? ` → ${r.dataRetorno}` : ""}</div>
                         </div>
                         <span className={`text-[10px] font-medium ${estadoLesaoLabel[r.estado].color}`}>{estadoLesaoLabel[r.estado].label}</span>
@@ -364,19 +446,19 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             {/* DISCIPLINA */}
             <TabsContent value="disciplina" className="px-4 py-2 max-h-44 overflow-y-auto mt-0">
               {ocorrencias.length === 0 ? (
-                <div className="flex items-center justify-center gap-2 py-6 text-white/25">
+                <div className="flex items-center justify-center gap-2 py-6" style={{ color: "rgba(255,255,255,0.2)" }}>
                   <User className="w-4 h-4" />
                   <span className="text-xs">No disciplinary records</span>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {ocorrencias.sort((a, b) => b.data.localeCompare(a.data)).map(o => (
-                    <div key={o.id} className="bg-white/4 rounded-lg p-3 border border-white/6">
+                    <div key={o.id} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[10px] text-white/40">{o.data}</span>
-                        <span className={`text-[10px] font-medium capitalize ${o.gravidade === "grave" ? "text-destructive" : o.gravidade === "moderada" ? "text-[#FF6B35]" : "text-white/50"}`}>{o.gravidade}</span>
+                        <span className={`text-[10px] font-medium capitalize ${o.gravidade === "grave" ? "text-red-400" : o.gravidade === "moderada" ? "text-orange-400" : "text-white/45"}`}>{o.gravidade}</span>
                       </div>
-                      <div className="font-medium text-xs capitalize">{o.tipo.replace("_", " ")}</div>
+                      <div className="font-medium text-xs text-white/85 capitalize">{o.tipo.replace("_", " ")}</div>
                       <p className="text-[10px] text-white/50 mt-0.5">{o.descricao}</p>
                     </div>
                   ))}
@@ -387,25 +469,24 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             {/* PRESENÇAS */}
             <TabsContent value="presencas" className="px-4 py-2 max-h-44 overflow-y-auto mt-0">
               {presencas.length === 0 ? (
-                <div className="flex items-center justify-center gap-2 py-6 text-white/25">
+                <div className="flex items-center justify-center gap-2 py-6" style={{ color: "rgba(255,255,255,0.2)" }}>
                   <User className="w-4 h-4" />
                   <span className="text-xs">No attendance records</span>
                 </div>
               ) : (
-                <div className="rounded-lg border border-white/8 overflow-hidden">
+                <div className="rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)" }}>
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-white/8 hover:bg-transparent">
-                        <TableHead className="text-[10px] py-1.5">Date</TableHead>
-                        <TableHead className="text-[10px] py-1.5">Type</TableHead>
-                        <TableHead className="text-[10px] py-1.5">Status</TableHead>
-                        <TableHead className="text-[10px] py-1.5">Notes</TableHead>
+                      <TableRow className="border-white/6 hover:bg-transparent">
+                        {["Date","Type","Status","Notes"].map(h => (
+                          <TableHead key={h} className="text-[10px] py-1.5 text-white/40">{h}</TableHead>
+                        ))}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {presencas.sort((a, b) => b.data.localeCompare(a.data)).map(p => (
                         <TableRow key={p.id} className="border-white/5">
-                          <TableCell className="text-xs py-1">{p.data}</TableCell>
+                          <TableCell className="text-xs py-1 text-white/80">{p.data}</TableCell>
                           <TableCell className="text-xs py-1 text-white/50">{tipoPresencaLabel[p.tipo] ?? p.tipo}</TableCell>
                           <TableCell className={`text-xs py-1 font-medium ${estadoPresencaLabel[p.estado]?.color ?? ""}`}>{estadoPresencaLabel[p.estado]?.label ?? p.estado}</TableCell>
                           <TableCell className="text-xs py-1 text-white/40">{p.notas ?? "—"}</TableCell>
