@@ -201,7 +201,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-[72vw] h-[85vh] flex flex-col overflow-hidden p-0 gap-0 [&>button]:top-3 [&>button]:right-3 [&>button]:w-10 [&>button]:h-10 [&>button]:rounded-full [&>button]:bg-white/10 [&>button]:border [&>button]:border-white/20 [&>button]:text-white/70 [&>button:hover]:bg-white/20 [&>button:hover]:text-white [&>button_svg]:w-5 [&>button_svg]:h-5"
+      <DialogContent className="max-w-[72vw] h-[85vh] flex flex-col overflow-hidden p-0 gap-0 [&>button]:top-3 [&>button]:right-3 [&>button]:w-10 [&>button]:h-10 [&>button]:rounded-full [&>button]:bg-white/10 [&>button]:border [&>button]:border-white/20 [&>button]:text-red-400 [&>button:hover]:bg-red-500/15 [&>button:hover]:text-red-300 [&>button:hover]:border-red-500/30 [&>button_svg]:w-5 [&>button_svg]:h-5"
         style={{ background: "linear-gradient(160deg, #080d18 0%, #040609 100%)", border: "1.5px solid rgba(255,255,255,0.09)" }}>
 
         {/* Linha gradiente */}
@@ -263,11 +263,11 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             ].map((s, i) => (
               <div key={s.label} className="flex items-center">
                 {i > 0 && <div className="w-px h-9 mx-3" style={{ background: "rgba(255,255,255,0.07)" }} />}
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-[8px] uppercase tracking-widest font-semibold leading-none" style={{ color: s.empty ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.45)" }}>
+                <div className="flex flex-col items-center gap-1.5">
+                  <span className="text-[11px] uppercase tracking-wide font-bold leading-none" style={{ color: s.empty ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.55)" }}>
                     {s.icon} {s.label}
                   </span>
-                  <span className="text-[12px] font-black leading-none tabular-nums" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.88)" }}>
+                  <span className="text-[10px] font-semibold leading-none tabular-nums" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.85)" }}>
                     {s.value}
                   </span>
                 </div>
@@ -276,7 +276,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           </div>
 
           {/* Botões */}
-          <div className="ml-auto flex items-center gap-1.5 shrink-0 relative z-10">
+          <div className="ml-auto flex items-center gap-1.5 shrink-0 relative z-10 mr-14">
             <Button size="sm" variant="outline" className="gap-1 text-[10px] h-6 px-2"
               style={{ borderColor: "rgba(239,68,68,0.35)", color: "#f87171" }}
               onClick={handleReset}>
