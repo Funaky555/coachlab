@@ -40,7 +40,7 @@ function estadoBadge(estado: EstadoJogador) {
   }
   const { bg, color, label } = map[estado] ?? map.apto
   return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold border"
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border"
       style={{ background: bg, color, borderColor: `${color}40` }}>
       {label}
     </span>
@@ -201,7 +201,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-[72vw] h-[85vh] flex flex-col overflow-hidden p-0 gap-0 [&>button]:top-3 [&>button]:right-3 [&>button]:w-10 [&>button]:h-10 [&>button]:rounded-full [&>button]:bg-white/10 [&>button]:border [&>button]:border-white/20 [&>button]:text-red-400 [&>button:hover]:bg-red-500/15 [&>button:hover]:text-red-300 [&>button:hover]:border-red-500/30 [&>button_svg]:w-5 [&>button_svg]:h-5"
+      <DialogContent className="max-w-[72vw] h-[85vh] flex flex-col overflow-hidden p-0 gap-0 [&>button]:top-3 [&>button]:right-3 [&>button]:w-10 [&>button]:h-10 [&>button]:rounded-full [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:bg-white/10 [&>button]:border [&>button]:border-white/20 [&>button]:text-red-400 [&>button:hover]:bg-red-500/15 [&>button:hover]:text-red-300 [&>button:hover]:border-red-500/30 [&>button_svg]:w-5 [&>button_svg]:h-5"
         style={{ background: "linear-gradient(160deg, #080d18 0%, #040609 100%)", border: "1.5px solid rgba(255,255,255,0.09)" }}>
 
         {/* Linha gradiente */}
@@ -237,12 +237,12 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             <div className="text-xl font-black tracking-tight text-white leading-tight">{jogador.nome}</div>
             <div className="flex items-center gap-1 mt-0.5 flex-wrap">
               <span className="text-[9px] font-bold px-1 py-0.5 rounded"
-                style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.28)" }}>
+                style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.85)" }}>
                 #{jogador.numero}
               </span>
               {jogador.posicoes.map((p, i) => (
                 <Badge key={p} variant={i === 0 ? "default" : "outline"}
-                  className={i === 0 ? "text-[10px] py-0 px-1.5 h-5 hover:bg-[#00D66C]/15" : "text-[10px] py-0 px-1.5 h-5"}
+                  className={i === 0 ? "text-[11px] py-0 px-2 h-6 hover:bg-[#00D66C]/15" : "text-[11px] py-0 px-2 h-6"}
                   style={i === 0 ? { background: "rgba(0,214,108,0.15)", color: "#00D66C", borderColor: "rgba(0,214,108,0.30)" } : {}}>
                   {p}
                 </Badge>
