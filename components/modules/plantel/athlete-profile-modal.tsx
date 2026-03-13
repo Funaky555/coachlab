@@ -5,7 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Pencil, RotateCcw, ChevronRight, User } from "lucide-react"
+import { Pencil, RotateCcw, User } from "lucide-react"
 import { type Jogador, type EstadoJogador, getPresencasByJogador, getOcorrenciasByJogador, updateJogador } from "@/lib/storage/plantel"
 import { getRegistosFisicosByJogador, type RegistoFisico } from "@/lib/storage/fisico"
 import { getRegistosMedicosByJogador, type RegistoMedico } from "@/lib/storage/medico"
@@ -56,7 +56,6 @@ function getRatingInfo(v: number | undefined): { color: string } {
   return               { color: "#0066FF" }
 }
 
-/* ── Barra de atributo (leitura) ── */
 function AttrRow({ label, keyName, values }: { label: string; keyName: string; values: Record<string, unknown> }) {
   const val = values[keyName] as number | undefined
   const { color } = getRatingInfo(val)
@@ -65,7 +64,6 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
       <span className="text-[10px] font-medium shrink-0 w-[74px] truncate" style={{ color: "rgba(255,255,255,0.78)" }}>
         {label}
       </span>
-      {/* Barra sólida */}
       <div className="relative flex-1 h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
         <div className="absolute inset-y-0 left-0 rounded-full"
           style={{
@@ -73,10 +71,8 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
             background: color,
             boxShadow: val ? `0 0 6px ${color}80` : undefined,
             transition: "width 0.35s ease",
-          }}
-        />
+          }} />
       </div>
-      {/* Badge valor */}
       <div className="shrink-0 w-7 h-[18px] rounded text-[9px] font-black flex items-center justify-center tabular-nums"
         style={{
           background: val ? `${color}20` : "rgba(255,255,255,0.04)",
@@ -89,7 +85,6 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
   )
 }
 
-/* ── Secção de atributos ── */
 function AttrSection({ title, icon, color, attrs, values }: {
   title: string; icon: string; color: string
   attrs: [string, string][]
@@ -110,47 +105,15 @@ function AttrSection({ title, icon, color, attrs, values }: {
   )
 }
 
-/* ── Info row sidebar ── */
-function InfoRow({ icon, label, value }: { icon: string; label: string; value: string }) {
+function StatCard({ icon, label, value, color }: { icon: string; label: string; value: string; color: string }) {
   return (
-    <div className="flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0">
-      <span className="text-sm shrink-0 leading-tight mt-0.5">{icon}</span>
-      <div>
-        <div className="text-[8px] uppercase tracking-widest font-bold text-white/30">{label}</div>
-        <div className="text-[11px] font-semibold text-white/85 leading-snug mt-0.5">{value}</div>
+    <div className="rounded-xl p-3 flex items-center gap-3"
+      style={{ background: `${color}0C`, border: `1px solid ${color}25` }}>
+      <span className="text-xl shrink-0 leading-none">{icon}</span>
+      <div className="min-w-0">
+        <div className="text-[9px] uppercase tracking-widest font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>{label}</div>
+        <div className="text-sm font-bold text-white leading-snug truncate">{value}</div>
       </div>
-    </div>
-  )
-}
-
-/* ── Accordion sidebar ── */
-function AccordionSection({ icon, title, count, open, onToggle, children }: {
-  icon: string; title: string; count: number
-  open: boolean; onToggle: () => void; children: React.ReactNode
-}) {
-  return (
-    <div className="border-t border-white/6">
-      <button
-        onClick={onToggle}
-        className="flex items-center justify-between w-full px-3 py-2.5 hover:bg-white/4 transition-colors text-left">
-        <div className="flex items-center gap-2">
-          <span className="text-sm">{icon}</span>
-          <span className="text-[11px] font-bold text-white/75">{title}</span>
-          {count > 0 && (
-            <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full"
-              style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.45)" }}>
-              {count}
-            </span>
-          )}
-        </div>
-        <ChevronRight className="w-3.5 h-3.5 text-white/30 transition-transform duration-200"
-          style={{ transform: open ? "rotate(90deg)" : "rotate(0deg)" }} />
-      </button>
-      {open && (
-        <div className="px-3 pb-3">
-          {children}
-        </div>
-      )}
     </div>
   )
 }
@@ -161,7 +124,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
   const [ocorrencias, setOcorrencias] = useState<ReturnType<typeof getOcorrenciasByJogador>>([])
   const [fisico, setFisico] = useState<RegistoFisico[]>([])
   const [medico, setMedico] = useState<RegistoMedico[]>([])
-  const [accordionOpen, setAccordionOpen] = useState<string | null>(null)
+  const [activeSection, setActiveSection] = useState("info")
 
   function handleReset() {
     updateJogador(jogador.id, {
@@ -212,7 +175,13 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
   const estadoBorderColor = ESTADO_BORDER[jogador.estado] ?? "#00D66C"
   const idade = calcIdade(jogador.dataNascimento)
 
-  const toggle = (id: string) => setAccordionOpen(prev => prev === id ? null : id)
+  const SECTIONS = [
+    { id: "info",       icon: "👤", label: "Player Info", color: "#00D66C", count: 0 },
+    { id: "fisico",     icon: "💪", label: "Physical",    color: "#0066FF", count: fisico.length },
+    { id: "medico",     icon: "🏥", label: "Medical",     color: "#EF4444", count: medico.length },
+    { id: "disciplina", icon: "🟡", label: "Discipline",  color: "#FF6B35", count: ocorrencias.length },
+    { id: "presencas",  icon: "📋", label: "Attendance",  color: "#8B5CF6", count: presencas.length },
+  ]
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
@@ -226,13 +195,11 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
         {/* ── HEADER ── */}
         <div className="flex items-center gap-4 px-5 py-3.5 border-b flex-shrink-0 relative overflow-hidden"
           style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-          {/* Número decorativo */}
           <div className="absolute right-5 top-0 text-[64px] font-black leading-none select-none pointer-events-none"
             style={{ color: `${estadoBorderColor}10`, fontFamily: "var(--font-barlow-condensed)" }}>
             {jogador.numero}
           </div>
 
-          {/* Foto */}
           <div className="relative shrink-0">
             {jogador.foto ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -253,7 +220,6 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             )}
           </div>
 
-          {/* Nome */}
           <div className="flex-1 min-w-0 relative z-10">
             <div className="text-xl font-black tracking-tight text-white leading-tight">{jogador.nome}</div>
             {jogador.alcunha?.trim() && (
@@ -277,7 +243,6 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             </div>
           </div>
 
-          {/* Botões */}
           <div className="flex items-center gap-2 shrink-0 relative z-10">
             <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7 px-2.5"
               style={{ borderColor: "rgba(239,68,68,0.35)", color: "#f87171" }}
@@ -292,196 +257,282 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           </div>
         </div>
 
-        {/* ── CORPO ── */}
-        <div className="flex flex-1 min-h-0 overflow-hidden">
+        {/* ── 5 CARDS DE NAVEGAÇÃO ── */}
+        <div className="flex gap-2.5 px-4 py-3 flex-shrink-0 border-b"
+          style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.25)" }}>
+          {SECTIONS.map(s => {
+            const isActive = activeSection === s.id
+            return (
+              <button key={s.id} onClick={() => setActiveSection(s.id)}
+                className="flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl relative transition-all duration-200 cursor-pointer"
+                style={{
+                  background: isActive ? `${s.color}18` : `${s.color}06`,
+                  border: `${isActive ? "2px" : "1.5px"} solid ${isActive ? s.color + "60" : s.color + "20"}`,
+                  boxShadow: isActive ? `0 0 16px ${s.color}30, inset 0 0 12px ${s.color}08` : undefined,
+                  transform: isActive ? "translateY(-1px)" : undefined,
+                }}>
+                {s.count > 0 && (
+                  <div className="absolute top-1.5 right-1.5 text-[8px] font-black min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center"
+                    style={{ background: s.color, color: "#000" }}>
+                    {s.count}
+                  </div>
+                )}
+                <span className="text-2xl leading-none">{s.icon}</span>
+                <span className="text-[10px] font-black uppercase tracking-wide leading-none"
+                  style={{ color: isActive ? s.color : "rgba(255,255,255,0.45)" }}>
+                  {s.label}
+                </span>
+                {isActive && (
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full"
+                    style={{ background: s.color }} />
+                )}
+              </button>
+            )
+          })}
+        </div>
 
-          {/* ── SIDEBAR ESQUERDA ── */}
-          <div className="w-56 flex-shrink-0 border-r overflow-y-auto"
-            style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.2)" }}>
+        {/* ── ÁREA PRINCIPAL ── */}
+        <div className="flex-1 overflow-y-auto px-4 py-4">
 
-            {/* PLAYER INFO */}
-            <div className="px-3 py-3">
-              <div className="text-[8px] font-black uppercase tracking-widest mb-2 flex items-center gap-1.5"
-                style={{ color: "#00D66C" }}>
-                <div className="w-3 h-0.5 rounded" style={{ background: "#00D66C" }} />
-                Player Info
+          {/* ── PLAYER INFO ── */}
+          {activeSection === "info" && (
+            <div>
+              {/* Stat Cards */}
+              <div className="grid grid-cols-3 gap-3 mb-5">
+                {idade !== "—" && <StatCard icon="🎂" label="Age" value={`${idade} years old`} color="#00D66C" />}
+                {jogador.dataNascimento && <StatCard icon="📅" label="Born" value={jogador.dataNascimento} color="#0066FF" />}
+                {jogador.nacionalidade && <StatCard icon="🌍" label="Country" value={jogador.nacionalidade} color="#8B5CF6" />}
+                {jogador.altura && <StatCard icon="📏" label="Height" value={`${jogador.altura} cm`} color="#FF6B35" />}
+                {jogador.peso && <StatCard icon="⚖️" label="Weight" value={`${jogador.peso} kg`} color="#facc15" />}
+                {jogador.pePreferido && (
+                  <StatCard icon="👟" label="Preferred Foot"
+                    value={jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)}
+                    color="#06B6D4" />
+                )}
               </div>
-              {idade !== "—" && <InfoRow icon="🎂" label="Age" value={`${idade} years old`} />}
-              {jogador.dataNascimento && <InfoRow icon="📅" label="Born" value={jogador.dataNascimento} />}
-              {jogador.nacionalidade && <InfoRow icon="🌍" label="Country" value={jogador.nacionalidade} />}
-              {jogador.altura && <InfoRow icon="📏" label="Height" value={`${jogador.altura} cm`} />}
-              {jogador.peso && <InfoRow icon="⚖️" label="Weight" value={`${jogador.peso} kg`} />}
-              {jogador.pePreferido && (
-                <InfoRow icon="👟" label="Preferred Foot"
-                  value={jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)} />
+              {jogador.notas && (
+                <div className="rounded-xl p-3 mb-5"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div className="text-[9px] uppercase tracking-widest font-bold text-white/30 mb-1">📝 Notes</div>
+                  <p className="text-sm text-white/65 leading-relaxed">{jogador.notas}</p>
+                </div>
               )}
               {!jogador.dataNascimento && !jogador.nacionalidade && !jogador.altura && !jogador.peso && !jogador.pePreferido && (
-                <p className="text-[10px] italic mt-1" style={{ color: "rgba(255,255,255,0.18)" }}>No info added yet</p>
-              )}
-              {jogador.notas && (
-                <div className="mt-2.5 pt-2 border-t border-white/5">
-                  <div className="text-[8px] uppercase tracking-widest font-bold text-white/25 mb-1">📝 Notes</div>
-                  <p className="text-[10px] leading-relaxed" style={{ color: "rgba(255,255,255,0.50)" }}>{jogador.notas}</p>
+                <div className="flex items-center gap-2 mb-5" style={{ color: "rgba(255,255,255,0.20)" }}>
+                  <User className="w-4 h-4" />
+                  <span className="text-sm">No info added yet — edit the player to add details</span>
                 </div>
               )}
+
+              {/* Atributos */}
+              <div className="text-[8px] font-black uppercase tracking-widest mb-3 flex items-center gap-1.5"
+                style={{ color: "#0066FF" }}>
+                <div className="w-3 h-0.5 rounded" style={{ background: "#0066FF" }} />
+                Attributes
+              </div>
+              <div className="grid grid-cols-3 gap-2.5 mb-2.5">
+                <AttrSection title="Offensive" icon="⚡" color="#00D66C"
+                  attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
+                  values={jv}
+                />
+                <AttrSection title="Defensive" icon="🛡️" color="#EF4444"
+                  attrs={[["Positioning","aDPositioning"],["Def. Awareness","aDDefensiveAwareness"],["Marcation","aDMarcation"],["Interceptions","aDInterceptions"],["Tackling","aDTackling"],["Aerial Duels","aDAerialDuels"],["Aggression","aDAggression"]]}
+                  values={jv}
+                />
+                <AttrSection title="Physical" icon="💪" color="#0066FF"
+                  attrs={[["Acceleration","aPAcceleration"],["Sprint","aPSprint"],["Agility","aPAgility"],["Balance","aPBalance"],["Jumping","aPJumping"],["Strength","aPStrength"],["Endurance","aPEndurance"]]}
+                  values={jv}
+                />
+              </div>
+              <div className="grid grid-cols-4 gap-2.5">
+                <AttrSection title="Atk. Impact" icon="🎯" color="#FF6B35"
+                  attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
+                  values={jv}
+                />
+                <AttrSection title="Intelligence" icon="🧠" color="#06B6D4"
+                  attrs={[["Game Reading","aGIGameReading"],["Decision Making","aGIDecisionMaking"],["Spatial Aware.","aGISpatialAwareness"],["Tactical Disc.","aGITacticalDiscipline"],["Off-Ball Move.","aGIOffBallMovement"]]}
+                  values={jv}
+                />
+                <AttrSection title="Mental" icon="🔥" color="#facc15"
+                  attrs={[["Mentality","aMentality"],["Competitive","aCompetitive"],["Concentration","aConcentration"],["Composure","aComposure"],["Courage","aCourage"],["Leadership","aLeadership"],["Work Ethic","aWorkEthic"],["Team Work","aTeamWork"]]}
+                  values={jv}
+                />
+                <AttrSection title="Set Pieces" icon="⚽" color="#8B5CF6"
+                  attrs={[["Penalty","aSPPenalty"],["Corners","aSPCorners"],["Free Kicks","aSPFreeKicks"],["Long Throws","aSPLongThrows"]]}
+                  values={jv}
+                />
+              </div>
             </div>
+          )}
 
-            {/* ACCORDION: Physical */}
-            <AccordionSection icon="💪" title="Physical" count={fisico.length}
-              open={accordionOpen === "fisico"} onToggle={() => toggle("fisico")}>
+          {/* ── PHYSICAL ── */}
+          {activeSection === "fisico" && (
+            <div>
+              <div className="text-[8px] font-black uppercase tracking-widest mb-4 flex items-center gap-1.5"
+                style={{ color: "#0066FF" }}>
+                <div className="w-3 h-0.5 rounded" style={{ background: "#0066FF" }} />
+                Physical Monitoring — {fisico.length} record{fisico.length !== 1 ? "s" : ""}
+              </div>
               {fisico.length === 0 ? (
-                <div className="flex items-center gap-1.5 py-2" style={{ color: "rgba(255,255,255,0.20)" }}>
-                  <User className="w-3 h-3" /><span className="text-[10px]">No records</span>
+                <div className="flex flex-col items-center justify-center py-16 gap-3" style={{ color: "rgba(255,255,255,0.20)" }}>
+                  <span className="text-4xl">💪</span>
+                  <p className="text-sm">No physical records yet</p>
+                  <p className="text-xs opacity-60">Add records in the Physical Monitoring module</p>
                 </div>
               ) : (
-                <div className="space-y-1.5">
-                  {fisico.sort((a, b) => b.data.localeCompare(a.data)).slice(0, 5).map(r => (
-                    <div key={r.id} className="rounded-lg p-2 text-[10px]"
-                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                      <div className="font-bold text-white/70 mb-1">{r.data}</div>
-                      <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-white/45">
-                        {r.duracao && <span>⏱ {r.duracao} min</span>}
-                        {r.distancia && <span>📍 {r.distancia} km</span>}
-                        {r.sprints && <span>⚡ {r.sprints} sprints</span>}
-                        {r.rpe && <span>💥 RPE {r.rpe}</span>}
-                        {r.fcMax && <span>❤️ {r.fcMax} bpm</span>}
-                      </div>
-                    </div>
-                  ))}
-                  {fisico.length > 5 && (
-                    <p className="text-[9px] text-center" style={{ color: "rgba(255,255,255,0.25)" }}>+{fisico.length - 5} more records</p>
-                  )}
-                </div>
-              )}
-            </AccordionSection>
-
-            {/* ACCORDION: Medical */}
-            <AccordionSection icon="🏥" title="Medical" count={medico.length}
-              open={accordionOpen === "medico"} onToggle={() => toggle("medico")}>
-              {medico.length === 0 ? (
-                <div className="flex items-center gap-1.5 py-2" style={{ color: "rgba(255,255,255,0.20)" }}>
-                  <User className="w-3 h-3" /><span className="text-[10px]">No records</span>
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  {medico.sort((a, b) => b.dataInicio.localeCompare(a.dataInicio)).map(r => (
-                    <div key={r.id} className="rounded-lg p-2 text-[10px]"
-                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                      <div className="flex justify-between items-start mb-0.5">
-                        <span className="font-bold text-white/75">{tipoLesaoLabel[r.tipo]}</span>
-                        <span className={`text-[9px] font-medium ${estadoLesaoLabel[r.estado].color}`}>{estadoLesaoLabel[r.estado].label}</span>
-                      </div>
-                      <div className="text-white/40">{r.localizacao} · {r.dataInicio}</div>
-                      <div className="text-white/50 mt-0.5 leading-snug">{r.descricao}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </AccordionSection>
-
-            {/* ACCORDION: Discipline */}
-            <AccordionSection icon="🟡" title="Discipline" count={ocorrencias.length}
-              open={accordionOpen === "disciplina"} onToggle={() => toggle("disciplina")}>
-              {ocorrencias.length === 0 ? (
-                <div className="flex items-center gap-1.5 py-2" style={{ color: "rgba(255,255,255,0.20)" }}>
-                  <User className="w-3 h-3" /><span className="text-[10px]">No records</span>
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  {ocorrencias.sort((a, b) => b.data.localeCompare(a.data)).map(o => (
-                    <div key={o.id} className="rounded-lg p-2 text-[10px]"
-                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                      <div className="flex justify-between items-start mb-0.5">
-                        <span className="font-bold text-white/75 capitalize">{o.tipo.replace("_", " ")}</span>
-                        <span className={`text-[9px] font-bold capitalize ${o.gravidade === "grave" ? "text-red-400" : o.gravidade === "moderada" ? "text-orange-400" : "text-white/35"}`}>{o.gravidade}</span>
-                      </div>
-                      <div className="text-white/40">{o.data}</div>
-                      <div className="text-white/50 mt-0.5 leading-snug">{o.descricao}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </AccordionSection>
-
-            {/* ACCORDION: Attendance */}
-            <AccordionSection icon="📋" title="Attendance" count={presencas.length}
-              open={accordionOpen === "presencas"} onToggle={() => toggle("presencas")}>
-              {presencas.length === 0 ? (
-                <div className="flex items-center gap-1.5 py-2" style={{ color: "rgba(255,255,255,0.20)" }}>
-                  <User className="w-3 h-3" /><span className="text-[10px]">No records</span>
-                </div>
-              ) : (
-                <div className="rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+                <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-white/5 hover:bg-transparent">
-                        <TableHead className="text-[9px] py-1 px-2 text-white/35">Date</TableHead>
-                        <TableHead className="text-[9px] py-1 px-2 text-white/35">Type</TableHead>
-                        <TableHead className="text-[9px] py-1 px-2 text-white/35">Status</TableHead>
+                      <TableRow className="border-white/8 hover:bg-transparent"
+                        style={{ background: "rgba(0,102,255,0.08)" }}>
+                        {["Date","Duration","Distance","Sprints","RPE","Max HR"].map(h => (
+                          <TableHead key={h} className="text-xs font-bold py-3 text-white/60">{h}</TableHead>
+                        ))}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {presencas.sort((a, b) => b.data.localeCompare(a.data)).slice(0, 10).map(p => (
-                        <TableRow key={p.id} className="border-white/5">
-                          <TableCell className="text-[10px] py-1 px-2 text-white/65">{p.data}</TableCell>
-                          <TableCell className="text-[10px] py-1 px-2 text-white/40">{tipoPresencaLabel[p.tipo] ?? p.tipo}</TableCell>
-                          <TableCell className={`text-[10px] py-1 px-2 font-medium ${estadoPresencaLabel[p.estado]?.color ?? ""}`}>{estadoPresencaLabel[p.estado]?.label ?? p.estado}</TableCell>
+                      {fisico.sort((a, b) => b.data.localeCompare(a.data)).map((r, idx) => (
+                        <TableRow key={r.id} className="border-white/5"
+                          style={{ background: idx % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
+                          <TableCell className="text-sm py-3 font-semibold text-white/85">{r.data}</TableCell>
+                          <TableCell className="text-sm py-3 text-white/60">{r.duracao ? `${r.duracao} min` : "—"}</TableCell>
+                          <TableCell className="text-sm py-3 text-white/60">{r.distancia ? `${r.distancia} km` : "—"}</TableCell>
+                          <TableCell className="text-sm py-3 text-white/60">{r.sprints ?? "—"}</TableCell>
+                          <TableCell className="text-sm py-3 text-white/60">{r.rpe ?? "—"}</TableCell>
+                          <TableCell className="text-sm py-3 text-white/60">{r.fcMax ? `${r.fcMax} bpm` : "—"}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                  {presencas.length > 10 && (
-                    <p className="text-[9px] text-center py-1" style={{ color: "rgba(255,255,255,0.25)" }}>+{presencas.length - 10} more</p>
-                  )}
                 </div>
               )}
-            </AccordionSection>
-          </div>
-
-          {/* ── ÁREA DE ATRIBUTOS ── */}
-          <div className="flex-1 overflow-y-auto px-4 py-3">
-            <div className="text-[8px] font-black uppercase tracking-widest mb-3 flex items-center gap-1.5"
-              style={{ color: "#0066FF" }}>
-              <div className="w-3 h-0.5 rounded" style={{ background: "#0066FF" }} />
-              Attributes
             </div>
+          )}
 
-            {/* Linha 1: 3 colunas */}
-            <div className="grid grid-cols-3 gap-2.5 mb-2.5">
-              <AttrSection title="Offensive" icon="⚡" color="#00D66C"
-                attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
-                values={jv}
-              />
-              <AttrSection title="Defensive" icon="🛡️" color="#EF4444"
-                attrs={[["Positioning","aDPositioning"],["Def. Awareness","aDDefensiveAwareness"],["Marcation","aDMarcation"],["Interceptions","aDInterceptions"],["Tackling","aDTackling"],["Aerial Duels","aDAerialDuels"],["Aggression","aDAggression"]]}
-                values={jv}
-              />
-              <AttrSection title="Physical" icon="💪" color="#0066FF"
-                attrs={[["Acceleration","aPAcceleration"],["Sprint","aPSprint"],["Agility","aPAgility"],["Balance","aPBalance"],["Jumping","aPJumping"],["Strength","aPStrength"],["Endurance","aPEndurance"]]}
-                values={jv}
-              />
+          {/* ── MEDICAL ── */}
+          {activeSection === "medico" && (
+            <div>
+              <div className="text-[8px] font-black uppercase tracking-widest mb-4 flex items-center gap-1.5"
+                style={{ color: "#EF4444" }}>
+                <div className="w-3 h-0.5 rounded" style={{ background: "#EF4444" }} />
+                Medical Records — {medico.length} record{medico.length !== 1 ? "s" : ""}
+              </div>
+              {medico.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3" style={{ color: "rgba(255,255,255,0.20)" }}>
+                  <span className="text-4xl">🏥</span>
+                  <p className="text-sm">No medical records</p>
+                  <p className="text-xs opacity-60">Add records in the Medical Department module</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {medico.sort((a, b) => b.dataInicio.localeCompare(a.dataInicio)).map(r => (
+                    <div key={r.id} className="rounded-2xl p-4"
+                      style={{ background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.15)" }}>
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div>
+                          <div className="text-base font-black text-white/90">
+                            {tipoLesaoLabel[r.tipo]} — <span className="text-white/60">{r.localizacao}</span>
+                          </div>
+                          <div className="text-xs text-white/40 mt-0.5">
+                            {r.dataInicio}{r.dataRetorno ? ` → ${r.dataRetorno}` : ""}
+                          </div>
+                        </div>
+                        <span className={`text-sm font-black px-3 py-1 rounded-full ${estadoLesaoLabel[r.estado].color}`}
+                          style={{ background: "rgba(255,255,255,0.06)" }}>
+                          {estadoLesaoLabel[r.estado].label}
+                        </span>
+                      </div>
+                      <p className="text-sm text-white/65 leading-relaxed">{r.descricao}</p>
+                      {r.tratamento && (
+                        <div className="mt-2 pt-2 border-t border-white/5">
+                          <span className="text-xs font-bold text-white/40">Treatment: </span>
+                          <span className="text-xs text-white/55">{r.tratamento}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          )}
 
-            {/* Linha 2: 4 colunas */}
-            <div className="grid grid-cols-4 gap-2.5">
-              <AttrSection title="Atk. Impact" icon="🎯" color="#FF6B35"
-                attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
-                values={jv}
-              />
-              <AttrSection title="Intelligence" icon="🧠" color="#06B6D4"
-                attrs={[["Game Reading","aGIGameReading"],["Decision Making","aGIDecisionMaking"],["Spatial Aware.","aGISpatialAwareness"],["Tactical Disc.","aGITacticalDiscipline"],["Off-Ball Move.","aGIOffBallMovement"]]}
-                values={jv}
-              />
-              <AttrSection title="Mental" icon="🔥" color="#facc15"
-                attrs={[["Mentality","aMentality"],["Competitive","aCompetitive"],["Concentration","aConcentration"],["Composure","aComposure"],["Courage","aCourage"],["Leadership","aLeadership"],["Work Ethic","aWorkEthic"],["Team Work","aTeamWork"]]}
-                values={jv}
-              />
-              <AttrSection title="Set Pieces" icon="⚽" color="#8B5CF6"
-                attrs={[["Penalty","aSPPenalty"],["Corners","aSPCorners"],["Free Kicks","aSPFreeKicks"],["Long Throws","aSPLongThrows"]]}
-                values={jv}
-              />
+          {/* ── DISCIPLINE ── */}
+          {activeSection === "disciplina" && (
+            <div>
+              <div className="text-[8px] font-black uppercase tracking-widest mb-4 flex items-center gap-1.5"
+                style={{ color: "#FF6B35" }}>
+                <div className="w-3 h-0.5 rounded" style={{ background: "#FF6B35" }} />
+                Discipline — {ocorrencias.length} record{ocorrencias.length !== 1 ? "s" : ""}
+              </div>
+              {ocorrencias.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3" style={{ color: "rgba(255,255,255,0.20)" }}>
+                  <span className="text-4xl">🟡</span>
+                  <p className="text-sm">Clean record — no disciplinary incidents</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {ocorrencias.sort((a, b) => b.data.localeCompare(a.data)).map(o => (
+                    <div key={o.id} className="rounded-2xl p-4"
+                      style={{ background: "rgba(255,107,53,0.05)", border: "1px solid rgba(255,107,53,0.15)" }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-base font-black text-white/90 capitalize">{o.tipo.replace("_", " ")}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-white/40">{o.data}</span>
+                          <span className={`text-xs font-black px-2 py-0.5 rounded-full capitalize ${o.gravidade === "grave" ? "bg-red-500/15 text-red-400" : o.gravidade === "moderada" ? "bg-orange-500/15 text-orange-400" : "bg-white/6 text-white/35"}`}>
+                            {o.gravidade}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-white/60 leading-relaxed">{o.descricao}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
+          )}
+
+          {/* ── ATTENDANCE ── */}
+          {activeSection === "presencas" && (
+            <div>
+              <div className="text-[8px] font-black uppercase tracking-widest mb-4 flex items-center gap-1.5"
+                style={{ color: "#8B5CF6" }}>
+                <div className="w-3 h-0.5 rounded" style={{ background: "#8B5CF6" }} />
+                Attendance — {presencas.length} record{presencas.length !== 1 ? "s" : ""}
+              </div>
+              {presencas.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3" style={{ color: "rgba(255,255,255,0.20)" }}>
+                  <span className="text-4xl">📋</span>
+                  <p className="text-sm">No attendance records</p>
+                </div>
+              ) : (
+                <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(139,92,246,0.15)" }}>
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-white/8 hover:bg-transparent"
+                        style={{ background: "rgba(139,92,246,0.08)" }}>
+                        {["Date","Type","Status","Notes"].map(h => (
+                          <TableHead key={h} className="text-xs font-bold py-3 text-white/60">{h}</TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {presencas.sort((a, b) => b.data.localeCompare(a.data)).map((p, idx) => (
+                        <TableRow key={p.id} className="border-white/5"
+                          style={{ background: idx % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
+                          <TableCell className="text-sm py-3 font-semibold text-white/85">{p.data}</TableCell>
+                          <TableCell className="text-sm py-3 text-white/60">{tipoPresencaLabel[p.tipo] ?? p.tipo}</TableCell>
+                          <TableCell className={`text-sm py-3 font-bold ${estadoPresencaLabel[p.estado]?.color ?? ""}`}>
+                            {estadoPresencaLabel[p.estado]?.label ?? p.estado}
+                          </TableCell>
+                          <TableCell className="text-sm py-3 text-white/40">{p.notas ?? "—"}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
       </DialogContent>
