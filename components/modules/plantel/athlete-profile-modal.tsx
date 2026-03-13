@@ -105,14 +105,43 @@ function AttrSection({ title, icon, color, attrs, values }: {
   )
 }
 
-function StatCard({ icon, label, value, color }: { icon: string; label: string; value: string; color: string }) {
+const FLAG_MAP: Record<string, string> = {
+  "portugal": "🇵🇹", "espanha": "🇪🇸", "spain": "🇪🇸",
+  "france": "🇫🇷", "franca": "🇫🇷", "frança": "🇫🇷", "germany": "🇩🇪", "alemanha": "🇩🇪",
+  "brasil": "🇧🇷", "brazil": "🇧🇷", "england": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  "china": "🇨🇳", "argentina": "🇦🇷", "italy": "🇮🇹", "italia": "🇮🇹", "itália": "🇮🇹",
+  "netherlands": "🇳🇱", "holanda": "🇳🇱", "belgium": "🇧🇪", "belgica": "🇧🇪", "bélgica": "🇧🇪",
+  "usa": "🇺🇸", "estados unidos": "🇺🇸", "morocco": "🇲🇦", "marrocos": "🇲🇦",
+  "senegal": "🇸🇳", "ghana": "🇬🇭", "nigeria": "🇳🇬", "nigéria": "🇳🇬",
+  "egypt": "🇪🇬", "egito": "🇪🇬", "japan": "🇯🇵", "japao": "🇯🇵", "japão": "🇯🇵",
+  "south korea": "🇰🇷", "coreia": "🇰🇷", "angola": "🇦🇴",
+  "cabo verde": "🇨🇻", "guinea-bissau": "🇬🇼", "guine-bissau": "🇬🇼",
+  "mocambique": "🇲🇿", "moçambique": "🇲🇿", "sweden": "🇸🇪", "suecia": "🇸🇪", "suécia": "🇸🇪",
+  "denmark": "🇩🇰", "dinamarca": "🇩🇰", "turkey": "🇹🇷", "turquia": "🇹🇷",
+  "croatia": "🇭🇷", "croacia": "🇭🇷", "croácia": "🇭🇷",
+  "poland": "🇵🇱", "polonia": "🇵🇱", "polónia": "🇵🇱",
+  "ukraine": "🇺🇦", "ucrania": "🇺🇦", "ucrânia": "🇺🇦", "russia": "🇷🇺", "rússia": "🇷🇺",
+  "scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "escocia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "escócia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+  "wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿", "pais de gales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿", "país de gales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+  "switzerland": "🇨🇭", "suica": "🇨🇭", "suíça": "🇨🇭",
+  "austria": "🇦🇹", "áustria": "🇦🇹", "greece": "🇬🇷", "grecia": "🇬🇷", "grécia": "🇬🇷",
+  "mexico": "🇲🇽", "méxico": "🇲🇽", "colombia": "🇨🇴", "chile": "🇨🇱", "peru": "🇵🇪",
+  "costa rica": "🇨🇷", "ecuador": "🇪🇨", "équateur": "🇪🇨", "uruguay": "🇺🇾", "uruguai": "🇺🇾",
+}
+
+function getFlag(country?: string): string {
+  if (!country?.trim()) return "🌍"
+  return FLAG_MAP[country.toLowerCase().trim()] ?? "🌍"
+}
+
+function StatCard({ icon, label, value, color, empty }: { icon: string; label: string; value: string; color: string; empty?: boolean }) {
   return (
-    <div className="rounded-xl p-3 flex items-center gap-3"
-      style={{ background: `${color}0C`, border: `1px solid ${color}25` }}>
-      <span className="text-xl shrink-0 leading-none">{icon}</span>
+    <div className="rounded-xl p-2 flex items-center gap-2.5"
+      style={{ background: empty ? "rgba(255,255,255,0.03)" : `${color}0C`, border: `1px solid ${empty ? "rgba(255,255,255,0.07)" : color + "22"}` }}>
+      <span className="text-base shrink-0 leading-none">{icon}</span>
       <div className="min-w-0">
-        <div className="text-[9px] uppercase tracking-widest font-bold" style={{ color: "rgba(255,255,255,0.35)" }}>{label}</div>
-        <div className="text-sm font-bold text-white leading-snug truncate">{value}</div>
+        <div className="text-[8px] uppercase tracking-widest font-bold" style={{ color: "rgba(255,255,255,0.30)" }}>{label}</div>
+        <div className="text-xs font-bold leading-snug truncate" style={{ color: empty ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.92)" }}>{value}</div>
       </div>
     </div>
   )
@@ -297,18 +326,21 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           {/* ── PLAYER INFO ── */}
           {activeSection === "info" && (
             <div>
-              {/* Stat Cards */}
-              <div className="grid grid-cols-3 gap-3 mb-5">
-                {idade !== "—" && <StatCard icon="🎂" label="Age" value={`${idade} years old`} color="#00D66C" />}
-                {jogador.dataNascimento && <StatCard icon="📅" label="Born" value={jogador.dataNascimento} color="#0066FF" />}
-                {jogador.nacionalidade && <StatCard icon="🌍" label="Country" value={jogador.nacionalidade} color="#8B5CF6" />}
-                {jogador.altura && <StatCard icon="📏" label="Height" value={`${jogador.altura} cm`} color="#FF6B35" />}
-                {jogador.peso && <StatCard icon="⚖️" label="Weight" value={`${jogador.peso} kg`} color="#facc15" />}
-                {jogador.pePreferido && (
-                  <StatCard icon="👟" label="Preferred Foot"
-                    value={jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)}
-                    color="#06B6D4" />
-                )}
+              {/* Stat Cards — sempre visíveis */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <StatCard icon="🎂" label="Age" color="#00D66C"
+                  value={idade !== "—" ? `${idade} years old` : "—"} empty={idade === "—"} />
+                <StatCard icon="📅" label="Born" color="#0066FF"
+                  value={jogador.dataNascimento || "—"} empty={!jogador.dataNascimento} />
+                <StatCard icon={getFlag(jogador.nacionalidade)} label="Country" color="#8B5CF6"
+                  value={jogador.nacionalidade || "—"} empty={!jogador.nacionalidade} />
+                <StatCard icon="📏" label="Height" color="#FF6B35"
+                  value={jogador.altura ? `${jogador.altura} cm` : "—"} empty={!jogador.altura} />
+                <StatCard icon="⚖️" label="Weight" color="#facc15"
+                  value={jogador.peso ? `${jogador.peso} kg` : "—"} empty={!jogador.peso} />
+                <StatCard icon="👟" label="Preferred Foot" color="#06B6D4"
+                  value={jogador.pePreferido ? (jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)) : "—"}
+                  empty={!jogador.pePreferido} />
               </div>
               {jogador.notas && (
                 <div className="rounded-xl p-3 mb-5"
@@ -344,7 +376,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
                   values={jv}
                 />
               </div>
-              <div className="grid grid-cols-4 gap-2.5">
+              <div className="grid grid-cols-2 gap-2.5">
                 <AttrSection title="Atk. Impact" icon="🎯" color="#FF6B35"
                   attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
                   values={jv}
