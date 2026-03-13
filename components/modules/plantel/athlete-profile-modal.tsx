@@ -51,9 +51,8 @@ function getRatingInfo(v: number | undefined): { color: string } {
   if (v === undefined) return { color: "rgba(255,255,255,0.12)" }
   if (v <= 5)  return { color: "#EF4444" }
   if (v <= 10) return { color: "#FF6B35" }
-  if (v <= 14) return { color: "#facc15" }
-  if (v <= 18) return { color: "#00D66C" }
-  return               { color: "#0066FF" }
+  if (v <= 15) return { color: "#facc15" }
+  return               { color: "#00D66C" }
 }
 
 /* ── Barra de atributo compacta ── */
@@ -62,7 +61,7 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
   const { color } = getRatingInfo(val)
   return (
     <div className="flex items-center gap-1.5 py-1">
-      <span className="text-[11px] font-bold shrink-0 w-[90px]" style={{ color: "rgba(255,255,255,0.90)" }}>
+      <span className="text-[11px] font-semibold shrink-0 w-[90px]" style={{ color: "rgba(255,255,255,0.68)" }}>
         {label}
       </span>
       <div className="relative w-28 h-[5px] rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.08)" }}>
@@ -70,7 +69,7 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
           style={{
             width: val ? `${(val / 20) * 100}%` : "0%",
             background: color,
-            boxShadow: val ? `0 0 4px ${color}70` : undefined,
+            boxShadow: val ? `0 0 2px ${color}40` : undefined,
           }} />
       </div>
       <div className="shrink-0 w-8 h-[18px] rounded text-[10px] font-black flex items-center justify-center tabular-nums"
@@ -236,9 +235,6 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           {/* Nome + badges */}
           <div className="flex-1 min-w-0 relative z-10">
             <div className="text-xl font-black tracking-tight text-white leading-tight">{jogador.nome}</div>
-            {jogador.alcunha?.trim() && (
-              <div className="text-[10px] font-medium" style={{ color: "rgba(255,255,255,0.35)" }}>&quot;{jogador.alcunha}&quot;</div>
-            )}
             <div className="flex items-center gap-1 mt-0.5 flex-wrap">
               <span className="text-[9px] font-bold px-1 py-0.5 rounded"
                 style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.28)" }}>
@@ -268,10 +264,10 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
               <div key={s.label} className="flex items-center">
                 {i > 0 && <div className="w-px h-9 mx-3" style={{ background: "rgba(255,255,255,0.07)" }} />}
                 <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-[9px] uppercase tracking-widest font-bold leading-none" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : s.color }}>
+                  <span className="text-[8px] uppercase tracking-widest font-semibold leading-none" style={{ color: s.empty ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.45)" }}>
                     {s.icon} {s.label}
                   </span>
-                  <span className="text-[14px] font-black leading-none tabular-nums" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.92)" }}>
+                  <span className="text-[12px] font-black leading-none tabular-nums" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.88)" }}>
                     {s.value}
                   </span>
                 </div>
@@ -303,8 +299,8 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
               <button key={s.id} onClick={() => setActiveSection(s.id)}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg transition-all duration-150 cursor-pointer"
                 style={{
-                  background: isActive ? `${s.color}18` : `${s.color}06`,
-                  border: `1.5px solid ${isActive ? s.color + "55" : s.color + "18"}`,
+                  background: isActive ? `${s.color}18` : "rgba(255,255,255,0.04)",
+                  border: `1.5px solid ${isActive ? s.color + "55" : "rgba(255,255,255,0.10)"}`,
                   boxShadow: isActive ? `0 0 10px ${s.color}25` : undefined,
                 }}>
                 <span className="text-base leading-none">{s.icon}</span>
@@ -330,7 +326,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           {activeSection === "info" && (
             <div className="h-full px-3 py-2 flex flex-col gap-2 overflow-hidden">
               {/* Linha 1: 3 secções */}
-              <div className="grid grid-cols-3 gap-2 flex-1 min-h-0">
+              <div className="grid grid-cols-3 gap-2 flex-1 min-h-0 w-3/4 mx-auto">
                 <AttrSection title="Offensive" icon="⚡" color="#00D66C"
                   attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
                   values={jv}
