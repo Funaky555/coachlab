@@ -201,7 +201,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-[72vw] h-[85vh] flex flex-col overflow-hidden p-0 gap-0 [&>button]:top-3 [&>button]:right-3 [&>button]:w-10 [&>button]:h-10 [&>button]:rounded-full [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:bg-white/10 [&>button]:border [&>button]:border-white/20 [&>button]:text-red-400 [&>button:hover]:bg-red-500/15 [&>button:hover]:text-red-300 [&>button:hover]:border-red-500/30 [&>button_svg]:w-5 [&>button_svg]:h-5"
+      <DialogContent className="max-w-[72vw] h-[85vh] flex flex-col overflow-hidden p-0 gap-0"
         style={{ background: "linear-gradient(160deg, #080d18 0%, #040609 100%)", border: "1.5px solid rgba(255,255,255,0.09)" }}>
 
         {/* Linha gradiente */}
