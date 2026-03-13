@@ -211,12 +211,6 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
         {/* ── HEADER ── */}
         <div className="flex items-center gap-3 px-4 py-2.5 border-b flex-shrink-0 relative overflow-hidden"
           style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-          {/* Número decorativo */}
-          <div className="absolute right-4 top-0 text-[56px] font-black leading-none select-none pointer-events-none"
-            style={{ color: `${estadoBorderColor}0E`, fontFamily: "var(--font-barlow-condensed)" }}>
-            {jogador.numero}
-          </div>
-
           {/* Foto */}
           <div className="relative shrink-0">
             {jogador.foto ? (
@@ -308,12 +302,6 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
                   style={{ color: isActive ? s.color : "rgba(255,255,255,0.38)" }}>
                   {s.label}
                 </span>
-                {s.count > 0 && (
-                  <span className="text-[7px] font-black min-w-[14px] h-3.5 px-0.5 rounded-full flex items-center justify-center"
-                    style={{ background: s.color, color: "#000" }}>
-                    {s.count}
-                  </span>
-                )}
               </button>
             )
           })}
