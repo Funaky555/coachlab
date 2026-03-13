@@ -62,7 +62,7 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
   const { color } = getRatingInfo(val)
   return (
     <div className="flex items-center gap-1.5 py-1">
-      <span className="text-[9px] font-semibold shrink-0 w-[62px] truncate" style={{ color: "rgba(255,255,255,0.90)" }}>
+      <span className="text-[9px] font-semibold shrink-0 w-[90px]" style={{ color: "rgba(255,255,255,0.90)" }}>
         {label}
       </span>
       <div className="relative flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
@@ -92,14 +92,14 @@ function AttrSection({ title, icon, color, attrs, values }: {
   values: Record<string, unknown>
 }) {
   return (
-    <div className="rounded-xl overflow-hidden"
+    <div className="rounded-xl overflow-hidden h-full flex flex-col"
       style={{ border: `1px solid ${color}28`, background: `linear-gradient(160deg, ${color}0A 0%, rgba(0,0,0,0.4) 100%)` }}>
       <div className="flex items-center gap-1.5 px-2.5 py-1.5"
         style={{ background: `linear-gradient(90deg, ${color}22 0%, ${color}05 100%)`, borderBottom: `1px solid ${color}15` }}>
         <span className="text-xs leading-none">{icon}</span>
         <span className="text-[9px] font-black uppercase tracking-wider" style={{ color }}>{title}</span>
       </div>
-      <div className="px-2.5 py-1.5">
+      <div className="px-2.5 py-1.5 flex-1">
         {attrs.map(([label, key]) => <AttrRow key={key} label={label} keyName={key} values={values} />)}
       </div>
     </div>
@@ -202,7 +202,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-5xl h-[92vh] flex flex-col overflow-hidden p-0 gap-0"
+      <DialogContent className="max-w-[94vw] h-[92vh] flex flex-col overflow-hidden p-0 gap-0"
         style={{ background: "linear-gradient(160deg, #080d18 0%, #040609 100%)", border: "1.5px solid rgba(255,255,255,0.09)" }}>
 
         {/* Linha gradiente */}
@@ -223,16 +223,16 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             {jogador.foto ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={jogador.foto} alt={jogador.nome}
-                className="w-12 h-12 rounded-full object-cover border-2"
+                className="w-16 h-16 rounded-full object-cover border-2"
                 style={{ borderColor: estadoBorderColor }} />
             ) : (
-              <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-black border-2"
+              <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-black border-2"
                 style={{ background: `${estadoBorderColor}15`, borderColor: estadoBorderColor, color: estadoBorderColor, fontFamily: "var(--font-barlow-condensed)" }}>
                 {jogador.numero}
               </div>
             )}
             {idade !== "—" && (
-              <div className="absolute -bottom-1 -right-1 text-[7px] font-black px-1 py-0.5 rounded-full"
+              <div className="absolute -bottom-1 -right-1 text-[8px] font-black px-1.5 py-0.5 rounded-full"
                 style={{ background: "#0066FF", color: "#fff" }}>
                 {idade}
               </div>
@@ -241,7 +241,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
           {/* Nome + badges */}
           <div className="flex-1 min-w-0 relative z-10">
-            <div className="text-lg font-black tracking-tight text-white leading-tight">{jogador.nome}</div>
+            <div className="text-xl font-black tracking-tight text-white leading-tight">{jogador.nome}</div>
             {jogador.alcunha?.trim() && (
               <div className="text-[10px] font-medium" style={{ color: "rgba(255,255,255,0.35)" }}>&quot;{jogador.alcunha}&quot;</div>
             )}
@@ -252,7 +252,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
               </span>
               {jogador.posicoes.map((p, i) => (
                 <Badge key={p} variant={i === 0 ? "default" : "outline"}
-                  className={i === 0 ? "text-[9px] py-0 px-1 h-4 hover:bg-[#00D66C]/15" : "text-[9px] py-0 px-1 h-4"}
+                  className={i === 0 ? "text-[10px] py-0 px-1.5 h-5 hover:bg-[#00D66C]/15" : "text-[10px] py-0 px-1.5 h-5"}
                   style={i === 0 ? { background: "rgba(0,214,108,0.15)", color: "#00D66C", borderColor: "rgba(0,214,108,0.30)" } : {}}>
                   {p}
                 </Badge>
@@ -261,8 +261,8 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             </div>
           </div>
 
-          {/* Stats inline */}
-          <div className="shrink-0 flex items-center gap-0 border-l border-white/8 pl-3 relative z-10">
+          {/* Stats inline — centrados absolutamente */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-0 z-10">
             {[
               { icon: "🎂", label: "Age",     color: "#00D66C", value: idade !== "—" ? `${idade} yrs` : "—",     empty: idade === "—" },
               { icon: "📅", label: "Born",    color: "#0066FF", value: jogador.dataNascimento || "—",              empty: !jogador.dataNascimento },
@@ -286,7 +286,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           </div>
 
           {/* Botões */}
-          <div className="flex items-center gap-1.5 shrink-0 relative z-10 border-l border-white/8 pl-3">
+          <div className="ml-auto flex items-center gap-1.5 shrink-0 relative z-10">
             <Button size="sm" variant="outline" className="gap-1 text-[10px] h-6 px-2"
               style={{ borderColor: "rgba(239,68,68,0.35)", color: "#f87171" }}
               onClick={handleReset}>
@@ -336,7 +336,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           {activeSection === "info" && (
             <div className="h-full px-3 py-2 flex flex-col gap-2 overflow-y-auto">
               {/* Linha 1: 3 secções */}
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2 flex-1 min-h-0">
                 <AttrSection title="Offensive" icon="⚡" color="#00D66C"
                   attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
                   values={jv}
@@ -351,7 +351,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
                 />
               </div>
               {/* Linha 2: 4 secções */}
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2 flex-1 min-h-0">
                 <AttrSection title="Atk. Impact" icon="🎯" color="#FF6B35"
                   attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
                   values={jv}
