@@ -62,7 +62,7 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
   const { color } = getRatingInfo(val)
   return (
     <div className="flex items-center gap-1.5 py-1">
-      <span className="text-[9px] font-medium shrink-0 w-[62px] truncate" style={{ color: "rgba(255,255,255,0.72)" }}>
+      <span className="text-[9px] font-semibold shrink-0 w-[62px] truncate" style={{ color: "rgba(255,255,255,0.90)" }}>
         {label}
       </span>
       <div className="relative flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
@@ -73,7 +73,7 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
             boxShadow: val ? `0 0 4px ${color}70` : undefined,
           }} />
       </div>
-      <div className="shrink-0 w-6 h-[14px] rounded text-[8px] font-black flex items-center justify-center tabular-nums"
+      <div className="shrink-0 w-7 h-[17px] rounded text-[10px] font-black flex items-center justify-center tabular-nums"
         style={{
           background: val ? `${color}20` : "rgba(255,255,255,0.04)",
           color: val ? color : "rgba(255,255,255,0.18)",
@@ -261,6 +261,30 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             </div>
           </div>
 
+          {/* Stats inline */}
+          <div className="shrink-0 flex items-center gap-0 border-l border-white/8 pl-3 relative z-10">
+            {[
+              { icon: "🎂", label: "Age",     color: "#00D66C", value: idade !== "—" ? `${idade} yrs` : "—",     empty: idade === "—" },
+              { icon: "📅", label: "Born",    color: "#0066FF", value: jogador.dataNascimento || "—",              empty: !jogador.dataNascimento },
+              { icon: getFlag(jogador.nacionalidade) || "🌍", label: "Country", color: "#8B5CF6", value: jogador.nacionalidade || "—", empty: !jogador.nacionalidade },
+              { icon: "📏", label: "Height",  color: "#FF6B35", value: jogador.altura ? `${jogador.altura} cm` : "—", empty: !jogador.altura },
+              { icon: "⚖️", label: "Weight",  color: "#facc15", value: jogador.peso ? `${jogador.peso} kg` : "—",    empty: !jogador.peso },
+              { icon: "👟", label: "Foot",    color: "#06B6D4", value: jogador.pePreferido ? (jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)) : "—", empty: !jogador.pePreferido },
+            ].map((s, i) => (
+              <div key={s.label} className="flex items-center">
+                {i > 0 && <div className="w-px h-7 mx-2.5" style={{ background: "rgba(255,255,255,0.07)" }} />}
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-[7px] uppercase tracking-widest font-bold leading-none" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : s.color }}>
+                    {s.icon} {s.label}
+                  </span>
+                  <span className="text-[11px] font-black leading-none tabular-nums" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.92)" }}>
+                    {s.value}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* Botões */}
           <div className="flex items-center gap-1.5 shrink-0 relative z-10 border-l border-white/8 pl-3">
             <Button size="sm" variant="outline" className="gap-1 text-[10px] h-6 px-2"
@@ -275,36 +299,6 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             </Button>
           </div>
         </div>
-
-        {/* ── STATS STRIP ── */}
-        {(() => {
-          const STATS = [
-            { icon: "🎂", label: "Age",     color: "#00D66C", value: idade !== "—" ? `${idade} yrs` : "—",     empty: idade === "—" },
-            { icon: "📅", label: "Born",    color: "#0066FF", value: jogador.dataNascimento || "—",              empty: !jogador.dataNascimento },
-            { icon: getFlag(jogador.nacionalidade) || "🌍", label: "Country", color: "#8B5CF6", value: jogador.nacionalidade || "—", empty: !jogador.nacionalidade },
-            { icon: "📏", label: "Height",  color: "#FF6B35", value: jogador.altura ? `${jogador.altura} cm` : "—", empty: !jogador.altura },
-            { icon: "⚖️", label: "Weight",  color: "#facc15", value: jogador.peso ? `${jogador.peso} kg` : "—",    empty: !jogador.peso },
-            { icon: "👟", label: "Foot",    color: "#06B6D4", value: jogador.pePreferido ? (jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)) : "—", empty: !jogador.pePreferido },
-          ]
-          return (
-            <div className="flex items-center justify-center gap-0 px-4 py-1.5 flex-shrink-0 border-b"
-              style={{ borderColor: "rgba(255,255,255,0.06)", background: "linear-gradient(90deg, rgba(0,214,108,0.04), rgba(0,102,255,0.04), rgba(139,92,246,0.04))" }}>
-              {STATS.map((s, i) => (
-                <div key={s.label} className="flex items-center">
-                  {i > 0 && <div className="w-px h-6 mx-3" style={{ background: "rgba(255,255,255,0.08)" }} />}
-                  <div className="flex flex-col items-center gap-0.5">
-                    <span className="text-[7px] uppercase tracking-widest font-bold" style={{ color: s.empty ? "rgba(255,255,255,0.20)" : s.color }}>
-                      {s.icon} {s.label}
-                    </span>
-                    <span className="text-[11px] font-black leading-none" style={{ color: s.empty ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.90)" }}>
-                      {s.value}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )
-        })()}
 
         {/* ── 5 PILLS NAV ── */}
         <div className="flex gap-2 px-4 py-2 flex-shrink-0 border-b"
@@ -340,9 +334,9 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
           {/* ── PLAYER INFO (atributos) ── */}
           {activeSection === "info" && (
-            <div className="h-full px-3 py-2 flex flex-col gap-2">
+            <div className="h-full px-3 py-2 flex flex-col gap-2 overflow-y-auto">
               {/* Linha 1: 3 secções */}
-              <div className="grid grid-cols-3 gap-2 flex-1 min-h-0">
+              <div className="grid grid-cols-3 gap-2">
                 <AttrSection title="Offensive" icon="⚡" color="#00D66C"
                   attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
                   values={jv}
@@ -356,8 +350,8 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
                   values={jv}
                 />
               </div>
-              {/* Linha 2: 4 secções em 2x2 */}
-              <div className="grid grid-cols-4 gap-2 flex-1 min-h-0">
+              {/* Linha 2: 4 secções */}
+              <div className="grid grid-cols-4 gap-2">
                 <AttrSection title="Atk. Impact" icon="🎯" color="#FF6B35"
                   attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
                   values={jv}
