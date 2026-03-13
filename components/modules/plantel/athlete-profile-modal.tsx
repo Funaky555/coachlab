@@ -61,7 +61,7 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
   const val = values[keyName] as number | undefined
   const { color } = getRatingInfo(val)
   return (
-    <div className="flex items-center gap-1.5 py-[2px]">
+    <div className="flex items-center gap-1.5 py-1">
       <span className="text-[9px] font-medium shrink-0 w-[62px] truncate" style={{ color: "rgba(255,255,255,0.72)" }}>
         {label}
       </span>
@@ -106,15 +106,6 @@ function AttrSection({ title, icon, color, attrs, values }: {
   )
 }
 
-/* ── Mini stat para o header ── */
-function HeaderStat({ label, value, empty }: { label: string; value: string; empty?: boolean }) {
-  return (
-    <div className="flex flex-col items-end">
-      <span className="text-[7px] uppercase tracking-widest leading-none" style={{ color: "rgba(255,255,255,0.25)" }}>{label}</span>
-      <span className="text-[10px] font-bold leading-snug" style={{ color: empty ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.88)" }}>{value}</span>
-    </div>
-  )
-}
 
 const FLAG_MAP: Record<string, string> = {
   "portugal": "🇵🇹", "espanha": "🇪🇸", "spain": "🇪🇸",
@@ -270,22 +261,6 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             </div>
           </div>
 
-          {/* 6 stats inline — separados por divisor */}
-          <div className="shrink-0 border-l border-white/8 pl-3 relative z-10">
-            <div className="grid grid-cols-3 gap-x-4 gap-y-0.5">
-              <HeaderStat label="Age"    value={idade !== "—" ? `${idade} yrs` : "—"} empty={idade === "—"} />
-              <HeaderStat label="Born"   value={jogador.dataNascimento || "—"} empty={!jogador.dataNascimento} />
-              <HeaderStat label="Country"
-                value={jogador.nacionalidade ? `${getFlag(jogador.nacionalidade)}${jogador.nacionalidade}` : "—"}
-                empty={!jogador.nacionalidade} />
-              <HeaderStat label="Height" value={jogador.altura ? `${jogador.altura} cm` : "—"} empty={!jogador.altura} />
-              <HeaderStat label="Weight" value={jogador.peso ? `${jogador.peso} kg` : "—"} empty={!jogador.peso} />
-              <HeaderStat label="Foot"
-                value={jogador.pePreferido ? (jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)) : "—"}
-                empty={!jogador.pePreferido} />
-            </div>
-          </div>
-
           {/* Botões */}
           <div className="flex items-center gap-1.5 shrink-0 relative z-10 border-l border-white/8 pl-3">
             <Button size="sm" variant="outline" className="gap-1 text-[10px] h-6 px-2"
@@ -301,6 +276,36 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           </div>
         </div>
 
+        {/* ── STATS STRIP ── */}
+        {(() => {
+          const STATS = [
+            { icon: "🎂", label: "Age",     color: "#00D66C", value: idade !== "—" ? `${idade} yrs` : "—",     empty: idade === "—" },
+            { icon: "📅", label: "Born",    color: "#0066FF", value: jogador.dataNascimento || "—",              empty: !jogador.dataNascimento },
+            { icon: getFlag(jogador.nacionalidade) || "🌍", label: "Country", color: "#8B5CF6", value: jogador.nacionalidade || "—", empty: !jogador.nacionalidade },
+            { icon: "📏", label: "Height",  color: "#FF6B35", value: jogador.altura ? `${jogador.altura} cm` : "—", empty: !jogador.altura },
+            { icon: "⚖️", label: "Weight",  color: "#facc15", value: jogador.peso ? `${jogador.peso} kg` : "—",    empty: !jogador.peso },
+            { icon: "👟", label: "Foot",    color: "#06B6D4", value: jogador.pePreferido ? (jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)) : "—", empty: !jogador.pePreferido },
+          ]
+          return (
+            <div className="flex items-center justify-center gap-0 px-4 py-1.5 flex-shrink-0 border-b"
+              style={{ borderColor: "rgba(255,255,255,0.06)", background: "linear-gradient(90deg, rgba(0,214,108,0.04), rgba(0,102,255,0.04), rgba(139,92,246,0.04))" }}>
+              {STATS.map((s, i) => (
+                <div key={s.label} className="flex items-center">
+                  {i > 0 && <div className="w-px h-6 mx-3" style={{ background: "rgba(255,255,255,0.08)" }} />}
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="text-[7px] uppercase tracking-widest font-bold" style={{ color: s.empty ? "rgba(255,255,255,0.20)" : s.color }}>
+                      {s.icon} {s.label}
+                    </span>
+                    <span className="text-[11px] font-black leading-none" style={{ color: s.empty ? "rgba(255,255,255,0.20)" : "rgba(255,255,255,0.90)" }}>
+                      {s.value}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
+
         {/* ── 5 PILLS NAV ── */}
         <div className="flex gap-2 px-4 py-2 flex-shrink-0 border-b"
           style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.20)" }}>
@@ -308,14 +313,14 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
             const isActive = activeSection === s.id
             return (
               <button key={s.id} onClick={() => setActiveSection(s.id)}
-                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-150 cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg transition-all duration-150 cursor-pointer"
                 style={{
                   background: isActive ? `${s.color}18` : `${s.color}06`,
                   border: `1.5px solid ${isActive ? s.color + "55" : s.color + "18"}`,
                   boxShadow: isActive ? `0 0 10px ${s.color}25` : undefined,
                 }}>
-                <span className="text-sm leading-none">{s.icon}</span>
-                <span className="text-[9px] font-black uppercase tracking-wide leading-none"
+                <span className="text-base leading-none">{s.icon}</span>
+                <span className="text-[10px] font-black uppercase tracking-wide leading-none"
                   style={{ color: isActive ? s.color : "rgba(255,255,255,0.38)" }}>
                   {s.label}
                 </span>
