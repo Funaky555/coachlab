@@ -65,7 +65,7 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
       <span className="text-[11px] font-bold shrink-0 w-[90px]" style={{ color: "rgba(255,255,255,0.90)" }}>
         {label}
       </span>
-      <div className="relative w-24 h-[3px] rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.08)" }}>
+      <div className="relative w-28 h-[5px] rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.08)" }}>
         <div className="absolute inset-y-0 left-0 rounded-full"
           style={{
             width: val ? `${(val / 20) * 100}%` : "0%",
@@ -99,7 +99,7 @@ function AttrSection({ title, icon, color, attrs, values }: {
         <span className="text-xs leading-none">{icon}</span>
         <span className="text-[9px] font-black uppercase tracking-wider" style={{ color }}>{title}</span>
       </div>
-      <div className="px-2.5 py-1.5 flex-1">
+      <div className="px-2.5 py-1.5 flex-1 flex flex-col justify-evenly">
         {attrs.map(([label, key]) => <AttrRow key={key} label={label} keyName={key} values={values} />)}
       </div>
     </div>
@@ -202,7 +202,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-[80vw] h-[88vh] flex flex-col overflow-hidden p-0 gap-0 [&>button]:top-3 [&>button]:right-3 [&>button]:w-8 [&>button]:h-8 [&>button]:rounded-full [&>button]:bg-white/10 [&>button]:border [&>button]:border-white/20 [&>button]:text-white/70 [&>button:hover]:bg-white/20 [&>button:hover]:text-white"
+      <DialogContent className="max-w-[72vw] h-[85vh] flex flex-col overflow-hidden p-0 gap-0 [&>button]:top-3 [&>button]:right-3 [&>button]:w-10 [&>button]:h-10 [&>button]:rounded-full [&>button]:bg-white/10 [&>button]:border [&>button]:border-white/20 [&>button]:text-white/70 [&>button:hover]:bg-white/20 [&>button:hover]:text-white [&>button_svg]:w-5 [&>button_svg]:h-5"
         style={{ background: "linear-gradient(160deg, #080d18 0%, #040609 100%)", border: "1.5px solid rgba(255,255,255,0.09)" }}>
 
         {/* Linha gradiente */}
@@ -229,12 +229,6 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
               <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-black border-2"
                 style={{ background: `${estadoBorderColor}15`, borderColor: estadoBorderColor, color: estadoBorderColor, fontFamily: "var(--font-barlow-condensed)" }}>
                 {jogador.numero}
-              </div>
-            )}
-            {idade !== "—" && (
-              <div className="absolute -bottom-1 -right-1 text-[8px] font-black px-1.5 py-0.5 rounded-full"
-                style={{ background: "#0066FF", color: "#fff" }}>
-                {idade}
               </div>
             )}
           </div>
@@ -272,12 +266,12 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
               { icon: "👟", label: "Foot",    color: "#06B6D4", value: jogador.pePreferido ? (jogador.pePreferido.charAt(0).toUpperCase() + jogador.pePreferido.slice(1)) : "—", empty: !jogador.pePreferido },
             ].map((s, i) => (
               <div key={s.label} className="flex items-center">
-                {i > 0 && <div className="w-px h-7 mx-2.5" style={{ background: "rgba(255,255,255,0.07)" }} />}
+                {i > 0 && <div className="w-px h-9 mx-3" style={{ background: "rgba(255,255,255,0.07)" }} />}
                 <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-[7px] uppercase tracking-widest font-bold leading-none" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : s.color }}>
+                  <span className="text-[9px] uppercase tracking-widest font-bold leading-none" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : s.color }}>
                     {s.icon} {s.label}
                   </span>
-                  <span className="text-[11px] font-black leading-none tabular-nums" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.92)" }}>
+                  <span className="text-[14px] font-black leading-none tabular-nums" style={{ color: s.empty ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.92)" }}>
                     {s.value}
                   </span>
                 </div>
@@ -334,9 +328,9 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
           {/* ── PLAYER INFO (atributos) ── */}
           {activeSection === "info" && (
-            <div className="h-full px-3 py-2 flex flex-col gap-2 overflow-y-auto">
+            <div className="h-full px-3 py-2 flex flex-col gap-2 overflow-hidden">
               {/* Linha 1: 3 secções */}
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2 flex-1 min-h-0">
                 <AttrSection title="Offensive" icon="⚡" color="#00D66C"
                   attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
                   values={jv}
@@ -351,7 +345,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
                 />
               </div>
               {/* Linha 2: 4 secções */}
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2 flex-1 min-h-0">
                 <AttrSection title="Atk. Impact" icon="🎯" color="#FF6B35"
                   attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
                   values={jv}
