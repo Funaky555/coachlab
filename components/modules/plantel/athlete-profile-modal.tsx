@@ -65,7 +65,7 @@ function AttrRow({ label, keyName, values }: { label: string; keyName: string; v
       <span className="text-[11px] font-bold shrink-0 w-[90px]" style={{ color: "rgba(255,255,255,0.90)" }}>
         {label}
       </span>
-      <div className="relative flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+      <div className="relative w-24 h-[3px] rounded-full overflow-hidden shrink-0" style={{ background: "rgba(255,255,255,0.08)" }}>
         <div className="absolute inset-y-0 left-0 rounded-full"
           style={{
             width: val ? `${(val / 20) * 100}%` : "0%",
@@ -202,7 +202,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-[94vw] h-[96vh] flex flex-col overflow-hidden p-0 gap-0"
+      <DialogContent className="max-w-[80vw] h-[88vh] flex flex-col overflow-hidden p-0 gap-0 [&>button]:top-3 [&>button]:right-3 [&>button]:w-8 [&>button]:h-8 [&>button]:rounded-full [&>button]:bg-white/10 [&>button]:border [&>button]:border-white/20 [&>button]:text-white/70 [&>button:hover]:bg-white/20 [&>button:hover]:text-white"
         style={{ background: "linear-gradient(160deg, #080d18 0%, #040609 100%)", border: "1.5px solid rgba(255,255,255,0.09)" }}>
 
         {/* Linha gradiente */}
@@ -336,7 +336,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
           {activeSection === "info" && (
             <div className="h-full px-3 py-2 flex flex-col gap-2 overflow-y-auto">
               {/* Linha 1: 3 secções */}
-              <div className="grid grid-cols-3 gap-2 flex-1 min-h-0">
+              <div className="grid grid-cols-3 gap-2">
                 <AttrSection title="Offensive" icon="⚡" color="#00D66C"
                   attrs={[["Ball Control","aOBallControl"],["First Touch","aOFirstTouch"],["Short Pass","aOShortPass"],["Long Pass","aOLongPass"],["Crossing","aOCrossing"],["Heading","aOHeading"],["Finishing","aOFinishing"],["Dribbling","aODribbling"],["Feint","aOFeint"]]}
                   values={jv}
@@ -351,7 +351,7 @@ export function AthleteProfileModal({ jogador, open, onClose, onEdit, onReset }:
                 />
               </div>
               {/* Linha 2: 4 secções */}
-              <div className="grid grid-cols-4 gap-2 flex-1 min-h-0">
+              <div className="grid grid-cols-4 gap-2">
                 <AttrSection title="Atk. Impact" icon="🎯" color="#FF6B35"
                   attrs={[["Penetration","aIPenetration"],["Off Ball","aIOffBall"],["Vision","aIVision"],["Chance Creation","aIChanceCreation"],["Creativity","aICreativity"],["Desmarcation","aIDesmarcation"]]}
                   values={jv}
