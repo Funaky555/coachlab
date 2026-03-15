@@ -342,7 +342,7 @@ function PlayerPin({
         style={{
           filter: hovered
             ? `drop-shadow(0 0 10px ${glowColor}) drop-shadow(0 0 22px ${glowColor}55)`
-            : "none",
+            : `drop-shadow(0 2px 5px rgba(0,0,0,0.75))`,
           transition: "filter 0.15s",
         }}
         onClick={onSlotClick}
@@ -581,7 +581,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
           style={{
             width: "100%",
             height: "auto",
-            maxHeight: "calc(100vh - 190px)",
+            maxHeight: "calc(100vh - 130px)",
             cursor: draggingPinState ? "grabbing" : drawingFrom ? "crosshair" : "default",
             userSelect: "none",
           }}
@@ -595,8 +595,8 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
           onDragOver={handleSvgDragOver}
           onDrop={handleSvgDrop}
         >
-          {/* Field photo background — tactical dark board */}
-          <image href="/pitch-11.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+          {/* Field photo background — real grass */}
+          <image href="/pitch-16.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
 
           {/* Preview arrow while drawing */}
           {drawingFrom && mousePos && (() => {
