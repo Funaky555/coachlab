@@ -171,7 +171,7 @@ export interface TacticaSlot {
   jogadorId?: string
 }
 
-export type TacticArrowType = "run" | "run_no_ball" | "ball"
+export type TacticArrowType = "run" | "run_no_ball"
 
 export interface TacticArrow {
   id: string
@@ -197,6 +197,8 @@ export interface TacticaConfig {
   titulares: TacticaSlot[]
   ipArrows: TacticArrow[]
   oopArrows: TacticArrow[]
+  slotOverrides: Record<string, { x: number; y: number }>
+  mentalidade_oop: "very_defensive" | "defensive" | "balanced" | "offensive" | "very_offensive"
 }
 
 // --- Set Pieces ---
@@ -418,7 +420,11 @@ export function getTatica(): TacticaConfig {
     if (!raw) return getDefaultTatica()
     const parsed = JSON.parse(raw)
     // Retrocompatibilidade: merge com defaults para campos novos
-    return { ...getDefaultTatica(), ...parsed }
+    const merged = { ...getDefaultTatica(), ...parsed }
+    // Limpar setas do tipo "ball" (removido)
+    merged.ipArrows  = (merged.ipArrows  ?? []).filter((a: TacticArrow) => a.type !== "ball" as string)
+    merged.oopArrows = (merged.oopArrows ?? []).filter((a: TacticArrow) => a.type !== "ball" as string)
+    return merged
   } catch { return getDefaultTatica() }
 }
 
@@ -439,6 +445,8 @@ function getDefaultTatica(): TacticaConfig {
     titulares: [],
     ipArrows: [],
     oopArrows: [],
+    slotOverrides: {},
+    mentalidade_oop: "balanced",
   }
 }
 

@@ -177,12 +177,13 @@ function sectorColor(posicoes: string[]): string {
 // Offensive half = y < 255 (topo), Defensive half = y > 255 (fundo)
 // rows: 5=GK, 4=DEF, 3=MID, 2=FWD, 1=ST (mais ofensivo)
 
+// Vertical field: viewBox 510x780, GK at bottom (high y), FWD at top (low y), halfway y=390
 const MENTALITY_ROW_Y: Record<TacticaConfig["mentalidade"], Record<number, number>> = {
-  very_offensive: { 5: 360, 4: 220, 3: 170, 2: 120, 1: 80  },
-  offensive:      { 5: 420, 4: 260, 3: 195, 2: 135, 1: 90  },
-  balanced:       { 5: 420, 4: 340, 3: 260, 2: 180, 1: 110 },
-  defensive:      { 5: 420, 4: 400, 3: 340, 2: 275, 1: 260 },
-  very_defensive: { 5: 430, 4: 435, 3: 375, 2: 315, 1: 285 },
+  very_offensive: { 5: 590, 4: 360, 3: 280, 2: 200, 1: 130 },
+  offensive:      { 5: 690, 4: 430, 3: 325, 2: 225, 1: 150 },
+  balanced:       { 5: 700, 4: 560, 3: 430, 2: 300, 1: 180 },
+  defensive:      { 5: 700, 4: 660, 3: 560, 2: 455, 1: 430 },
+  very_defensive: { 5: 720, 4: 680, 3: 620, 2: 530, 1: 480 },
 }
 
 // ─── Calcular posições absolutas (SVG) ───────────────────────────────────────
@@ -195,10 +196,12 @@ function computeSlotPositions(
   formacao: string,
   mentalidade: TacticaConfig["mentalidade"],
   atacarPorCorredor: "wide" | "center",
+  overrides: Record<string, { x: number; y: number }> = {},
 ): SlotPos[] {
   const positions = getPositions(formacao)
   const rowY = MENTALITY_ROW_Y[mentalidade]
-  const xSpread = atacarPorCorredor === "wide" ? 28 : -20
+  // Vertical field x range: 40–470 (field width ~480, centered at 255)
+  const xSpread = atacarPorCorredor === "wide" ? 18 : -15
 
   // Group by row to distribute x evenly
   const byRow: Record<number, typeof positions> = {}
@@ -211,8 +214,8 @@ function computeSlotPositions(
     const rowSlots = byRow[p.row]
     const idxInRow = rowSlots.indexOf(p)
     const count = rowSlots.length
-    const xStep = 680 / (count + 1)
-    let baseX = 50 + xStep * (idxInRow + 1)
+    const xStep = 430 / (count + 1)
+    let baseX = 40 + xStep * (idxInRow + 1)
 
     // Apply xSpread to wide positions
     if (WIDE_POSITIONS.includes(p.label) || WIDE_POSITIONS.includes(p.posicao)) {
@@ -220,12 +223,14 @@ function computeSlotPositions(
       if (idxInRow === count - 1 && count > 1) baseX += xSpread
     }
 
-    const baseY = rowY[p.row] ?? 300
+    const baseY = rowY[p.row] ?? 390
+    const slotKey = `slot_${i}`
+    const override = overrides[slotKey]
 
     return {
-      x: Math.max(40, Math.min(740, baseX)),
-      y: Math.max(40, Math.min(470, baseY)),
-      slotKey: `slot_${i}`,
+      x: override ? override.x : Math.max(30, Math.min(480, baseX)),
+      y: override ? override.y : Math.max(30, Math.min(750, baseY)),
+      slotKey,
       label: p.label,
       posicao: p.posicao,
     }
@@ -238,25 +243,26 @@ function PitchLines() {
   return (
     <g stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" fill="none">
       {/* Border */}
-      <rect x="20" y="20" width="740" height="470" rx="2" />
+      <rect x="15" y="15" width="480" height="750" rx="2" />
       {/* Center line */}
-      <line x1="20" y1="255" x2="760" y2="255" />
+      <line x1="15" y1="390" x2="495" y2="390" />
       {/* Center circle */}
-      <circle cx="390" cy="255" r="60" />
-      <circle cx="390" cy="255" r="3" fill="rgba(255,255,255,0.55)" />
-      {/* Goal areas */}
-      <rect x="290" y="20"  width="200" height="55" />
-      <rect x="340" y="20"  width="100" height="25" />
-      <rect x="290" y="435" width="200" height="55" />
-      <rect x="340" y="435" width="100" height="25" />
+      <circle cx="255" cy="390" r="60" />
+      <circle cx="255" cy="390" r="3" fill="rgba(255,255,255,0.55)" />
+      {/* Penalty areas */}
+      <rect x="105" y="15"  width="300" height="100" />
+      <rect x="105" y="665" width="300" height="100" />
+      {/* 6-yard boxes */}
+      <rect x="175" y="15"  width="160" height="42" />
+      <rect x="175" y="723" width="160" height="42" />
       {/* Penalty spots */}
-      <circle cx="390" cy="85"  r="3" fill="rgba(255,255,255,0.55)" />
-      <circle cx="390" cy="425" r="3" fill="rgba(255,255,255,0.55)" />
+      <circle cx="255" cy="125" r="3" fill="rgba(255,255,255,0.55)" />
+      <circle cx="255" cy="655" r="3" fill="rgba(255,255,255,0.55)" />
       {/* Corner arcs */}
-      <path d="M20,30 A10,10 0 0,1 30,20" />
-      <path d="M750,20 A10,10 0 0,1 760,30" />
-      <path d="M760,480 A10,10 0 0,1 750,490" />
-      <path d="M30,490 A10,10 0 0,1 20,480" />
+      <path d="M15,25 A10,10 0 0,1 25,15" />
+      <path d="M485,15 A10,10 0 0,1 495,25" />
+      <path d="M495,755 A10,10 0 0,1 485,765" />
+      <path d="M25,765 A10,10 0 0,1 15,755" />
     </g>
   )
 }
@@ -277,8 +283,8 @@ function ArrowSVG({ arrow, fromX, fromY, onRemove }: {
   const endX = arrow.toX - nx * 5
   const endY = arrow.toY - ny * 5
 
-  const color = arrow.type === "run" ? "#ffffff" : arrow.type === "run_no_ball" ? "#FFD700" : "#60A5FA"
-  const dash = arrow.type === "run_no_ball" ? "8,5" : arrow.type === "ball" ? "3,4" : "none"
+  const color = arrow.type === "run" ? "#FF4444" : "#60A5FA"
+  const dash  = arrow.type === "run_no_ball" ? "8,5" : "none"
 
   const angle = Math.atan2(ny, nx) * (180 / Math.PI)
   const arrowId = `arrowhead-${arrow.id}`
@@ -310,6 +316,7 @@ interface PlayerPinProps {
   x: number
   y: number
   label: string
+  posicao: string
   jogador: Jogador | null
   arrows: TacticArrow[]
   selectedArrowType: TacticArrowType
@@ -321,20 +328,28 @@ interface PlayerPinProps {
   onDragOver: (e: React.DragEvent) => void
   onDrop: (e: React.DragEvent) => void
   onDragStart: (e: React.DragEvent) => void
+  onPinDragStart: (slotKey: string) => void
   isOver: boolean
   scale?: number
 }
 
 function PlayerPin({
-  slotKey, x, y, label, jogador, arrows, selectedArrowType,
+  slotKey, x, y, label, posicao, jogador, arrows, selectedArrowType,
   isDrawingFrom, onStartArrow, onEndArrow, onRemoveArrow,
-  onSlotClick, onDragOver, onDrop, onDragStart, isOver, scale = 1,
+  onSlotClick, onDragOver, onDrop, onDragStart, onPinDragStart, isOver, scale = 1,
 }: PlayerPinProps) {
   const [hovered, setHovered] = useState(false)
-  const R = 22 * scale
+  const R = 26 * scale
 
-  const color = jogador ? sectorColor(jogador.posicoes) : "#444"
-  const borderColor = isDrawingFrom ? "#FFD700" : isOver ? "#00D66C" : hovered ? "#fff" : "rgba(255,255,255,0.4)"
+  // Color: sector-based for both occupied and empty slots
+  const posColor = sectorColor([posicao])
+  const occupiedColor = jogador ? sectorColor(jogador.posicoes) : posColor
+  const isEmpty = !jogador
+
+  const strokeColor = isDrawingFrom ? "#FFD700"
+    : isOver ? "#00D66C"
+    : hovered ? "#fff"
+    : isEmpty ? `${posColor}` : "rgba(255,255,255,0.4)"
 
   return (
     <g
@@ -354,7 +369,7 @@ function PlayerPin({
       ))}
 
       {/* Drop zone (invisible, larger) */}
-      <foreignObject x={-R - 8} y={-R - 8} width={(R + 8) * 2} height={(R + 8) * 2 + 16}
+      <foreignObject x={-R - 8} y={-R - 8} width={(R + 8) * 2} height={(R + 8) * 2 + 20}
         style={{ overflow: "visible" }}
         onDragOver={onDragOver}
         onDrop={onDrop}
@@ -363,9 +378,19 @@ function PlayerPin({
       </foreignObject>
 
       {/* Pin circle */}
-      <circle r={R} fill={color} stroke={borderColor} strokeWidth={isDrawingFrom ? 2.5 : 1.5}
-        style={{ cursor: "pointer", filter: hovered ? `drop-shadow(0 0 6px ${color})` : "none", transition: "all 0.15s" }}
+      <circle
+        r={R}
+        fill={isEmpty ? `${posColor}22` : occupiedColor}
+        stroke={strokeColor}
+        strokeWidth={isEmpty ? 1.8 : isDrawingFrom ? 2.5 : 1.5}
+        strokeDasharray={isEmpty ? "5,3" : "none"}
+        style={{
+          cursor: "grab",
+          filter: hovered ? `drop-shadow(0 0 8px ${isEmpty ? posColor : occupiedColor})` : "none",
+          transition: "all 0.15s",
+        }}
         onClick={onSlotClick}
+        onPointerDown={e => { e.stopPropagation(); onPinDragStart(slotKey) }}
       />
 
       {/* Photo or number */}
@@ -380,38 +405,45 @@ function PlayerPin({
             width={(R - 2) * 2} height={(R - 2) * 2}
             clipPath={`url(#clip-${slotKey})`}
             preserveAspectRatio="xMidYMid slice"
+            style={{ pointerEvents: "none" }}
           />
         </>
       ) : (
         <text textAnchor="middle" dominantBaseline="central"
-          fill="white" fontSize={R * 0.65} fontWeight="bold" style={{ pointerEvents: "none", userSelect: "none" }}>
-          {jogador ? jogador.numero : "+"}
+          fill={isEmpty ? posColor : "white"}
+          fontSize={isEmpty ? R * 0.52 : R * 0.65}
+          fontWeight="bold"
+          opacity={isEmpty ? 0.85 : 1}
+          style={{ pointerEvents: "none", userSelect: "none" }}>
+          {jogador ? jogador.numero : label}
         </text>
       )}
 
-      {/* Position label */}
-      <text textAnchor="middle" y={R + 11 * scale} fill="rgba(255,255,255,0.9)"
-        fontSize={9 * scale} fontWeight="600" style={{ pointerEvents: "none", userSelect: "none", letterSpacing: "0.05em" }}>
+      {/* Position label (below pin) */}
+      <text textAnchor="middle" y={R + 12 * scale} fill="rgba(255,255,255,0.9)"
+        fontSize={10 * scale} fontWeight="700"
+        style={{ pointerEvents: "none", userSelect: "none", letterSpacing: "0.06em" }}>
         {label}
       </text>
 
       {/* Player name */}
       {jogador && (
-        <text textAnchor="middle" y={R + 20 * scale} fill="rgba(255,255,255,0.7)"
-          fontSize={8 * scale} style={{ pointerEvents: "none", userSelect: "none" }}>
-          {displayName(jogador).split(" ").slice(-1)[0].substring(0, 8)}
+        <text textAnchor="middle" y={R + 23 * scale} fill="rgba(255,255,255,0.75)"
+          fontSize={9 * scale} fontWeight="500"
+          style={{ pointerEvents: "none", userSelect: "none" }}>
+          {displayName(jogador).split(" ").slice(-1)[0].substring(0, 9)}
         </text>
       )}
 
       {/* Arrow handle (shown on hover) — drag to draw arrow */}
       {(hovered || isDrawingFrom) && (
         <g>
-          <circle r={R + 8} fill="transparent" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="3,2" />
-          <circle r={6} cx={0} cy={-(R + 8)}
+          <circle r={R + 9} fill="transparent" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeDasharray="3,2" />
+          <circle r={6} cx={0} cy={-(R + 9)}
             fill={isDrawingFrom ? "#FFD700" : "#00D66C"}
             stroke="white" strokeWidth="1"
             style={{ cursor: "crosshair" }}
-            onMouseDown={(e) => { e.stopPropagation(); onStartArrow(slotKey) }}
+            onPointerDown={e => { e.stopPropagation(); onStartArrow(slotKey) }}
           />
         </g>
       )}
@@ -437,6 +469,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
   const [dragOver, setDragOver] = useState<string | null>(null)
   const [selectedArrowType, setSelectedArrowType] = useState<TacticArrowType>("run")
+  const [draggingPin, setDraggingPin] = useState<string | null>(null)
 
   const arrows = mode === "ip" ? tatica.ipArrows : tatica.oopArrows
   const setArrows = (fn: (prev: TacticArrow[]) => TacticArrow[]) => {
@@ -444,15 +477,17 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
     onUpdate(mode === "ip" ? { ipArrows: updated } : { oopArrows: updated })
   }
 
-  const slotPositions = computeSlotPositions(tatica.formacao, tatica.mentalidade, tatica.atacarPorCorredor)
+  const slotPositions = computeSlotPositions(
+    tatica.formacao, tatica.mentalidade, tatica.atacarPorCorredor, tatica.slotOverrides ?? {}
+  )
 
-  // Convert SVG coordinates from mouse event
-  function svgCoords(e: React.MouseEvent): { x: number; y: number } {
+  // Convert SVG coordinates from mouse/pointer event
+  function svgCoords(e: React.MouseEvent | React.PointerEvent): { x: number; y: number } {
     const svg = svgRef.current
     if (!svg) return { x: 0, y: 0 }
     const rect = svg.getBoundingClientRect()
-    const scaleX = 780 / rect.width
-    const scaleY = 510 / rect.height
+    const scaleX = 510 / rect.width
+    const scaleY = 780 / rect.height
     return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY }
   }
 
@@ -486,12 +521,22 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
     setDrawingFrom(slotKey)
   }
 
-  function handleSvgMouseMove(e: React.MouseEvent) {
+  function handleSvgPointerMove(e: React.PointerEvent) {
+    if (draggingPin) {
+      const pos = svgCoords(e)
+      const clamped = { x: Math.max(30, Math.min(480, pos.x)), y: Math.max(30, Math.min(750, pos.y)) }
+      onUpdate({ slotOverrides: { ...(tatica.slotOverrides ?? {}), [draggingPin]: clamped } })
+      return
+    }
     if (!drawingFrom) return
     setMousePos(svgCoords(e))
   }
 
-  function handleSvgMouseUp(e: React.MouseEvent) {
+  function handleSvgPointerUp(e: React.PointerEvent) {
+    if (draggingPin) {
+      setDraggingPin(null)
+      return
+    }
     if (!drawingFrom) return
     const pos = svgCoords(e)
     // Find if we're over a slot (to prevent arrow pointing to same pin area)
@@ -520,19 +565,18 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
       {/* Arrow type selector */}
       {!compact && (
         <div className="flex items-center gap-1 justify-center">
-          <span className="text-[9px] text-muted-foreground uppercase tracking-wider mr-1">Seta:</span>
+          <span className="text-[9px] text-muted-foreground uppercase tracking-wider mr-1">Arrow:</span>
           {([
-            { v: "run",         label: "Com bola",    color: "#ffffff" },
-            { v: "run_no_ball", label: "Sem bola",    color: "#FFD700" },
-            { v: "ball",        label: "Passe/Bola",  color: "#60A5FA" },
+            { v: "run",         label: "With ball",   color: "#FF4444" },
+            { v: "run_no_ball", label: "Without ball", color: "#60A5FA" },
           ] as const).map(opt => (
             <button key={opt.v} onClick={() => setSelectedArrowType(opt.v)}
               className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-semibold border transition-all"
               style={selectedArrowType === opt.v
                 ? { background: opt.color + "33", borderColor: opt.color, color: opt.color }
                 : { borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
-              <span style={{ display: "inline-block", width: 20, height: 2, background: opt.color,
-                borderTop: opt.v === "run_no_ball" ? `2px dashed ${opt.color}` : opt.v === "ball" ? `2px dotted ${opt.color}` : `2px solid ${opt.color}`,
+              <span style={{ display: "inline-block", width: 20, height: 2,
+                borderTop: opt.v === "run_no_ball" ? `2px dashed ${opt.color}` : `2px solid ${opt.color}`,
               }} />
               {opt.label}
             </button>
@@ -543,27 +587,30 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
       <div className="relative">
         <svg
           ref={svgRef}
-          viewBox="0 0 780 510"
+          viewBox="0 0 510 780"
           className="w-full rounded-xl"
           style={{
-            cursor: drawingFrom ? "crosshair" : "default",
+            cursor: draggingPin ? "grabbing" : drawingFrom ? "crosshair" : "default",
             userSelect: "none",
           }}
-          onMouseMove={handleSvgMouseMove}
-          onMouseUp={handleSvgMouseUp}
-          onMouseLeave={() => { if (drawingFrom) { setDrawingFrom(null); setMousePos(null) } }}
+          onPointerMove={handleSvgPointerMove}
+          onPointerUp={handleSvgPointerUp}
+          onPointerLeave={() => {
+            if (draggingPin) setDraggingPin(null)
+            if (drawingFrom) { setDrawingFrom(null); setMousePos(null) }
+          }}
         >
           {/* Real grass photo background */}
-          <image href="/pitch-grass-real.jpg" x="0" y="0" width="780" height="510" preserveAspectRatio="xMidYMid slice" />
-          <rect x="0" y="0" width="780" height="510" fill="rgba(0,0,0,0.22)" />
+          <image href="/pitch-grass-real.jpg" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+          <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.22)" />
           <PitchLines />
 
           {/* Preview arrow while drawing */}
           {drawingFrom && mousePos && (() => {
             const from = slotPositions.find(s => s.slotKey === drawingFrom)
             if (!from) return null
-            const color = selectedArrowType === "run" ? "#ffffff" : selectedArrowType === "run_no_ball" ? "#FFD700" : "#60A5FA"
-            const dash = selectedArrowType === "run_no_ball" ? "8,5" : selectedArrowType === "ball" ? "3,4" : "none"
+            const color = selectedArrowType === "run" ? "#FF4444" : "#60A5FA"
+            const dash  = selectedArrowType === "run_no_ball" ? "8,5" : "none"
             return (
               <line x1={from.x} y1={from.y} x2={mousePos.x} y2={mousePos.y}
                 stroke={color} strokeWidth="2" strokeDasharray={dash} opacity="0.6"
@@ -595,6 +642,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
               x={slot.x}
               y={slot.y}
               label={slot.label}
+              posicao={slot.posicao}
               jogador={getSlotJogador(slot.slotKey)}
               arrows={[]} // arrows handled above globally
               selectedArrowType={selectedArrowType}
@@ -606,6 +654,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
               onDragOver={e => { e.preventDefault(); setDragOver(slot.slotKey) }}
               onDrop={e => handleDrop(slot.slotKey, e)}
               onDragStart={() => {}}
+              onPinDragStart={slotKey => { if (!drawingFrom) setDraggingPin(slotKey) }}
               isOver={dragOver === slot.slotKey}
               scale={scale}
             />
@@ -613,7 +662,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
 
           {/* Label in SVG only when not compact */}
           {label && !compact && (
-            <text x="30" y="498" fill="rgba(255,255,255,0.5)" fontSize="11" fontWeight="600"
+            <text x="25" y="770" fill="rgba(255,255,255,0.5)" fontSize="11" fontWeight="600"
               letterSpacing="0.08em" style={{ textTransform: "uppercase" }}>
               {label}
             </text>
@@ -730,27 +779,30 @@ const MENTALITY_OPTIONS: { value: TacticaConfig["mentalidade"]; label: string; c
   { value: "very_defensive",  label: "Very Defensive",   color: "#8B5CF6", short: "V.DEF" },
 ]
 
-function MentalitySelector({ value, onChange }: {
+function MentalitySelector({ value, onChange, compact = false }: {
   value: TacticaConfig["mentalidade"]
   onChange: (v: TacticaConfig["mentalidade"]) => void
+  compact?: boolean
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">Mentality</div>
+      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">
+        {compact ? "Ment." : "Mentality"}
+      </div>
       {MENTALITY_OPTIONS.map(opt => (
         <button
           key={opt.value}
           onClick={() => onChange(opt.value)}
-          className="flex items-center gap-2 px-2 py-1.5 rounded-lg border transition-all text-left"
+          className="flex items-center gap-1.5 px-1.5 py-1.5 rounded-lg border transition-all text-left"
           style={value === opt.value
             ? { background: opt.color + "22", borderColor: opt.color, boxShadow: `0 0 8px ${opt.color}44` }
             : { borderColor: "rgba(255,255,255,0.08)", background: "transparent" }}
         >
           <div className="w-2 h-2 rounded-full shrink-0 transition-all"
             style={{ background: value === opt.value ? opt.color : "rgba(255,255,255,0.15)" }} />
-          <span className="text-[10px] font-semibold"
+          <span className="text-[9px] font-semibold"
             style={{ color: value === opt.value ? opt.color : "rgba(255,255,255,0.5)" }}>
-            {opt.label}
+            {compact ? opt.short : opt.label}
           </span>
         </button>
       ))}
@@ -929,7 +981,7 @@ export function TacticsTab() {
   }, [])
 
   function changeFormation(formacao: string) {
-    update({ formacao, titulares: [], ipArrows: [], oopArrows: [] })
+    update({ formacao, titulares: [], ipArrows: [], oopArrows: [], slotOverrides: {} })
   }
 
   function handleUnassign(jogadorId: string) {
@@ -1011,12 +1063,37 @@ export function TacticsTab() {
           )}
           {tab === "both" && (
             <div className="flex flex-col gap-3">
-              <div className="flex gap-3 items-start">
-                <div className="flex-1 min-w-0">
-                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"  compact label="In Possession" />
+              <div className="flex gap-2 items-start">
+                {/* Left — IP mentality */}
+                <div className="w-16 shrink-0">
+                  <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v })} compact />
                 </div>
+                {/* IP pitch */}
                 <div className="flex-1 min-w-0">
-                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" compact label="Out of Possession" />
+                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact label="In Possession" />
+                </div>
+                {/* OOP pitch */}
+                <div className="flex-1 min-w-0">
+                  <PitchSVG
+                    tatica={{ ...tatica, mentalidade: tatica.mentalidade_oop ?? "balanced" }}
+                    jogadores={jogadores}
+                    onUpdate={p => {
+                      // Don't let OOP pitch override mentalidade (IP's field)
+                      const { mentalidade: _, ...rest } = p
+                      update(rest)
+                    }}
+                    mode="oop"
+                    compact
+                    label="Out of Possession"
+                  />
+                </div>
+                {/* Right — OOP mentality */}
+                <div className="w-16 shrink-0">
+                  <MentalitySelector
+                    value={tatica.mentalidade_oop ?? "balanced"}
+                    onChange={v => update({ mentalidade_oop: v })}
+                    compact
+                  />
                 </div>
               </div>
               <TacticsSettingsPanelHorizontal tatica={tatica} onUpdate={update} />
