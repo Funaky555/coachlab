@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useId } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Camera, RotateCcw, ChevronDown } from "lucide-react"
+import { Camera, RotateCcw, ChevronDown, Settings2 } from "lucide-react"
 import {
   type Jogador, type TacticaConfig, type TacticArrow, type TacticArrowType,
   getJogadores, getTatica, saveTatica, getPrimarySetor, displayName,
@@ -557,7 +557,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
           viewBox="0 0 510 780"
           className="rounded-xl mx-auto block"
           style={{
-            height: compact ? "calc(100dvh - 195px)" : "calc(100dvh - 155px)",
+            height: compact ? "calc(100dvh - 90px)" : "calc(100dvh - 54px)",
             width: "auto",
             maxWidth: "100%",
             cursor: draggingPinState ? "grabbing" : drawingFrom ? "crosshair" : "default",
@@ -574,7 +574,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
           onDrop={handleSvgDrop}
         >
           {/* Field photo background */}
-          <image href="/22.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+          <image href="/23.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
           <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.08)" />
 
           {/* Preview arrow while drawing */}
@@ -634,6 +634,24 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
             </text>
           )}
         </svg>
+        {/* Arrow type overlay */}
+        <div className="absolute bottom-2 left-2 z-10 flex gap-1">
+          {([
+            { v: "run" as const,         label: "Run",     color: "#FF4444" },
+            { v: "run_no_ball" as const, label: "No ball", color: "#60A5FA" },
+          ]).map(opt => (
+            <button key={opt.v} onClick={() => onChangeArrowType(opt.v)}
+              className="px-2 py-0.5 rounded text-[8px] font-bold border transition-all"
+              style={selectedArrowType === opt.v
+                ? { background: opt.color + "33", borderColor: opt.color, color: opt.color }
+                : { background: "rgba(0,0,0,0.55)", borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.45)" }
+              }
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
         {/* Label below SVG when compact */}
         {label && compact && (
           <div className="text-center text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mt-1">
@@ -659,7 +677,7 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
       <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
         Bench <span className="text-[#00D66C]">{bench.length}</span>
       </div>
-      <div className="flex flex-col gap-1.5 overflow-y-auto flex-1 pr-0.5" style={{ maxHeight: 480 }}>
+      <div className="flex flex-col gap-1.5 overflow-y-auto flex-1 min-h-0 pr-0.5">
         {bench.map(j => {
           const color = sectorColor(j.posicoes)
           return (
@@ -697,7 +715,7 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
       {/* Assigned players — drag back to bench */}
       <div className="border-t border-border/20 pt-1 mt-1">
         <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Em campo</div>
-        <div className="flex flex-col gap-1 overflow-y-auto" style={{ maxHeight: 180 }}>
+        <div className="flex flex-col gap-1 overflow-y-auto" style={{ maxHeight: "35vh" }}>
           {tatica.titulares.filter(s => s.jogadorId).map(slot => {
             const j = jogadores.find(p => p.id === slot.jogadorId)
             if (!j) return null
@@ -947,6 +965,34 @@ function FormationPickerDialog({ value, onChange }: {
   )
 }
 
+// ─── Mentality Dropdown (top bar compacto) ────────────────────────────────────
+
+function MentalityDropdown({ label, value, onChange }: {
+  label?: string
+  value: TacticaConfig["mentalidade"]
+  onChange: (v: TacticaConfig["mentalidade"]) => void
+}) {
+  const opt = MENTALITY_OPTIONS.find(o => o.value === value) ?? MENTALITY_OPTIONS[2]
+  return (
+    <div className="relative flex items-center gap-1.5">
+      {label && <span className="text-[9px] text-muted-foreground uppercase font-bold shrink-0">{label}:</span>}
+      <div className="relative">
+        <select
+          value={value}
+          onChange={e => onChange(e.target.value as TacticaConfig["mentalidade"])}
+          className="h-7 pl-2 pr-6 rounded-lg border border-border/40 bg-background/60 hover:bg-background/90 transition-all text-[11px] font-bold appearance-none cursor-pointer"
+          style={{ color: opt.color }}
+        >
+          {MENTALITY_OPTIONS.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <ChevronDown className="w-3 h-3 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: opt.color }} />
+      </div>
+    </div>
+  )
+}
+
 // ─── Main TacticsTab ──────────────────────────────────────────────────────────
 
 type TabMode = "ip" | "oop" | "both"
@@ -956,6 +1002,7 @@ export function TacticsTab() {
   const [tatica, setTatica] = useState<TacticaConfig>(getTatica())
   const [tab, setTab] = useState<TabMode>("ip")
   const [arrowType, setArrowType] = useState<TacticArrowType>("run")
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const pitchRef = useRef<HTMLDivElement>(null)
   const uid = useId()
 
@@ -1008,20 +1055,40 @@ export function TacticsTab() {
     }`
 
   return (
-    <div className="flex flex-col gap-3 h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* ── TOP BAR ── */}
-      <div className="flex items-center gap-2 flex-wrap justify-between">
-        <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2 px-2 h-[46px] border-b border-border/20 shrink-0 overflow-hidden">
+        {/* Formation */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <div className="text-[9px] text-muted-foreground uppercase tracking-wider hidden sm:block">Formation</div>
+          <FormationPickerDialog value={tatica.formacao} onChange={changeFormation} />
+        </div>
+
+        {/* Mentality */}
+        {tab !== "both" && (
+          <MentalityDropdown value={tatica.mentalidade} onChange={v => update({ mentalidade: v, slotOverrides: {} })} />
+        )}
+        {tab === "both" && (
+          <>
+            <MentalityDropdown label="IP" value={tatica.mentalidade} onChange={v => update({ mentalidade: v, slotOverrides: {} })} />
+            <MentalityDropdown label="OOP" value={tatica.mentalidade_oop ?? "balanced"} onChange={v => update({ mentalidade_oop: v, slotOverrides: {} })} />
+          </>
+        )}
+
+        {/* Tabs */}
+        <div className="flex items-center gap-1 ml-auto shrink-0">
           <button className={tabBtnClass(tab === "ip")}   onClick={() => setTab("ip")}>In Possession</button>
           <button className={tabBtnClass(tab === "oop")}  onClick={() => setTab("oop")}>Out of Possession</button>
           <button className={tabBtnClass(tab === "both")} onClick={() => setTab("both")}>Both</button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="text-[9px] text-muted-foreground uppercase tracking-wider">Formation</div>
-          <FormationPickerDialog value={tatica.formacao} onChange={changeFormation} />
-
-          {/* Action buttons */}
+        {/* Settings + Export + Reset */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button onClick={() => setSettingsOpen(true)}
+            className="flex items-center gap-1 px-2 py-1 rounded border border-border/30 text-muted-foreground hover:bg-muted/20 transition-all"
+            title="Settings">
+            <Settings2 className="w-3.5 h-3.5" />
+          </button>
           <button onClick={handleExport}
             className="flex items-center gap-1 px-2 py-1 rounded border border-[#8B5CF6]/40 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 transition-all"
             title="Exportar PNG">
@@ -1038,40 +1105,10 @@ export function TacticsTab() {
       </div>
 
       {/* ── MAIN AREA ── */}
-      <div className="flex gap-2 flex-1 min-h-0 overflow-hidden">
-
-        {/* LEFT — Mentality + Arrow type (hidden in Both mode) */}
-        {tab !== "both" && (
-          <div className="w-24 shrink-0 flex flex-col gap-3">
-            <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v, slotOverrides: {} })} />
-            {/* Arrow type selector */}
-            <div className="flex flex-col gap-1">
-              <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">Arrow</div>
-              {([
-                { v: "run",         label: "With ball",    color: "#FF4444" },
-                { v: "run_no_ball", label: "Without ball", color: "#60A5FA" },
-              ] as const).map(opt => (
-                <button key={opt.v} onClick={() => setArrowType(opt.v)}
-                  className="flex items-center gap-1.5 px-1.5 py-1.5 rounded-lg border transition-all text-left"
-                  style={arrowType === opt.v
-                    ? { background: opt.color + "22", borderColor: opt.color, boxShadow: `0 0 8px ${opt.color}44` }
-                    : { borderColor: "rgba(255,255,255,0.08)", background: "transparent" }}>
-                  <span style={{
-                    display: "inline-block", width: 16, height: 2, flexShrink: 0,
-                    borderTop: opt.v === "run_no_ball" ? `2px dashed ${opt.color}` : `2px solid ${opt.color}`,
-                  }} />
-                  <span className="text-[9px] font-semibold leading-tight"
-                    style={{ color: arrowType === opt.v ? opt.color : "rgba(255,255,255,0.5)" }}>
-                    {opt.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
 
         {/* CENTER — Pitch(es) */}
-        <div ref={pitchRef} className="flex-1 min-w-0">
+        <div ref={pitchRef} className="flex-1 min-w-0 min-h-0">
           {tab === "ip" && (
             <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" label="In Possession"
               selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
@@ -1081,51 +1118,45 @@ export function TacticsTab() {
               selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
           )}
           {tab === "both" && (
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-2 items-start">
-                {/* Left — IP mentality */}
-                <div className="w-24 shrink-0">
-                  <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v, slotOverrides: {} })} />
-                </div>
-                {/* IP pitch */}
-                <div className="flex-1 min-w-0">
-                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact label="In Possession"
-                    selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
-                </div>
-                {/* OOP pitch */}
-                <div className="flex-1 min-w-0">
-                  <PitchSVG
-                    tatica={{ ...tatica, mentalidade: tatica.mentalidade_oop ?? "balanced" }}
-                    jogadores={jogadores}
-                    onUpdate={p => {
-                      const { mentalidade: _, ...rest } = p
-                      update(rest)
-                    }}
-                    mode="oop"
-                    compact
-                    label="Out of Possession"
-                    selectedArrowType={arrowType}
-                    onChangeArrowType={setArrowType}
-                  />
-                </div>
-                {/* Right — OOP mentality */}
-                <div className="w-24 shrink-0">
-                  <MentalitySelector
-                    value={tatica.mentalidade_oop ?? "balanced"}
-                    onChange={v => update({ mentalidade_oop: v, slotOverrides: {} })}
-                  />
-                </div>
+            <div className="flex gap-1 h-full">
+              <div className="flex-1 min-w-0">
+                <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact label="In Possession"
+                  selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
               </div>
-              <TacticsSettingsPanelHorizontal tatica={tatica} onUpdate={update} />
+              <div className="flex-1 min-w-0">
+                <PitchSVG
+                  tatica={{ ...tatica, mentalidade: tatica.mentalidade_oop ?? "balanced" }}
+                  jogadores={jogadores}
+                  onUpdate={p => {
+                    const { mentalidade: _, ...rest } = p
+                    update(rest)
+                  }}
+                  mode="oop"
+                  compact
+                  label="Out of Possession"
+                  selectedArrowType={arrowType}
+                  onChangeArrowType={setArrowType}
+                />
+              </div>
             </div>
           )}
         </div>
 
         {/* RIGHT — Bench */}
-        <div className="w-28 shrink-0 border-l border-border/20 pl-2">
+        <div className="w-44 shrink-0 border-l border-border/20 pl-2 pt-2 flex flex-col overflow-hidden">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
       </div>
+
+      {/* Settings Dialog */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold">Tactics Settings</DialogTitle>
+          </DialogHeader>
+          <TacticsSettingsPanel tatica={tatica} onUpdate={update} />
+        </DialogContent>
+      </Dialog>
 
       {/* Hidden uid usage to suppress lint warning */}
       <span className="hidden" aria-hidden>{uid}</span>
