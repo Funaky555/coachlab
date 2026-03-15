@@ -166,7 +166,7 @@ function getPositions(formacao: string) {
 
 function sectorColor(posicoes: string[]): string {
   const setor = getPrimarySetor(posicoes as Parameters<typeof getPrimarySetor>[0])
-  if (setor === "GR")  return "#7F0000"
+  if (setor === "GR")  return "#111111"
   if (setor === "DEF") return "#0277BD"
   if (setor === "MED") return "#8B5CF6"
   return "#FF6B35"
@@ -318,25 +318,19 @@ interface PlayerPinProps {
   label: string
   posicao: string
   jogador: Jogador | null
-  arrows: TacticArrow[]
-  selectedArrowType: TacticArrowType
   isDrawingFrom: boolean
   onStartArrow: (slotKey: string) => void
-  onEndArrow: (toX: number, toY: number) => void
   onRemoveArrow: (id: string) => void
   onSlotClick: () => void
-  onDragOver: (e: React.DragEvent) => void
-  onDrop: (e: React.DragEvent) => void
-  onDragStart: (e: React.DragEvent) => void
-  onPinDragStart: (slotKey: string) => void
   isOver: boolean
+  isDragging: boolean
   scale?: number
 }
 
 function PlayerPin({
-  slotKey, x, y, label, posicao, jogador, arrows, selectedArrowType,
-  isDrawingFrom, onStartArrow, onEndArrow, onRemoveArrow,
-  onSlotClick, onDragOver, onDrop, onDragStart, onPinDragStart, isOver, scale = 1,
+  slotKey, x, y, label, posicao, jogador,
+  isDrawingFrom, onStartArrow, onRemoveArrow,
+  onSlotClick, isOver, isDragging, scale = 1,
 }: PlayerPinProps) {
   const [hovered, setHovered] = useState(false)
   const R = 26 * scale
@@ -356,27 +350,8 @@ function PlayerPin({
       transform={`translate(${x},${y})`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      style={{ cursor: isDragging ? "grabbing" : "grab" }}
     >
-      {/* Arrows from this pin */}
-      {arrows.map(a => (
-        <ArrowSVG
-          key={a.id}
-          arrow={a}
-          fromX={0}
-          fromY={0}
-          onRemove={() => onRemoveArrow(a.id)}
-        />
-      ))}
-
-      {/* Drop zone (invisible, larger) */}
-      <foreignObject x={-R - 8} y={-R - 8} width={(R + 8) * 2} height={(R + 8) * 2 + 20}
-        style={{ overflow: "visible" }}
-        onDragOver={onDragOver}
-        onDrop={onDrop}
-      >
-        <div style={{ width: "100%", height: "100%", opacity: 0 }} />
-      </foreignObject>
-
       {/* Pin circle */}
       <circle
         r={R}
@@ -385,12 +360,10 @@ function PlayerPin({
         strokeWidth={isEmpty ? 1.8 : isDrawingFrom ? 2.5 : 1.5}
         strokeDasharray={isEmpty ? "5,3" : "none"}
         style={{
-          cursor: "grab",
           filter: hovered ? `drop-shadow(0 0 8px ${isEmpty ? posColor : occupiedColor})` : "none",
-          transition: "all 0.15s",
+          transition: "filter 0.15s",
         }}
         onClick={onSlotClick}
-        onPointerDown={e => { e.stopPropagation(); onPinDragStart(slotKey) }}
       />
 
       {/* Photo or number */}
@@ -469,7 +442,9 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
   const [dragOver, setDragOver] = useState<string | null>(null)
   const [selectedArrowType, setSelectedArrowType] = useState<TacticArrowType>("run")
-  const [draggingPin, setDraggingPin] = useState<string | null>(null)
+  // Use ref for dragging pin to avoid async state lag
+  const draggingPinRef = useRef<string | null>(null)
+  const [draggingPinState, setDraggingPinState] = useState<string | null>(null)
 
   const arrows = mode === "ip" ? tatica.ipArrows : tatica.oopArrows
   const setArrows = (fn: (prev: TacticArrow[]) => TacticArrow[]) => {
@@ -510,22 +485,30 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
     if (current) assignToSlot(slotKey, undefined)
   }
 
-  function handleDrop(slotKey: string, e: React.DragEvent) {
-    e.preventDefault()
-    const jogadorId = e.dataTransfer.getData("jogadorId")
-    if (jogadorId) assignToSlot(slotKey, jogadorId)
-    setDragOver(null)
-  }
-
   function handleStartArrow(slotKey: string) {
     setDrawingFrom(slotKey)
   }
 
+  function handleSvgPointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    if (drawingFrom) return
+    const pos = svgCoords(e)
+    const pinR = (26 * scale) + 8
+    const hit = slotPositions.find(s =>
+      Math.sqrt((pos.x - s.x) ** 2 + (pos.y - s.y) ** 2) < pinR
+    )
+    if (hit) {
+      e.preventDefault()
+      draggingPinRef.current = hit.slotKey
+      setDraggingPinState(hit.slotKey)
+      e.currentTarget.setPointerCapture(e.pointerId)
+    }
+  }
+
   function handleSvgPointerMove(e: React.PointerEvent) {
-    if (draggingPin) {
+    if (draggingPinRef.current) {
       const pos = svgCoords(e)
       const clamped = { x: Math.max(30, Math.min(480, pos.x)), y: Math.max(30, Math.min(750, pos.y)) }
-      onUpdate({ slotOverrides: { ...(tatica.slotOverrides ?? {}), [draggingPin]: clamped } })
+      onUpdate({ slotOverrides: { ...(tatica.slotOverrides ?? {}), [draggingPinRef.current]: clamped } })
       return
     }
     if (!drawingFrom) return
@@ -533,29 +516,53 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
   }
 
   function handleSvgPointerUp(e: React.PointerEvent) {
-    if (draggingPin) {
-      setDraggingPin(null)
+    if (draggingPinRef.current) {
+      draggingPinRef.current = null
+      setDraggingPinState(null)
       return
     }
     if (!drawingFrom) return
     const pos = svgCoords(e)
-    // Find if we're over a slot (to prevent arrow pointing to same pin area)
     const fromSlot = slotPositions.find(s => s.slotKey === drawingFrom)
     if (!fromSlot) { setDrawingFrom(null); setMousePos(null); return }
 
     const dist = Math.sqrt((pos.x - fromSlot.x) ** 2 + (pos.y - fromSlot.y) ** 2)
     if (dist > 25) {
-      const newArrow: TacticArrow = {
+      setArrows(prev => [...prev, {
         id: crypto.randomUUID(),
         slotKey: drawingFrom,
         toX: pos.x,
         toY: pos.y,
         type: selectedArrowType,
-      }
-      setArrows(prev => [...prev, newArrow])
+      }])
     }
     setDrawingFrom(null)
     setMousePos(null)
+  }
+
+  function handleSvgDragOver(e: React.DragEvent<SVGSVGElement>) {
+    e.preventDefault()
+    const pos = svgCoords(e)
+    let nearest = { slotKey: "", dist: Infinity }
+    slotPositions.forEach(s => {
+      const d = Math.sqrt((pos.x - s.x) ** 2 + (pos.y - s.y) ** 2)
+      if (d < nearest.dist) nearest = { slotKey: s.slotKey, dist: d }
+    })
+    setDragOver(nearest.dist < 80 ? nearest.slotKey : null)
+  }
+
+  function handleSvgDrop(e: React.DragEvent<SVGSVGElement>) {
+    e.preventDefault()
+    const jogadorId = e.dataTransfer.getData("jogadorId")
+    if (!jogadorId) { setDragOver(null); return }
+    const pos = svgCoords(e)
+    let nearest = { slotKey: "", dist: Infinity }
+    slotPositions.forEach(s => {
+      const d = Math.sqrt((pos.x - s.x) ** 2 + (pos.y - s.y) ** 2)
+      if (d < nearest.dist) nearest = { slotKey: s.slotKey, dist: d }
+    })
+    if (nearest.dist < 80) assignToSlot(nearest.slotKey, jogadorId)
+    setDragOver(null)
   }
 
   const scale = compact ? 0.85 : 1
@@ -588,17 +595,23 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
         <svg
           ref={svgRef}
           viewBox="0 0 510 780"
-          className="w-full rounded-xl"
+          className="rounded-xl mx-auto block"
           style={{
-            cursor: draggingPin ? "grabbing" : drawingFrom ? "crosshair" : "default",
+            height: "calc(100vh - 190px)",
+            width: "auto",
+            maxWidth: "100%",
+            cursor: draggingPinState ? "grabbing" : drawingFrom ? "crosshair" : "default",
             userSelect: "none",
           }}
+          onPointerDown={handleSvgPointerDown}
           onPointerMove={handleSvgPointerMove}
           onPointerUp={handleSvgPointerUp}
           onPointerLeave={() => {
-            if (draggingPin) setDraggingPin(null)
+            if (draggingPinRef.current) { draggingPinRef.current = null; setDraggingPinState(null) }
             if (drawingFrom) { setDrawingFrom(null); setMousePos(null) }
           }}
+          onDragOver={handleSvgDragOver}
+          onDrop={handleSvgDrop}
         >
           {/* Real grass photo background */}
           <image href="/pitch-grass-real.jpg" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
@@ -644,18 +657,12 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
               label={slot.label}
               posicao={slot.posicao}
               jogador={getSlotJogador(slot.slotKey)}
-              arrows={[]} // arrows handled above globally
-              selectedArrowType={selectedArrowType}
               isDrawingFrom={drawingFrom === slot.slotKey}
               onStartArrow={handleStartArrow}
-              onEndArrow={() => {}}
               onRemoveArrow={() => {}}
               onSlotClick={() => handleSlotClick(slot.slotKey)}
-              onDragOver={e => { e.preventDefault(); setDragOver(slot.slotKey) }}
-              onDrop={e => handleDrop(slot.slotKey, e)}
-              onDragStart={() => {}}
-              onPinDragStart={slotKey => { if (!drawingFrom) setDraggingPin(slotKey) }}
               isOver={dragOver === slot.slotKey}
+              isDragging={draggingPinState === slot.slotKey}
               scale={scale}
             />
           ))}
@@ -900,15 +907,16 @@ function TacticsSettingsPanelHorizontal({ tatica, onUpdate }: {
 
 function FormationShape({ formation }: { formation: string }) {
   const slots = computeSlotPositions(formation, "balanced", "wide")
+  // Portrait mini field: 54x82, field bounds x=15-495, y=15-765
   return (
-    <svg width="80" height="56" viewBox="0 0 80 56">
-      <rect x="0" y="0" width="80" height="56" rx="3" fill="#1a4a2e" />
-      <line x1="0" y1="28" x2="80" y2="28" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
+    <svg width="54" height="82" viewBox="0 0 54 82">
+      <rect x="0" y="0" width="54" height="82" rx="3" fill="#1a4a2e" />
+      <line x1="0" y1="41" x2="54" y2="41" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
       {slots.map((s, i) => {
-        const cx = 4 + (s.x - 40) / 700 * 72
-        const cy = 4 + (s.y - 40) / 430 * 48
+        const cx = 2 + (s.x - 15) / 480 * 50
+        const cy = 2 + (s.y - 15) / 750 * 78
         const isGK = s.posicao === "GK"
-        return <circle key={i} cx={cx} cy={cy} r={isGK ? 3.5 : 3} fill={isGK ? "#7F0000" : "#0066FF"} />
+        return <circle key={i} cx={cx} cy={cy} r={isGK ? 3 : 2.5} fill={isGK ? "#111111" : "#0066FF"} />
       })}
     </svg>
   )
@@ -1016,7 +1024,7 @@ export function TacticsTab() {
     }`
 
   return (
-    <div className="flex flex-col gap-3 min-h-[700px]">
+    <div className="flex flex-col gap-3 h-full">
       {/* ── TOP BAR ── */}
       <div className="flex items-center gap-2 flex-wrap justify-between">
         <div className="flex items-center gap-1.5">
@@ -1046,12 +1054,14 @@ export function TacticsTab() {
       </div>
 
       {/* ── MAIN AREA ── */}
-      <div className="flex gap-2 flex-1 min-h-0">
+      <div className="flex gap-2 flex-1 min-h-0 overflow-hidden">
 
-        {/* LEFT — Mentality */}
-        <div className="w-24 shrink-0">
-          <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v })} />
-        </div>
+        {/* LEFT — Mentality (hidden in Both mode to avoid duplication) */}
+        {tab !== "both" && (
+          <div className="w-24 shrink-0">
+            <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v })} />
+          </div>
+        )}
 
         {/* CENTER — Pitch(es) */}
         <div ref={pitchRef} className="flex-1 min-w-0">
@@ -1065,8 +1075,8 @@ export function TacticsTab() {
             <div className="flex flex-col gap-3">
               <div className="flex gap-2 items-start">
                 {/* Left — IP mentality */}
-                <div className="w-16 shrink-0">
-                  <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v })} compact />
+                <div className="w-24 shrink-0">
+                  <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v })} />
                 </div>
                 {/* IP pitch */}
                 <div className="flex-1 min-w-0">
@@ -1088,11 +1098,10 @@ export function TacticsTab() {
                   />
                 </div>
                 {/* Right — OOP mentality */}
-                <div className="w-16 shrink-0">
+                <div className="w-24 shrink-0">
                   <MentalitySelector
                     value={tatica.mentalidade_oop ?? "balanced"}
                     onChange={v => update({ mentalidade_oop: v })}
-                    compact
                   />
                 </div>
               </div>
