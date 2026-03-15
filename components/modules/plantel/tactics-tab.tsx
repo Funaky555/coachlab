@@ -239,33 +239,6 @@ function computeSlotPositions(
 
 // ─── SVG Pitch ────────────────────────────────────────────────────────────────
 
-function PitchLines() {
-  return (
-    <g stroke="rgba(255,255,255,0.55)" strokeWidth="1.5" fill="none">
-      {/* Border */}
-      <rect x="15" y="15" width="480" height="750" rx="2" />
-      {/* Center line */}
-      <line x1="15" y1="390" x2="495" y2="390" />
-      {/* Center circle */}
-      <circle cx="255" cy="390" r="60" />
-      <circle cx="255" cy="390" r="3" fill="rgba(255,255,255,0.55)" />
-      {/* Penalty areas */}
-      <rect x="105" y="15"  width="300" height="100" />
-      <rect x="105" y="665" width="300" height="100" />
-      {/* 6-yard boxes */}
-      <rect x="175" y="15"  width="160" height="42" />
-      <rect x="175" y="723" width="160" height="42" />
-      {/* Penalty spots */}
-      <circle cx="255" cy="125" r="3" fill="rgba(255,255,255,0.55)" />
-      <circle cx="255" cy="655" r="3" fill="rgba(255,255,255,0.55)" />
-      {/* Corner arcs */}
-      <path d="M15,25 A10,10 0 0,1 25,15" />
-      <path d="M485,15 A10,10 0 0,1 495,25" />
-      <path d="M495,755 A10,10 0 0,1 485,765" />
-      <path d="M25,765 A10,10 0 0,1 15,755" />
-    </g>
-  )
-}
 
 // ─── Seta SVG ─────────────────────────────────────────────────────────────────
 
@@ -613,10 +586,9 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
           onDragOver={handleSvgDragOver}
           onDrop={handleSvgDrop}
         >
-          {/* Real grass photo background */}
-          <image href="/pitch-grass-real.jpg" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
-          <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.22)" />
-          <PitchLines />
+          {/* Field photo background */}
+          <image href="/pitch-6.jpg" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+          <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.10)" />
 
           {/* Preview arrow while drawing */}
           {drawingFrom && mousePos && (() => {
@@ -907,16 +879,16 @@ function TacticsSettingsPanelHorizontal({ tatica, onUpdate }: {
 
 function FormationShape({ formation }: { formation: string }) {
   const slots = computeSlotPositions(formation, "balanced", "wide")
-  // Portrait mini field: 54x82, field bounds x=15-495, y=15-765
+  // Portrait mini field: 80x122, field bounds x=15-495, y=15-765
   return (
-    <svg width="54" height="82" viewBox="0 0 54 82">
-      <rect x="0" y="0" width="54" height="82" rx="3" fill="#1a4a2e" />
-      <line x1="0" y1="41" x2="54" y2="41" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
+    <svg width="80" height="122" viewBox="0 0 80 122">
+      <rect x="0" y="0" width="80" height="122" rx="4" fill="#1a4a2e" />
+      <line x1="0" y1="61" x2="80" y2="61" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
       {slots.map((s, i) => {
-        const cx = 2 + (s.x - 15) / 480 * 50
-        const cy = 2 + (s.y - 15) / 750 * 78
+        const cx = 3 + (s.x - 15) / 480 * 74
+        const cy = 3 + (s.y - 15) / 750 * 116
         const isGK = s.posicao === "GK"
-        return <circle key={i} cx={cx} cy={cy} r={isGK ? 3 : 2.5} fill={isGK ? "#111111" : "#0066FF"} />
+        return <circle key={i} cx={cx} cy={cy} r={isGK ? 4 : 3.5} fill={isGK ? "#111111" : "#0066FF"} />
       })}
     </svg>
   )
@@ -943,7 +915,7 @@ function FormationPickerDialog({ value, onChange }: {
           <DialogHeader>
             <DialogTitle className="text-base font-bold">Select Formation</DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-4 gap-3 py-2">
+          <div className="grid grid-cols-3 gap-3 py-2">
             {FORMATIONS.map(f => (
               <button
                 key={f}
@@ -1059,7 +1031,7 @@ export function TacticsTab() {
         {/* LEFT — Mentality (hidden in Both mode to avoid duplication) */}
         {tab !== "both" && (
           <div className="w-24 shrink-0">
-            <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v })} />
+            <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v, slotOverrides: {} })} />
           </div>
         )}
 
@@ -1076,7 +1048,7 @@ export function TacticsTab() {
               <div className="flex gap-2 items-start">
                 {/* Left — IP mentality */}
                 <div className="w-24 shrink-0">
-                  <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v })} />
+                  <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v, slotOverrides: {} })} />
                 </div>
                 {/* IP pitch */}
                 <div className="flex-1 min-w-0">
@@ -1101,7 +1073,7 @@ export function TacticsTab() {
                 <div className="w-24 shrink-0">
                   <MentalitySelector
                     value={tatica.mentalidade_oop ?? "balanced"}
-                    onChange={v => update({ mentalidade_oop: v })}
+                    onChange={v => update({ mentalidade_oop: v, slotOverrides: {} })}
                   />
                 </div>
               </div>
