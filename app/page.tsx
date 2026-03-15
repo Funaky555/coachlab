@@ -1,11 +1,20 @@
 import Link from "next/link"
 import { HeroSection } from "@/components/landing/hero-section"
+import { Wrench } from "lucide-react"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
+      {/* Under construction banner */}
+      <div className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 py-1.5 text-[11px] font-semibold text-black"
+        style={{ background: "linear-gradient(90deg, #FF6B35, #FF9500, #FF6B35)", backgroundSize: "200% 100%", animation: "shimmer 3s linear infinite" }}>
+        <Wrench className="w-3 h-3" />
+        <span>Site em constante desenvolvimento — novas funcionalidades a caminho!</span>
+        <Wrench className="w-3 h-3" />
+      </div>
+
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border/50 bg-background/80 backdrop-blur-md flex items-center justify-between px-6">
+      <header className="fixed top-7 left-0 right-0 z-50 h-16 border-b border-border/50 bg-background/80 backdrop-blur-md flex items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="CoachLab" width={40} height={40} className="rounded-full" />
@@ -42,7 +51,7 @@ export default function HomePage() {
       </header>
 
       {/* Content — apenas Hero */}
-      <main>
+      <main className="pt-7">
         <HeroSection />
       </main>
 

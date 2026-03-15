@@ -171,19 +171,32 @@ export interface TacticaSlot {
   jogadorId?: string
 }
 
+export type TacticArrowType = "run" | "run_no_ball" | "ball"
+
+export interface TacticArrow {
+  id: string
+  slotKey: string   // ex: "slot_0"
+  toX: number       // 0-1, relativo ao campo
+  toY: number
+  type: TacticArrowType
+}
+
 export interface TacticaConfig {
   formacao: string
-  mentalidade: "offensive" | "balanced" | "defensive"
+  mentalidade: "very_defensive" | "defensive" | "balanced" | "offensive" | "very_offensive"
   pressao: "high" | "medium" | "low"
   zonaPressao: "wide" | "central" | "both"
-  explorarCorredores: boolean
-  cruzamentos: "cutback" | "into_box" | "both"
+  atacarPorCorredor: "wide" | "center"
+  cruzamentos: "low" | "whipped" | "floated"
+  tipoJogada: "short" | "long"
   tipoRelvado: "grass" | "artificial" | "hybrid"
   estadoRelvado: "excellent" | "good" | "poor"
   adversarioAgressivo: boolean
   notasOfensivas: string
   notasDefensivas: string
   titulares: TacticaSlot[]
+  ipArrows: TacticArrow[]
+  oopArrows: TacticArrow[]
 }
 
 // --- Set Pieces ---
@@ -402,7 +415,10 @@ export function getTatica(): TacticaConfig {
   if (typeof window === "undefined") return getDefaultTatica()
   try {
     const raw = localStorage.getItem(KEYS.tatica)
-    return raw ? JSON.parse(raw) : getDefaultTatica()
+    if (!raw) return getDefaultTatica()
+    const parsed = JSON.parse(raw)
+    // Retrocompatibilidade: merge com defaults para campos novos
+    return { ...getDefaultTatica(), ...parsed }
   } catch { return getDefaultTatica() }
 }
 
@@ -412,14 +428,17 @@ function getDefaultTatica(): TacticaConfig {
     mentalidade: "balanced",
     pressao: "medium",
     zonaPressao: "both",
-    explorarCorredores: false,
-    cruzamentos: "both",
+    atacarPorCorredor: "wide",
+    cruzamentos: "whipped",
+    tipoJogada: "short",
     tipoRelvado: "grass",
     estadoRelvado: "good",
     adversarioAgressivo: false,
     notasOfensivas: "",
     notasDefensivas: "",
     titulares: [],
+    ipArrows: [],
+    oopArrows: [],
   }
 }
 
