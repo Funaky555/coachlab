@@ -179,11 +179,12 @@ function sectorColor(posicoes: string[]): string {
 
 // Vertical field: viewBox 510x780, GK at bottom (high y), FWD at top (low y), halfway y=390
 const MENTALITY_ROW_Y: Record<TacticaConfig["mentalidade"], Record<number, number>> = {
-  very_offensive: { 5: 590, 4: 360, 3: 280, 2: 200, 1: 130 },
-  offensive:      { 5: 690, 4: 430, 3: 325, 2: 225, 1: 150 },
-  balanced:       { 5: 700, 4: 560, 3: 430, 2: 300, 1: 180 },
-  defensive:      { 5: 700, 4: 660, 3: 560, 2: 455, 1: 430 },
-  very_defensive: { 5: 720, 4: 680, 3: 620, 2: 530, 1: 480 },
+  //                    5=GK   4=DEF  3=MID  2=FWD  1=ST
+  very_offensive: { 5: 700, 4: 340, 3: 260, 2: 175, 1: 105 },
+  offensive:      { 5: 700, 4: 420, 3: 305, 2: 205, 1: 128 },
+  balanced:       { 5: 700, 4: 560, 3: 390, 2: 255, 1: 158 },
+  defensive:      { 5: 715, 4: 640, 3: 528, 2: 425, 1: 365 },
+  very_defensive: { 5: 725, 4: 672, 3: 588, 2: 488, 1: 438 },
 }
 
 // ─── Calcular posições absolutas (SVG) ───────────────────────────────────────
@@ -551,13 +552,14 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
   const scale = compact ? 0.85 : 1
 
   return (
-    <div className="relative">
+    <div className="relative h-full flex items-center justify-center">
         <svg
           ref={svgRef}
           viewBox="0 0 510 780"
-          className="rounded-xl mx-auto block"
+          className="rounded-xl block"
           style={{
-            height: compact ? "calc(100dvh - 90px)" : "calc(100dvh - 54px)",
+            height: "100%",
+            maxHeight: "100%",
             width: "auto",
             maxWidth: "100%",
             cursor: draggingPinState ? "grabbing" : drawingFrom ? "crosshair" : "default",
@@ -671,35 +673,44 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
 }) {
   const assignedIds = new Set(tatica.titulares.map(s => s.jogadorId).filter(Boolean))
   const bench = jogadores.filter(j => !assignedIds.has(j.id))
+  const starters = tatica.titulares.filter(s => s.jogadorId).map(slot => ({
+    slot,
+    jogador: jogadores.find(p => p.id === slot.jogadorId) ?? null,
+  })).filter(s => s.jogador !== null) as { slot: typeof tatica.titulares[0]; jogador: Jogador }[]
 
   return (
-    <div className="flex flex-col gap-1 h-full">
-      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
-        Bench <span className="text-[#00D66C]">{bench.length}</span>
+    <div className="flex flex-col h-full overflow-hidden gap-0">
+
+      {/* ── TITULARES (maiores, em cima) ── */}
+      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 shrink-0 mb-1">
+        Em Campo <span className="text-[#00D66C]">{starters.length}</span>
       </div>
-      <div className="flex flex-col gap-1.5 overflow-y-auto flex-1 min-h-0 pr-0.5">
-        {bench.map(j => {
+      <div className="flex flex-col gap-1 overflow-y-auto shrink-0 pr-0.5" style={{ maxHeight: "52%" }}>
+        {starters.map(({ slot, jogador: j }) => {
           const color = sectorColor(j.posicoes)
           return (
             <div
-              key={j.id}
+              key={slot.posicao}
               draggable
-              onDragStart={e => e.dataTransfer.setData("jogadorId", j.id)}
+              onDragStart={e => {
+                e.dataTransfer.setData("jogadorId", j.id)
+                onUnassign(j.id)
+              }}
               className="flex items-center gap-2 p-1.5 rounded-lg border border-border/30 bg-background/40
-                hover:bg-background/70 cursor-grab active:cursor-grabbing transition-all group"
+                hover:bg-background/70 cursor-grab active:cursor-grabbing transition-all"
               style={{ borderLeftColor: color, borderLeftWidth: 2 }}
             >
               {j.foto ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={j.foto} alt={displayName(j)} className="w-8 h-8 rounded-full object-cover shrink-0 border border-border/40" />
+                <img src={j.foto} alt={displayName(j)} className="w-11 h-11 rounded-full object-cover shrink-0 border border-border/40" />
               ) : (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
                   style={{ background: color + "33", color, border: `1px solid ${color}55` }}>
                   {j.numero}
                 </div>
               )}
               <div className="flex flex-col min-w-0 flex-1">
-                <span className="text-[10px] font-semibold truncate leading-tight">
+                <span className="text-[11px] font-semibold truncate leading-tight">
                   {displayName(j).split(" ").slice(-1)[0]}
                 </span>
                 <span className="text-[9px]" style={{ color }}>{j.posicoes[0]}</span>
@@ -707,45 +718,49 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
             </div>
           )
         })}
-        {bench.length === 0 && (
-          <div className="text-[9px] text-muted-foreground/40 py-4 text-center">Todos em campo</div>
+        {starters.length === 0 && (
+          <div className="text-[9px] text-muted-foreground/40 py-2 text-center">Arrastra jogadores para o campo</div>
         )}
       </div>
 
-      {/* Assigned players — drag back to bench */}
-      <div className="border-t border-border/20 pt-1 mt-1">
-        <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-1">Em campo</div>
-        <div className="flex flex-col gap-1 overflow-y-auto" style={{ maxHeight: "35vh" }}>
-          {tatica.titulares.filter(s => s.jogadorId).map(slot => {
-            const j = jogadores.find(p => p.id === slot.jogadorId)
-            if (!j) return null
+      {/* ── BENCH (menores, em baixo) ── */}
+      <div className="border-t border-border/20 pt-1 mt-1 flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 shrink-0 mb-1">
+          Bench <span className="text-[#00D66C]">{bench.length}</span>
+        </div>
+        <div className="flex flex-col gap-1 overflow-y-auto flex-1 min-h-0 pr-0.5">
+          {bench.map(j => {
             const color = sectorColor(j.posicoes)
             return (
               <div
-                key={slot.posicao}
+                key={j.id}
                 draggable
-                onDragStart={e => {
-                  e.dataTransfer.setData("jogadorId", j.id)
-                  // Remove from field when drag starts from "em campo"
-                  onUnassign(j.id)
-                }}
-                className="flex items-center gap-2 p-1 rounded border border-border/20 bg-muted/20
-                  hover:bg-muted/40 cursor-grab active:cursor-grabbing transition-all"
+                onDragStart={e => e.dataTransfer.setData("jogadorId", j.id)}
+                className="flex items-center gap-2 p-1 rounded-lg border border-border/30 bg-background/40
+                  hover:bg-background/70 cursor-grab active:cursor-grabbing transition-all"
                 style={{ borderLeftColor: color, borderLeftWidth: 2 }}
               >
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
-                  style={{ background: color + "22", color }}>
-                  {j.numero}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[9px] font-medium truncate leading-tight">
+                {j.foto ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={j.foto} alt={displayName(j)} className="w-8 h-8 rounded-full object-cover shrink-0 border border-border/40" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                    style={{ background: color + "33", color, border: `1px solid ${color}55` }}>
+                    {j.numero}
+                  </div>
+                )}
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-[10px] font-semibold truncate leading-tight">
                     {displayName(j).split(" ").slice(-1)[0]}
                   </span>
-                  <span className="text-[8px] text-muted-foreground/60">{j.posicoes[0]}</span>
+                  <span className="text-[9px]" style={{ color }}>{j.posicoes[0]}</span>
                 </div>
               </div>
             )
           })}
+          {bench.length === 0 && (
+            <div className="text-[9px] text-muted-foreground/40 py-2 text-center">Todos em campo</div>
+          )}
         </div>
       </div>
     </div>
@@ -1108,7 +1123,7 @@ export function TacticsTab() {
       <div className="flex flex-1 min-h-0 overflow-hidden">
 
         {/* CENTER — Pitch(es) */}
-        <div ref={pitchRef} className="flex-1 min-w-0 min-h-0">
+        <div ref={pitchRef} className="flex-1 min-w-0 min-h-0 h-full">
           {tab === "ip" && (
             <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" label="In Possession"
               selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
@@ -1119,11 +1134,11 @@ export function TacticsTab() {
           )}
           {tab === "both" && (
             <div className="flex gap-1 h-full">
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 h-full">
                 <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact label="In Possession"
                   selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 h-full">
                 <PitchSVG
                   tatica={{ ...tatica, mentalidade: tatica.mentalidade_oop ?? "balanced" }}
                   jogadores={jogadores}
