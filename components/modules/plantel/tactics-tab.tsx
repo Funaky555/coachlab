@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback, useId } from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Camera, RotateCcw } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Camera, RotateCcw, ChevronDown } from "lucide-react"
 import {
   type Jogador, type TacticaConfig, type TacticArrow, type TacticArrowType,
   getJogadores, getTatica, saveTatica, getPrimarySetor, displayName,
@@ -172,25 +172,24 @@ function sectorColor(posicoes: string[]): string {
   return "#FF6B35"
 }
 
-// ─── Mentalidade → yShift ─────────────────────────────────────────────────────
+// ─── Mentalidade → Zonas Y absolutas por linha ────────────────────────────────
+// SVG field: 780x510, jogável y=20–490; halfway y=255
+// Offensive half = y < 255 (topo), Defensive half = y > 255 (fundo)
+// rows: 5=GK, 4=DEF, 3=MID, 2=FWD, 1=ST (mais ofensivo)
 
-const MENTALITY_Y_SHIFT: Record<TacticaConfig["mentalidade"], number> = {
-  very_defensive:  0.16,
-  defensive:       0.08,
-  balanced:        0,
-  offensive:       -0.08,
-  very_offensive:  -0.16,
+const MENTALITY_ROW_Y: Record<TacticaConfig["mentalidade"], Record<number, number>> = {
+  very_offensive: { 5: 360, 4: 220, 3: 170, 2: 120, 1: 80  },
+  offensive:      { 5: 420, 4: 260, 3: 195, 2: 135, 1: 90  },
+  balanced:       { 5: 420, 4: 340, 3: 260, 2: 180, 1: 110 },
+  defensive:      { 5: 420, 4: 400, 3: 340, 2: 275, 1: 260 },
+  very_defensive: { 5: 430, 4: 435, 3: 375, 2: 315, 1: 285 },
 }
 
 // ─── Calcular posições absolutas (SVG) ───────────────────────────────────────
-// SVG field: 780 x 510, jogável de y=30 a y=480, x=20 a x=760
-// GK fica no fundo (alto y), FWD no topo (baixo y)
-// rows: 5=GK, 4=DEF, 3=MID, 2=FWD top, 1=FWD muito top
 
 interface SlotPos { x: number; y: number; slotKey: string; label: string; posicao: string }
 
 const WIDE_POSITIONS = ["LB", "RB", "LWB", "RWB", "WL", "WR", "LW", "RW", "LM", "RM"]
-const ROW_Y_BASE: Record<number, number> = { 5: 420, 4: 340, 3: 260, 2: 180, 1: 110 }
 
 function computeSlotPositions(
   formacao: string,
@@ -198,7 +197,7 @@ function computeSlotPositions(
   atacarPorCorredor: "wide" | "center",
 ): SlotPos[] {
   const positions = getPositions(formacao)
-  const yShift = MENTALITY_Y_SHIFT[mentalidade]
+  const rowY = MENTALITY_ROW_Y[mentalidade]
   const xSpread = atacarPorCorredor === "wide" ? 28 : -20
 
   // Group by row to distribute x evenly
@@ -208,8 +207,7 @@ function computeSlotPositions(
     byRow[p.row].push(p)
   })
 
-  const result: SlotPos[] = []
-  positions.forEach((p, i) => {
+  return positions.map((p, i) => {
     const rowSlots = byRow[p.row]
     const idxInRow = rowSlots.indexOf(p)
     const count = rowSlots.length
@@ -218,25 +216,20 @@ function computeSlotPositions(
 
     // Apply xSpread to wide positions
     if (WIDE_POSITIONS.includes(p.label) || WIDE_POSITIONS.includes(p.posicao)) {
-      const isFarLeft = idxInRow === 0
-      const isFarRight = idxInRow === count - 1
-      if (isFarLeft) baseX -= xSpread
-      if (isFarRight && count > 1) baseX += xSpread
+      if (idxInRow === 0) baseX -= xSpread
+      if (idxInRow === count - 1 && count > 1) baseX += xSpread
     }
 
-    // Row Y with mentality shift (don't shift GK)
-    let baseY = ROW_Y_BASE[p.row] ?? 300
-    if (p.row !== 5) baseY += yShift * 100
+    const baseY = rowY[p.row] ?? 300
 
-    result.push({
+    return {
       x: Math.max(40, Math.min(740, baseX)),
       y: Math.max(40, Math.min(470, baseY)),
       slotKey: `slot_${i}`,
       label: p.label,
       posicao: p.posicao,
-    })
+    }
   })
-  return result
 }
 
 // ─── SVG Pitch ────────────────────────────────────────────────────────────────
@@ -520,7 +513,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
     setMousePos(null)
   }
 
-  const scale = compact ? 0.75 : 1
+  const scale = compact ? 0.85 : 1
 
   return (
     <div className="flex flex-col gap-1">
@@ -553,7 +546,6 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
           viewBox="0 0 780 510"
           className="w-full rounded-xl"
           style={{
-            background: "linear-gradient(180deg, #1a4a2e 0%, #206035 40%, #1a4a2e 100%)",
             cursor: drawingFrom ? "crosshair" : "default",
             userSelect: "none",
           }}
@@ -561,6 +553,9 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
           onMouseUp={handleSvgMouseUp}
           onMouseLeave={() => { if (drawingFrom) { setDrawingFrom(null); setMousePos(null) } }}
         >
+          {/* Real grass photo background */}
+          <image href="/pitch-grass-real.jpg" x="0" y="0" width="780" height="510" preserveAspectRatio="xMidYMid slice" />
+          <rect x="0" y="0" width="780" height="510" fill="rgba(0,0,0,0.22)" />
           <PitchLines />
 
           {/* Preview arrow while drawing */}
@@ -616,14 +611,20 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
             />
           ))}
 
-          {/* Label */}
-          {label && (
+          {/* Label in SVG only when not compact */}
+          {label && !compact && (
             <text x="30" y="498" fill="rgba(255,255,255,0.5)" fontSize="11" fontWeight="600"
               letterSpacing="0.08em" style={{ textTransform: "uppercase" }}>
               {label}
             </text>
           )}
         </svg>
+        {/* Label below SVG when compact */}
+        {label && compact && (
+          <div className="text-center text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mt-1">
+            {label}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -811,6 +812,98 @@ function TacticsSettingsPanel({ tatica, onUpdate }: {
   )
 }
 
+// ─── Tactics Settings Panel (Horizontal — modo Both) ─────────────────────────
+
+function TacticsSettingsPanelHorizontal({ tatica, onUpdate }: {
+  tatica: TacticaConfig
+  onUpdate: (p: Partial<TacticaConfig>) => void
+}) {
+  return (
+    <div className="flex items-center gap-8 px-4 py-2.5 rounded-xl border border-border/30 bg-background/30 backdrop-blur-sm">
+      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/50 shrink-0">Settings</div>
+
+      <div className="flex items-center gap-2">
+        <div className="text-[8px] text-muted-foreground/50 uppercase tracking-wider">Attack via</div>
+        <TBtn active={tatica.atacarPorCorredor === "wide"} color="#00D66C" onClick={() => onUpdate({ atacarPorCorredor: "wide" })}>Wide</TBtn>
+        <TBtn active={tatica.atacarPorCorredor === "center"} color="#0066FF" onClick={() => onUpdate({ atacarPorCorredor: "center" })}>Center</TBtn>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <div className="text-[8px] text-muted-foreground/50 uppercase tracking-wider">Crosses</div>
+        <TBtn active={tatica.cruzamentos === "low"} color="#8B5CF6" onClick={() => onUpdate({ cruzamentos: "low" })}>Low</TBtn>
+        <TBtn active={tatica.cruzamentos === "whipped"} color="#FF6B35" onClick={() => onUpdate({ cruzamentos: "whipped" })}>Whipped</TBtn>
+        <TBtn active={tatica.cruzamentos === "floated"} color="#0066FF" onClick={() => onUpdate({ cruzamentos: "floated" })}>Floated</TBtn>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <div className="text-[8px] text-muted-foreground/50 uppercase tracking-wider">Pass Type</div>
+        <TBtn active={tatica.tipoJogada === "short"} color="#00D66C" onClick={() => onUpdate({ tipoJogada: "short" })}>Short</TBtn>
+        <TBtn active={tatica.tipoJogada === "long"} color="#FF6B35" onClick={() => onUpdate({ tipoJogada: "long" })}>Long</TBtn>
+      </div>
+    </div>
+  )
+}
+
+// ─── Formation Shape Mini SVG ─────────────────────────────────────────────────
+
+function FormationShape({ formation }: { formation: string }) {
+  const slots = computeSlotPositions(formation, "balanced", "wide")
+  return (
+    <svg width="80" height="56" viewBox="0 0 80 56">
+      <rect x="0" y="0" width="80" height="56" rx="3" fill="#1a4a2e" />
+      <line x1="0" y1="28" x2="80" y2="28" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
+      {slots.map((s, i) => {
+        const cx = 4 + (s.x - 40) / 700 * 72
+        const cy = 4 + (s.y - 40) / 430 * 48
+        const isGK = s.posicao === "GK"
+        return <circle key={i} cx={cx} cy={cy} r={isGK ? 3.5 : 3} fill={isGK ? "#7F0000" : "#0066FF"} />
+      })}
+    </svg>
+  )
+}
+
+// ─── Formation Picker Dialog ──────────────────────────────────────────────────
+
+function FormationPickerDialog({ value, onChange }: {
+  value: string
+  onChange: (f: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-1 h-7 px-3 rounded-lg border border-border/40 bg-background/60 hover:bg-background/90 transition-all text-xs font-bold font-mono"
+      >
+        {value}
+        <ChevronDown className="w-3 h-3 text-muted-foreground" />
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold">Select Formation</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-4 gap-3 py-2">
+            {FORMATIONS.map(f => (
+              <button
+                key={f}
+                onClick={() => { onChange(f); setOpen(false) }}
+                className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all
+                  ${value === f
+                    ? "border-[#00D66C] bg-[#00D66C]/10 shadow-[0_0_10px_rgba(0,214,108,0.2)]"
+                    : "border-border/30 hover:border-border/60 hover:bg-muted/20"}`}
+              >
+                <FormationShape formation={f} />
+                <span className="text-[11px] font-mono font-bold">{f}</span>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
 // ─── Main TacticsTab ──────────────────────────────────────────────────────────
 
 type TabMode = "ip" | "oop" | "both"
@@ -882,16 +975,7 @@ export function TacticsTab() {
 
         <div className="flex items-center gap-2">
           <div className="text-[9px] text-muted-foreground uppercase tracking-wider">Formation</div>
-          <Select value={tatica.formacao} onValueChange={changeFormation}>
-            <SelectTrigger className="h-7 text-xs font-bold font-mono w-28">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="max-h-72">
-              {FORMATIONS.map(f => (
-                <SelectItem key={f} value={f} className="text-xs font-mono">{f}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FormationPickerDialog value={tatica.formacao} onChange={changeFormation} />
 
           {/* Action buttons */}
           <button onClick={handleExport}
@@ -913,7 +997,7 @@ export function TacticsTab() {
       <div className="flex gap-2 flex-1 min-h-0">
 
         {/* LEFT — Mentality */}
-        <div className="w-28 shrink-0">
+        <div className="w-24 shrink-0">
           <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v })} />
         </div>
 
@@ -926,22 +1010,22 @@ export function TacticsTab() {
             <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" label="Out of Possession" />
           )}
           {tab === "both" && (
-            <div className="flex gap-2 items-start">
-              <div className="flex-1 min-w-0">
-                <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"  compact label="In Possession" />
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3 items-start">
+                <div className="flex-1 min-w-0">
+                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"  compact label="In Possession" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" compact label="Out of Possession" />
+                </div>
               </div>
-              <div className="shrink-0 pt-6">
-                <TacticsSettingsPanel tatica={tatica} onUpdate={update} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" compact label="Out of Possession" />
-              </div>
+              <TacticsSettingsPanelHorizontal tatica={tatica} onUpdate={update} />
             </div>
           )}
         </div>
 
         {/* RIGHT — Bench */}
-        <div className="w-32 shrink-0 border-l border-border/20 pl-2">
+        <div className="w-28 shrink-0 border-l border-border/20 pl-2">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
       </div>
