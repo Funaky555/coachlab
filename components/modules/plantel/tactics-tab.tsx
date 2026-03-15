@@ -416,14 +416,15 @@ interface PitchSVGProps {
   compact?: boolean
   label?: string
   showSettingsCenter?: boolean
+  selectedArrowType: TacticArrowType
+  onChangeArrowType: (t: TacticArrowType) => void
 }
 
-function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }: PitchSVGProps) {
+function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, selectedArrowType, onChangeArrowType }: PitchSVGProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [drawingFrom, setDrawingFrom] = useState<string | null>(null)
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
   const [dragOver, setDragOver] = useState<string | null>(null)
-  const [selectedArrowType, setSelectedArrowType] = useState<TacticArrowType>("run")
   // Use ref for dragging pin to avoid async state lag
   const draggingPinRef = useRef<string | null>(null)
   const [draggingPinState, setDraggingPinState] = useState<string | null>(null)
@@ -550,38 +551,15 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
   const scale = compact ? 0.85 : 1
 
   return (
-    <div className="flex flex-col gap-1">
-      {/* Arrow type selector */}
-      {!compact && (
-        <div className="flex items-center gap-1 justify-center">
-          <span className="text-[9px] text-muted-foreground uppercase tracking-wider mr-1">Arrow:</span>
-          {([
-            { v: "run",         label: "With ball",   color: "#FF4444" },
-            { v: "run_no_ball", label: "Without ball", color: "#60A5FA" },
-          ] as const).map(opt => (
-            <button key={opt.v} onClick={() => setSelectedArrowType(opt.v)}
-              className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-semibold border transition-all"
-              style={selectedArrowType === opt.v
-                ? { background: opt.color + "33", borderColor: opt.color, color: opt.color }
-                : { borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
-              <span style={{ display: "inline-block", width: 20, height: 2,
-                borderTop: opt.v === "run_no_ball" ? `2px dashed ${opt.color}` : `2px solid ${opt.color}`,
-              }} />
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="relative">
+    <div className="relative">
         <svg
           ref={svgRef}
           viewBox="0 0 510 780"
           className="rounded-xl mx-auto block"
           style={{
-            width: "100%",
-            height: "auto",
-            maxHeight: "calc(100vh - 130px)",
+            height: "calc(100vh - 95px)",
+            width: "auto",
+            maxWidth: "100%",
             cursor: draggingPinState ? "grabbing" : drawingFrom ? "crosshair" : "default",
             userSelect: "none",
           }}
@@ -596,7 +574,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
           onDrop={handleSvgDrop}
         >
           {/* Field photo background — real grass */}
-          <image href="/pitch-16.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+          <image href="/pitch-15.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
 
           {/* Preview arrow while drawing */}
           {drawingFrom && mousePos && (() => {
@@ -661,7 +639,6 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
             {label}
           </div>
         )}
-      </div>
     </div>
   )
 }
@@ -977,6 +954,7 @@ export function TacticsTab() {
   const [jogadores, setJogadores] = useState<Jogador[]>([])
   const [tatica, setTatica] = useState<TacticaConfig>(getTatica())
   const [tab, setTab] = useState<TabMode>("ip")
+  const [arrowType, setArrowType] = useState<TacticArrowType>("run")
   const pitchRef = useRef<HTMLDivElement>(null)
   const uid = useId()
 
@@ -1061,20 +1039,45 @@ export function TacticsTab() {
       {/* ── MAIN AREA ── */}
       <div className="flex gap-2 flex-1 min-h-0 overflow-hidden">
 
-        {/* LEFT — Mentality (hidden in Both mode to avoid duplication) */}
+        {/* LEFT — Mentality + Arrow type (hidden in Both mode) */}
         {tab !== "both" && (
-          <div className="w-24 shrink-0">
+          <div className="w-24 shrink-0 flex flex-col gap-3">
             <MentalitySelector value={tatica.mentalidade} onChange={v => update({ mentalidade: v, slotOverrides: {} })} />
+            {/* Arrow type selector */}
+            <div className="flex flex-col gap-1">
+              <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">Arrow</div>
+              {([
+                { v: "run",         label: "With ball",    color: "#FF4444" },
+                { v: "run_no_ball", label: "Without ball", color: "#60A5FA" },
+              ] as const).map(opt => (
+                <button key={opt.v} onClick={() => setArrowType(opt.v)}
+                  className="flex items-center gap-1.5 px-1.5 py-1.5 rounded-lg border transition-all text-left"
+                  style={arrowType === opt.v
+                    ? { background: opt.color + "22", borderColor: opt.color, boxShadow: `0 0 8px ${opt.color}44` }
+                    : { borderColor: "rgba(255,255,255,0.08)", background: "transparent" }}>
+                  <span style={{
+                    display: "inline-block", width: 16, height: 2, flexShrink: 0,
+                    borderTop: opt.v === "run_no_ball" ? `2px dashed ${opt.color}` : `2px solid ${opt.color}`,
+                  }} />
+                  <span className="text-[9px] font-semibold leading-tight"
+                    style={{ color: arrowType === opt.v ? opt.color : "rgba(255,255,255,0.5)" }}>
+                    {opt.label}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {/* CENTER — Pitch(es) */}
         <div ref={pitchRef} className="flex-1 min-w-0">
           {tab === "ip" && (
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" label="In Possession" />
+            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" label="In Possession"
+              selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
           )}
           {tab === "oop" && (
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" label="Out of Possession" />
+            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" label="Out of Possession"
+              selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
           )}
           {tab === "both" && (
             <div className="flex flex-col gap-3">
@@ -1085,7 +1088,8 @@ export function TacticsTab() {
                 </div>
                 {/* IP pitch */}
                 <div className="flex-1 min-w-0">
-                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact label="In Possession" />
+                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact label="In Possession"
+                    selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
                 </div>
                 {/* OOP pitch */}
                 <div className="flex-1 min-w-0">
@@ -1093,13 +1097,14 @@ export function TacticsTab() {
                     tatica={{ ...tatica, mentalidade: tatica.mentalidade_oop ?? "balanced" }}
                     jogadores={jogadores}
                     onUpdate={p => {
-                      // Don't let OOP pitch override mentalidade (IP's field)
                       const { mentalidade: _, ...rest } = p
                       update(rest)
                     }}
                     mode="oop"
                     compact
                     label="Out of Possession"
+                    selectedArrowType={arrowType}
+                    onChangeArrowType={setArrowType}
                   />
                 </div>
                 {/* Right — OOP mentality */}
