@@ -337,12 +337,12 @@ function PlayerPin({
         r={R}
         fill={pinFill}
         stroke={strokeColor}
-        strokeWidth={isEmpty ? 1.8 : isDrawingFrom ? 2.5 : 2}
+        strokeWidth={isEmpty ? 1.8 : isDrawingFrom ? 3 : 2.5}
         strokeDasharray={isEmpty ? "5,3" : "none"}
         style={{
           filter: hovered
             ? `drop-shadow(0 0 10px ${glowColor}) drop-shadow(0 0 22px ${glowColor}55)`
-            : `drop-shadow(0 2px 5px rgba(0,0,0,0.75))`,
+            : `drop-shadow(0 2px 6px rgba(0,0,0,0.9)) drop-shadow(0 0 3px rgba(0,0,0,0.6))`,
           transition: "filter 0.15s",
         }}
         onClick={onSlotClick}
@@ -557,7 +557,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
           viewBox="0 0 510 780"
           className="rounded-xl mx-auto block"
           style={{
-            height: "calc(100vh - 95px)",
+            height: "calc(100dvh - 230px)",
             width: "auto",
             maxWidth: "100%",
             cursor: draggingPinState ? "grabbing" : drawingFrom ? "crosshair" : "default",
@@ -573,8 +573,9 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
           onDragOver={handleSvgDragOver}
           onDrop={handleSvgDrop}
         >
-          {/* Field photo background — real grass */}
-          <image href="/pitch-15.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+          {/* Field photo background */}
+          <image href="/pitch-20.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+          <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.08)" />
 
           {/* Preview arrow while drawing */}
           {drawingFrom && mousePos && (() => {

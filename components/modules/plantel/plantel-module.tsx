@@ -398,9 +398,9 @@ export function PlantelModule() {
   ]
 
   return (
-    <div className="p-4 md:p-6 max-w-full">
+    <div className="p-4 md:p-6 max-w-full md:h-full md:overflow-hidden md:flex md:flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-3 md:shrink-0">
         <h1 className="text-2xl font-bold" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
           Squad Management
         </h1>
@@ -415,8 +415,8 @@ export function PlantelModule() {
         </div>
       </div>
 
-      <Tabs defaultValue="squad">
-        <TabsList className="mb-6 h-auto p-2 gap-2 flex flex-wrap rounded-2xl"
+      <Tabs defaultValue="squad" className="md:flex-1 md:flex md:flex-col md:min-h-0 md:overflow-hidden">
+        <TabsList className="mb-3 h-auto p-2 gap-2 flex flex-wrap rounded-2xl md:shrink-0"
           style={{ background: "rgba(5,18,10,0.75)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}>
           {[
             { value: "squad",      label: "Squad",      icon: <Users className="w-4 h-4" />,     color: "#00D66C" },
@@ -550,7 +550,7 @@ export function PlantelModule() {
         </TabsContent>
 
         {/* ── TACTICS TAB ── */}
-        <TabsContent value="tactics">
+        <TabsContent value="tactics" className="md:flex-1 md:min-h-0 md:overflow-hidden md:mt-0">
           <TacticsTab />
         </TabsContent>
 

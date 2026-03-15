@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         onMenuClick={() => setSidebarOpen(true)}
       />
       {/* Main content — offset for sidebar on desktop, header on mobile */}
-      <main className="md:ml-60 pt-14 md:pt-0 min-h-screen">
+      <main className="md:ml-60 pt-14 md:pt-0 md:h-screen md:overflow-hidden">
         {children}
       </main>
     </div>
