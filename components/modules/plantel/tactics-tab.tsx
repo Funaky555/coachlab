@@ -576,7 +576,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
           onDrop={handleSvgDrop}
         >
           {/* Field photo background */}
-          <image href="/23.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+          <image href="/23.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid meet" />
           <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.08)" />
 
           {/* Preview arrow while drawing */}
