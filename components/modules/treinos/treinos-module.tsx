@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,14 +15,14 @@ import {
   getSessoes, addSessao, updateSessao, deleteSessao, getCargaSemanal
 } from "@/lib/storage/treinos"
 
-const DIAS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
-const TIPOS_SESSAO: { value: TipoSessao; label: string; color: string }[] = [
-  { value: "tatico", label: "Tático", color: "#0066FF" },
-  { value: "tecnico", label: "Técnico", color: "#8B5CF6" },
-  { value: "fisico", label: "Físico", color: "#FF6B35" },
-  { value: "misto", label: "Misto", color: "#00D66C" },
-  { value: "recuperacao", label: "Recuperação", color: "#6B7280" },
-  { value: "jogo", label: "Jogo", color: "#EF4444" },
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+const SESSION_TYPES: { value: TipoSessao; label: string; color: string }[] = [
+  { value: "tatico",      label: "Tactical",   color: "#0066FF" },
+  { value: "tecnico",     label: "Technical",  color: "#8B5CF6" },
+  { value: "fisico",      label: "Physical",   color: "#FF6B35" },
+  { value: "misto",       label: "Mixed",      color: "#00D66C" },
+  { value: "recuperacao", label: "Recovery",   color: "#6B7280" },
+  { value: "jogo",        label: "Match",      color: "#EF4444" },
 ]
 
 function getMondayOfWeek(date: Date): Date {
@@ -38,7 +37,7 @@ function getMondayOfWeek(date: Date): Date {
 function formatWeek(monday: Date): string {
   const friday = new Date(monday)
   friday.setDate(friday.getDate() + 6)
-  return `${monday.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" })} — ${friday.toLocaleDateString("pt-PT", { day: "2-digit", month: "short", year: "numeric" })}`
+  return `${monday.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })} — ${friday.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}`
 }
 
 function getWeekDates(monday: Date): string[] {
@@ -69,7 +68,6 @@ export function TreinosModule() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
-  const [selectedDay, setSelectedDay] = useState<string | null>(null)
 
   useEffect(() => {
     setSessoes(getSessoes())
@@ -95,7 +93,6 @@ export function TreinosModule() {
   function openAddForDay(date: string) {
     setEditingId(null)
     setForm({ ...emptyForm, data: date })
-    setSelectedDay(date)
     setDialogOpen(true)
   }
 
@@ -128,24 +125,29 @@ export function TreinosModule() {
     setSessoes(getSessoes())
   }
 
-  const tipoInfo = (tipo: TipoSessao) => TIPOS_SESSAO.find(t => t.value === tipo) ?? TIPOS_SESSAO[3]
+  // suppress unused warning
+  void toggleConcluida
+  void deleteSessao
+  void getCargaSemanal
+
+  const tipoInfo = (tipo: TipoSessao) => SESSION_TYPES.find(t => t.value === tipo) ?? SESSION_TYPES[3]
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-          Planeamento de Treino
+          Training Planning
         </h1>
-        <p className="text-muted-foreground">Microciclo semanal, objetivos e controlo de carga</p>
+        <p className="text-muted-foreground">Weekly microcycle, objectives and load control</p>
       </div>
 
-      {/* Carga Semanal */}
+      {/* Weekly Load */}
       <Card className="glass-card border-border/50 mb-6">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Flame className="w-4 h-4 text-[#FF6B35]" />
-              <span className="text-sm font-medium">Carga Semanal (RPE acumulado)</span>
+              <span className="text-sm font-medium">Weekly Load (accumulated RPE)</span>
             </div>
             <span className="text-2xl font-bold" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
               {carga}
@@ -153,13 +155,13 @@ export function TreinosModule() {
           </div>
           <Progress value={cargaPct} className="h-2" />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>Baixa carga</span>
-            <span>Alta carga (70)</span>
+            <span>Low load</span>
+            <span>High load (70)</span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Semana nav */}
+      {/* Week nav */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="icon" onClick={prevWeek}><ChevronLeft className="w-4 h-4" /></Button>
@@ -169,10 +171,10 @@ export function TreinosModule() {
           </div>
           <Button variant="outline" size="icon" onClick={nextWeek}><ChevronRight className="w-4 h-4" /></Button>
         </div>
-        <span className="text-sm text-muted-foreground">{weekSessoes.length} sessões</span>
+        <span className="text-sm text-muted-foreground">{weekSessoes.length} sessions</span>
       </div>
 
-      {/* Microciclo Grid */}
+      {/* Microcycle Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 mb-8">
         {weekDates.map((date, i) => {
           const daySessoes = weekSessoes.filter(s => s.data === date)
@@ -182,7 +184,7 @@ export function TreinosModule() {
             <div key={date} className={`rounded-xl border p-3 min-h-[160px] flex flex-col gap-2 ${isToday ? "border-[#00D66C]/50 bg-[#00D66C]/5" : "border-border bg-card/40"}`}>
               <div className="flex items-center justify-between mb-1">
                 <span className={`text-xs font-bold uppercase ${isToday ? "text-[#00D66C]" : "text-muted-foreground"}`}>
-                  {DIAS[i]}
+                  {DAYS[i]}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {new Date(date).getDate()}
@@ -212,7 +214,7 @@ export function TreinosModule() {
                 onClick={() => openAddForDay(date)}
                 className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors mt-auto"
               >
-                <Plus className="w-3 h-3" /> Sessão
+                <Plus className="w-3 h-3" /> Session
               </button>
             </div>
           )
@@ -223,73 +225,73 @@ export function TreinosModule() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Editar Sessão" : "Nova Sessão de Treino"}</DialogTitle>
+            <DialogTitle>{editingId ? "Edit Session" : "New Training Session"}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-2">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Data</Label>
+                <Label>Date</Label>
                 <Input type="date" value={form.data} onChange={e => setForm({...form, data: e.target.value})} className="mt-1" />
               </div>
               <div>
-                <Label>Duração (min)</Label>
+                <Label>Duration (min)</Label>
                 <Input type="number" min={15} max={180} value={form.duracao} onChange={e => setForm({...form, duracao: parseInt(e.target.value)})} className="mt-1" />
               </div>
             </div>
             <div>
-              <Label>Tipo de Sessão</Label>
+              <Label>Session Type</Label>
               <Select value={form.tipo} onValueChange={v => setForm({...form, tipo: v as TipoSessao})}>
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {TIPOS_SESSAO.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                  {SESSION_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Objetivos Táticos</Label>
-              <Textarea placeholder="Ex: Organização defensiva, pressing..." value={form.objetivosTaticos} onChange={e => setForm({...form, objetivosTaticos: e.target.value})} className="mt-1 h-20" />
+              <Label>Tactical Objectives</Label>
+              <Textarea placeholder="e.g. Defensive organisation, pressing..." value={form.objetivosTaticos} onChange={e => setForm({...form, objetivosTaticos: e.target.value})} className="mt-1 h-20" />
             </div>
             <div>
-              <Label>Objetivos Técnicos</Label>
-              <Textarea placeholder="Ex: Receção orientada, finalização..." value={form.objetivosTecnicos} onChange={e => setForm({...form, objetivosTecnicos: e.target.value})} className="mt-1 h-20" />
+              <Label>Technical Objectives</Label>
+              <Textarea placeholder="e.g. Oriented control, finishing..." value={form.objetivosTecnicos} onChange={e => setForm({...form, objetivosTecnicos: e.target.value})} className="mt-1 h-20" />
             </div>
             <div>
-              <Label>Conteúdos / Exercícios</Label>
-              <Textarea placeholder="Descreve os exercícios e conteúdos..." value={form.conteudos} onChange={e => setForm({...form, conteudos: e.target.value})} className="mt-1 h-20" />
+              <Label>Content / Drills</Label>
+              <Textarea placeholder="Describe drills and content..." value={form.conteudos} onChange={e => setForm({...form, conteudos: e.target.value})} className="mt-1 h-20" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>RPE Previsto (1-10)</Label>
+                <Label>Planned RPE (1-10)</Label>
                 <Input type="number" min={1} max={10} value={form.rpePrevisto} onChange={e => setForm({...form, rpePrevisto: parseInt(e.target.value)})} className="mt-1" />
               </div>
               <div>
-                <Label>RPE Real (após treino)</Label>
+                <Label>Actual RPE (post-session)</Label>
                 <Input type="number" min={1} max={10} placeholder="—" value={form.rpeReal ?? ""} onChange={e => setForm({...form, rpeReal: e.target.value ? parseInt(e.target.value) : undefined})} className="mt-1" />
               </div>
             </div>
             {editingId && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Avaliação do Treino (1-10)</Label>
+                  <Label>Session Rating (1-10)</Label>
                   <Input type="number" min={1} max={10} value={form.avaliacao ?? ""} onChange={e => setForm({...form, avaliacao: e.target.value ? parseInt(e.target.value) : undefined})} className="mt-1" />
                 </div>
                 <div className="flex items-end pb-1">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={form.concluida} onChange={e => setForm({...form, concluida: e.target.checked})} className="w-4 h-4" />
-                    <span className="text-sm">Sessão concluída</span>
+                    <span className="text-sm">Session completed</span>
                   </label>
                 </div>
               </div>
             )}
             <div>
-              <Label>Notas</Label>
-              <Textarea placeholder="Notas livres..." value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} className="mt-1 h-16" />
+              <Label>Notes</Label>
+              <Textarea placeholder="Free notes..." value={form.notas} onChange={e => setForm({...form, notas: e.target.value})} className="mt-1 h-16" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={saveSessao} className="bg-[#0066FF] hover:bg-[#0066FF]/90 text-white">
-              {editingId ? "Guardar" : "Criar Sessão"}
+              {editingId ? "Save" : "Create Session"}
             </Button>
           </DialogFooter>
         </DialogContent>

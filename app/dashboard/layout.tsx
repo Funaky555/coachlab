@@ -6,14 +6,14 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { usePathname } from "next/navigation"
 
 const routeTitles: Record<string, string> = {
-  "/dashboard/plantel": "Gestão do Plantel",
-  "/dashboard/treinos": "Planeamento de Treino",
-  "/dashboard/analise": "Análise de Jogo",
+  "/dashboard/plantel": "Squad Management",
+  "/dashboard/treinos": "Training Planning",
+  "/dashboard/analise": "Match Analysis",
   "/dashboard/scouting": "Scouting",
-  "/dashboard/medico": "Dep. Médico",
-  "/dashboard/fisico": "Monitorização Física",
-  "/dashboard/adversario": "Prep. Adversário",
-  "/dashboard/comunicacao": "Comunicação Interna",
+  "/dashboard/medico": "Medical Dept.",
+  "/dashboard/fisico": "Physical Monitoring",
+  "/dashboard/adversario": "Opposition Prep.",
+  "/dashboard/comunicacao": "Internal Communication",
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

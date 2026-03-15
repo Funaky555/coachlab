@@ -34,13 +34,13 @@ export function CtaSection() {
           />
 
           <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-            Começa hoje —{" "}
-            <span className="text-gradient-brand">é gratuito</span>
+            Start today —{" "}
+            <span className="text-gradient-brand">it&apos;s free</span>
           </h2>
 
           <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-            Junta-te a treinadores que já usam o CoachLab para elevar o nível do seu trabalho.
-            Sem cartão de crédito. Sem compromissos.
+            Join coaches already using CoachLab to elevate their work.
+            No credit card. No commitments.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -49,7 +49,7 @@ export function CtaSection() {
                 size="lg"
                 className="h-12 px-8 text-base font-semibold bg-[#00D66C] hover:bg-[#00D66C]/90 text-black gap-2"
               >
-                Aceder ao Dashboard
+                Go to Dashboard
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
@@ -59,13 +59,13 @@ export function CtaSection() {
                 variant="outline"
                 className="h-12 px-8 text-base font-semibold"
               >
-                Ir ao Tabuleiro Tático
+                Open Tactical Board
               </Button>
             </Link>
           </div>
 
           <p className="mt-6 text-sm text-muted-foreground">
-            Criado por{" "}
+            Built by{" "}
             <a
               href="https://danieldesousa-portfolio.vercel.app/"
               target="_blank"

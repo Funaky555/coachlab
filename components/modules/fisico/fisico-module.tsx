@@ -140,8 +140,8 @@ export function FisicoModule() {
         <h2 className="font-semibold text-lg">Records by Athlete</h2>
         <div className="flex items-center gap-2">
           <ImportDataDialog
-            title="Importar Dados Físicos"
-            description="Importa registos físicos por nome do atleta. O atleta já deve existir no plantel."
+            title="Import Physical Data"
+            description="Import physical records by athlete name. The athlete must already exist in the squad."
             schema={FISICO_IMPORT_SCHEMA}
             onImport={handleImportFisico}
             trigger={

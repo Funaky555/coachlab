@@ -184,8 +184,8 @@ export function MedicoModule() {
         <h2 className="font-semibold text-lg">History by Athlete</h2>
         <div className="flex items-center gap-2">
           <ImportDataDialog
-            title="Importar Registos Médicos"
-            description="Importa lesões por nome do atleta. O atleta já deve existir no plantel."
+            title="Import Medical Records"
+            description="Import injuries by athlete name. The athlete must already exist in the squad."
             schema={MEDICO_IMPORT_SCHEMA}
             onImport={handleImportMedico}
             trigger={

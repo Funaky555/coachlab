@@ -9,7 +9,7 @@ export default function HomePage() {
       <div className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-center gap-2 py-1.5 text-[11px] font-semibold text-black"
         style={{ background: "linear-gradient(90deg, #FF6B35, #FF9500, #FF6B35)", backgroundSize: "200% 100%", animation: "shimmer 3s linear infinite" }}>
         <Wrench className="w-3 h-3" />
-        <span>Site em constante desenvolvimento — novas funcionalidades a caminho!</span>
+        <span>Constantly evolving — new features on the way!</span>
         <Wrench className="w-3 h-3" />
       </div>
 
@@ -50,7 +50,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Content — apenas Hero */}
+      {/* Content */}
       <main className="pt-7">
         <HeroSection />
       </main>

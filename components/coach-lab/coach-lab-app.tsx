@@ -87,31 +87,31 @@ const FORMATION_GROUPS = [
 ];
 
 const VIEW_LABELS: Record<FieldView, string> = {
-  'full':           'Campo Completo',
-  'half-left':      'Meio Esq.',
-  'half-right':     'Meio Dir.',
-  'corner-left':    'Canto Esq.',
-  'corner-right':   'Canto Dir.',
-  'penalty':        'Penálti',
-  'seven-aside':    'Fut-7',
-  'five-aside':     'Fut-5 / Futsal',
-  'canto-esq-sup':  '↖ Canto Esq. Sup.',
-  'canto-esq-inf':  '↙ Canto Esq. Inf.',
-  'canto-dir-sup':  '↗ Canto Dir. Sup.',
-  'canto-dir-inf':  '↘ Canto Dir. Inf.',
-  'lancamento-sup': '↑ Lançamento Sup.',
-  'lancamento-inf': '↓ Lançamento Inf.',
-  'livre-esq':      '◀ Livre Esq.',
-  'livre-dir':      '▶ Livre Dir.',
+  'full':           'Full Pitch',
+  'half-left':      'Left Half',
+  'half-right':     'Right Half',
+  'corner-left':    'Left Corner',
+  'corner-right':   'Right Corner',
+  'penalty':        'Penalty',
+  'seven-aside':    '7-a-side',
+  'five-aside':     '5-a-side / Futsal',
+  'canto-esq-sup':  '↖ Top-Left Corner',
+  'canto-esq-inf':  '↙ Bottom-Left Corner',
+  'canto-dir-sup':  '↗ Top-Right Corner',
+  'canto-dir-inf':  '↘ Bottom-Right Corner',
+  'lancamento-sup': '↑ Top Throw-in',
+  'lancamento-inf': '↓ Bottom Throw-in',
+  'livre-esq':      '◀ Left Free Kick',
+  'livre-dir':      '▶ Right Free Kick',
 };
 
 const VIEW_GROUPS: { label: string; views: FieldView[] }[] = [
-  { label: 'Campo', views: ['full'] },
-  { label: 'Meios-Campos', views: ['half-left', 'half-right', 'penalty'] },
-  { label: 'Futebol Reduzido', views: ['seven-aside', 'five-aside'] },
-  { label: 'Cantos', views: ['canto-esq-sup', 'canto-esq-inf', 'canto-dir-sup', 'canto-dir-inf'] },
-  { label: 'Lançamentos Laterais', views: ['lancamento-sup', 'lancamento-inf'] },
-  { label: 'Livres / Bola Parada', views: ['livre-esq', 'livre-dir'] },
+  { label: 'Pitch', views: ['full'] },
+  { label: 'Half Pitches', views: ['half-left', 'half-right', 'penalty'] },
+  { label: 'Small-Sided', views: ['seven-aside', 'five-aside'] },
+  { label: 'Corners', views: ['canto-esq-sup', 'canto-esq-inf', 'canto-dir-sup', 'canto-dir-inf'] },
+  { label: 'Throw-ins', views: ['lancamento-sup', 'lancamento-inf'] },
+  { label: 'Free Kicks', views: ['livre-esq', 'livre-dir'] },
 ];
 
 function genId() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36); }

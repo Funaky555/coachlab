@@ -10,7 +10,7 @@ export default function FuncionalidadesPage() {
       </main>
       <footer className="border-t border-border py-8 px-6 text-center text-sm text-muted-foreground">
         <p>
-          © 2025 CoachLab · Criado por{" "}
+          © 2025 CoachLab · Built by{" "}
           <a
             href="https://danieldesousa-portfolio.vercel.app/"
             target="_blank"

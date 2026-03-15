@@ -14,7 +14,7 @@ export function FounderSection() {
           transition={{ duration: 0.6 }}
           className="grid md:grid-cols-2 gap-12 items-center"
         >
-          {/* Card do fundador */}
+          {/* Founder card */}
           <div className="relative">
             <div className="glass-card rounded-2xl p-8 relative overflow-hidden">
               {/* Glow effect */}
@@ -26,15 +26,15 @@ export function FounderSection() {
                 </div>
                 <div>
                   <h3 className="font-bold text-xl">Daniel de Sousa</h3>
-                  <p className="text-[#00D66C] text-sm font-medium">Fundador & Treinador UEFA B</p>
+                  <p className="text-[#00D66C] text-sm font-medium">Founder &amp; UEFA B Coach</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 {[
-                  { icon: Award, text: "Licença UEFA B de Futebol" },
-                  { icon: Globe, text: "Experiência em Portugal e China" },
-                  { icon: Trophy, text: "+10 anos de experiência no futebol" },
+                  { icon: Award, text: "UEFA B Football Licence" },
+                  { icon: Globe, text: "Experience in Portugal and China" },
+                  { icon: Trophy, text: "+10 years of football experience" },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-3 text-sm text-muted-foreground">
                     <div className="w-8 h-8 rounded-lg bg-[#00D66C]/10 flex items-center justify-center shrink-0">
@@ -48,34 +48,34 @@ export function FounderSection() {
 
             {/* Decorative card floating */}
             <div className="absolute -bottom-4 -right-4 glass rounded-xl p-4 shadow-xl border border-[#0066FF]/20">
-              <div className="text-xs text-muted-foreground mb-1">Criado com paixão pelo futebol</div>
+              <div className="text-xs text-muted-foreground mb-1">Built with passion for football</div>
               <div className="text-sm font-semibold text-[#0066FF]">coachlab-six.vercel.app</div>
             </div>
           </div>
 
-          {/* Texto */}
+          {/* Text */}
           <div>
             <div className="text-[#00D66C] text-sm font-semibold uppercase tracking-wider mb-3">
-              Sobre o CoachLab
+              About CoachLab
             </div>
             <h2 className="text-4xl font-bold mb-6" style={{ fontFamily: "var(--font-barlow-condensed)" }}>
-              Construído por um{" "}
-              <span className="text-gradient-brand">treinador real</span>
+              Built by a{" "}
+              <span className="text-gradient-brand">real coach</span>
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                O CoachLab nasceu da frustração de não existir uma ferramenta que combinasse
-                tudo o que um treinador moderno precisa: planeamento, análise, gestão de plantel
-                e scouting — numa só plataforma.
+                CoachLab was born from the frustration of not having a tool that combined
+                everything a modern coach needs: planning, analysis, squad management
+                and scouting — all in one platform.
               </p>
               <p>
-                Com experiência a trabalhar em Portugal e na China, Daniel de Sousa criou o
-                CoachLab para democratizar o acesso a ferramentas profissionais de coaching,
-                tornando-as acessíveis a treinadores amadores e profissionais.
+                With experience working in Portugal and China, Daniel de Sousa created
+                CoachLab to democratise access to professional coaching tools,
+                making them accessible to both amateur and professional coaches.
               </p>
               <p>
-                O tabuleiro tático é gratuito para sempre. Os módulos avançados estão disponíveis
-                durante o período beta sem qualquer custo.
+                The tactical board is free forever. Advanced modules are available
+                during the beta period at no cost.
               </p>
             </div>
 
@@ -85,7 +85,7 @@ export function FounderSection() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 mt-6 text-[#0066FF] hover:text-[#0066FF]/80 transition-colors text-sm font-medium"
             >
-              Ver portfolio do fundador →
+              View founder&apos;s portfolio →
             </a>
           </div>
         </motion.div>

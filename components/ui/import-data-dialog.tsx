@@ -83,7 +83,7 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
         setMapping(autoMap)
         setStep("map")
       } catch {
-        setError("Erro ao ler o ficheiro. Verifica se é um Excel ou CSV válido.")
+        setError("Error reading the file. Make sure it is a valid Excel or CSV.")
       }
     }
     reader.readAsArrayBuffer(file)
@@ -105,7 +105,7 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
   function confirmImport() {
     const missingRequired = schema.filter(f => f.required && !mapping[f.key])
     if (missingRequired.length > 0) {
-      setError(`Campos obrigatórios por mapear: ${missingRequired.map(f => f.label).join(", ")}`)
+      setError(`Required fields not mapped: ${missingRequired.map(f => f.label).join(", ")}`)
       return
     }
 
@@ -171,7 +171,7 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
                         (["upload","map","done"].indexOf(step) > i) ? "bg-muted text-muted-foreground" : "bg-muted/50 text-muted-foreground/50"}`}>
                       {i + 1}
                     </span>
-                    {s === "upload" ? "Upload" : s === "map" ? "Mapeamento" : "Concluído"}
+                    {s === "upload" ? "Upload" : s === "map" ? "Mapping" : "Done"}
                   </div>
                 </div>
               ))}
@@ -189,8 +189,8 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
                   onClick={() => fileRef.current?.click()}
                 >
                   <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                  <p className="font-semibold mb-1">Arrastar ficheiro ou clicar para selecionar</p>
-                  <p className="text-sm text-muted-foreground">Suporta Excel (.xlsx) e CSV (.csv)</p>
+                  <p className="font-semibold mb-1">Drag file or click to select</p>
+                  <p className="text-sm text-muted-foreground">Supports Excel (.xlsx) and CSV (.csv)</p>
                   <input
                     ref={fileRef}
                     type="file"
@@ -209,8 +209,8 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
 
                 <div className="flex items-center justify-between p-3 bg-muted/40 rounded-lg">
                   <div>
-                    <p className="text-sm font-medium">Descarregar template</p>
-                    <p className="text-xs text-muted-foreground">Excel com as colunas corretas para este módulo</p>
+                    <p className="text-sm font-medium">Download template</p>
+                    <p className="text-xs text-muted-foreground">Excel with the correct columns for this module</p>
                   </div>
                   <Button variant="outline" size="sm" onClick={downloadTemplate}>
                     <Download className="h-4 w-4 mr-2" />
@@ -219,7 +219,7 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Campos esperados</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Expected fields</p>
                   <div className="flex flex-wrap gap-1.5">
                     {schema.map(f => (
                       <span key={f.key} className={`text-xs px-2 py-0.5 rounded-full border
@@ -236,16 +236,16 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
             {step === "map" && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{rows.length} linhas encontradas no ficheiro</span>
+                  <span className="text-muted-foreground">{rows.length} rows found in file</span>
                   <Button variant="ghost" size="sm" onClick={() => setStep("upload")}>
-                    <X className="h-3 w-3 mr-1" />Alterar ficheiro
+                    <X className="h-3 w-3 mr-1" />Change file
                   </Button>
                 </div>
 
                 {/* Preview table */}
                 <div className="rounded-lg border overflow-hidden">
                   <div className="bg-muted/50 px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Preview (primeiras 3 linhas)
+                    Preview (first 3 rows)
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs">
@@ -271,7 +271,7 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
 
                 {/* Column mapping */}
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Mapear colunas</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Map columns</p>
                   <div className="grid grid-cols-2 gap-2">
                     {schema.map(field => (
                       <div key={field.key} className="space-y-1">
@@ -284,10 +284,10 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
                           onValueChange={v => setMapping(prev => ({ ...prev, [field.key]: v === NONE ? "" : v }))}
                         >
                           <SelectTrigger className="h-8 text-xs">
-                            <SelectValue placeholder="— ignorar —" />
+                            <SelectValue placeholder="— ignore —" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={NONE}>— ignorar —</SelectItem>
+                            <SelectItem value={NONE}>— ignore —</SelectItem>
                             {headers.map(h => (
                               <SelectItem key={h} value={h}>{h}</SelectItem>
                             ))}
@@ -314,8 +314,8 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
                   <CheckCircle className="h-8 w-8 text-[#00D66C]" />
                 </div>
                 <div>
-                  <p className="text-xl font-bold">{importedCount} registos importados</p>
-                  <p className="text-sm text-muted-foreground mt-1">Dados guardados com sucesso.</p>
+                  <p className="text-xl font-bold">{importedCount} records imported</p>
+                  <p className="text-sm text-muted-foreground mt-1">Data saved successfully.</p>
                 </div>
               </div>
             )}
@@ -328,16 +328,16 @@ export function ImportDataDialog({ title, description, schema, onImport, trigger
                 disabled={!allRequiredMapped}
                 className="bg-[#00D66C] hover:bg-[#00D66C]/90 text-black"
               >
-                Importar {rows.length} registos
+                Import {rows.length} records
               </Button>
             )}
             {step === "done" && (
               <Button onClick={() => setOpen(false)} className="bg-[#00D66C] hover:bg-[#00D66C]/90 text-black">
-                Fechar
+                Close
               </Button>
             )}
             {step !== "done" && (
-              <Button variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
+              <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             )}
           </DialogFooter>
         </DialogContent>

@@ -509,8 +509,8 @@ export function ScoutingModule() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <ImportDataDialog
-              title="Importar Scouting"
-              description="Importa jogadores observados de um ficheiro Excel ou CSV."
+              title="Import Scouting"
+              description="Import scouted players from an Excel or CSV file."
               schema={SCOUTING_IMPORT_SCHEMA}
               onImport={handleImportScouting}
               trigger={

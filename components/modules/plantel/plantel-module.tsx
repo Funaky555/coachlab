@@ -25,16 +25,16 @@ import { TacticsTab } from "./tactics-tab"
 import { SetPiecesTab } from "./set-pieces-tab"
 
 const PLANTEL_IMPORT_SCHEMA: ImportField[] = [
-  { key: "nome",           label: "Nome",            required: true,  type: "text" },
-  { key: "numero",         label: "Número",          required: true,  type: "number" },
-  { key: "posicao",        label: "Posição",         required: true,  type: "text" },
-  { key: "estado",         label: "Estado",                           type: "text" },
-  { key: "dataNascimento", label: "Data Nascimento",                  type: "date" },
-  { key: "nacionalidade",  label: "Nacionalidade",                    type: "text" },
-  { key: "altura",         label: "Altura (cm)",                      type: "number" },
-  { key: "peso",           label: "Peso (kg)",                        type: "number" },
-  { key: "pePreferido",    label: "Pé Preferido",                     type: "text" },
-  { key: "notas",          label: "Notas",                            type: "text" },
+  { key: "nome",           label: "Name",            required: true,  type: "text" },
+  { key: "numero",         label: "Number",          required: true,  type: "number" },
+  { key: "posicao",        label: "Position",        required: true,  type: "text" },
+  { key: "estado",         label: "Status",                           type: "text" },
+  { key: "dataNascimento", label: "Date of Birth",                    type: "date" },
+  { key: "nacionalidade",  label: "Nationality",                      type: "text" },
+  { key: "altura",         label: "Height (cm)",                      type: "number" },
+  { key: "peso",           label: "Weight (kg)",                      type: "number" },
+  { key: "pePreferido",    label: "Preferred Foot",                   type: "text" },
+  { key: "notas",          label: "Notes",                            type: "text" },
 ]
 
 const POSICAO_MAP: Record<string, PosicaoJogador> = {
@@ -457,8 +457,8 @@ export function PlantelModule() {
           <div className="flex justify-end items-center mb-4">
             <div className="flex items-center gap-2">
               <ImportDataDialog
-                title="Importar Jogadores"
-                description="Importa jogadores de um ficheiro Excel ou CSV."
+                title="Import Players"
+                description="Import players from an Excel or CSV file."
                 schema={PLANTEL_IMPORT_SCHEMA}
                 onImport={handleImportJogadores}
                 trigger={
@@ -603,8 +603,8 @@ export function PlantelModule() {
                     </div>
                   </div>
                   <div>
-                    <Label>Alcunha</Label>
-                    <Input placeholder="Nome exibido em toda a app (ex: Ronaldo)" value={form.alcunha} onChange={e => setForm(prev => ({ ...prev, alcunha: e.target.value }))} className="mt-1" />
+                    <Label>Nickname</Label>
+                    <Input placeholder="Display name used throughout the app (e.g. Ronaldo)" value={form.alcunha} onChange={e => setForm(prev => ({ ...prev, alcunha: e.target.value }))} className="mt-1" />
                   </div>
                   <div>
                     <Label>Status</Label>
