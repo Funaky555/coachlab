@@ -557,7 +557,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
           viewBox="0 0 510 780"
           className="rounded-xl mx-auto block"
           style={{
-            height: "calc(100dvh - 230px)",
+            height: compact ? "calc(100dvh - 195px)" : "calc(100dvh - 155px)",
             width: "auto",
             maxWidth: "100%",
             cursor: draggingPinState ? "grabbing" : drawingFrom ? "crosshair" : "default",
@@ -574,7 +574,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
           onDrop={handleSvgDrop}
         >
           {/* Field photo background */}
-          <image href="/pitch-20.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+          <image href="/22.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
           <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.08)" />
 
           {/* Preview arrow while drawing */}
