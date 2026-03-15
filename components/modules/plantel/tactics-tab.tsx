@@ -308,15 +308,22 @@ function PlayerPin({
   const [hovered, setHovered] = useState(false)
   const R = 26 * scale
 
-  // Color: sector-based for both occupied and empty slots
+  // Color: sector-based
   const posColor = sectorColor([posicao])
   const occupiedColor = jogador ? sectorColor(jogador.posicoes) : posColor
   const isEmpty = !jogador
+  const isGK = occupiedColor === "#111111"
+
+  // "White shirt on dark board" — outfield=white fill, GK=black fill
+  const pinFill = isEmpty ? `${posColor}22` : (isGK ? "#111111" : "#FFFFFF")
+  const numberFill = isEmpty ? posColor : (isGK ? "#FFFFFF" : occupiedColor)
 
   const strokeColor = isDrawingFrom ? "#FFD700"
     : isOver ? "#00D66C"
-    : hovered ? "#fff"
-    : isEmpty ? `${posColor}` : "rgba(255,255,255,0.4)"
+    : hovered ? (isEmpty ? posColor : occupiedColor)
+    : isEmpty ? `${posColor}88` : "rgba(255,255,255,0.45)"
+
+  const glowColor = isEmpty ? posColor : occupiedColor
 
   return (
     <g
@@ -328,12 +335,14 @@ function PlayerPin({
       {/* Pin circle */}
       <circle
         r={R}
-        fill={isEmpty ? `${posColor}22` : occupiedColor}
+        fill={pinFill}
         stroke={strokeColor}
-        strokeWidth={isEmpty ? 1.8 : isDrawingFrom ? 2.5 : 1.5}
+        strokeWidth={isEmpty ? 1.8 : isDrawingFrom ? 2.5 : 2}
         strokeDasharray={isEmpty ? "5,3" : "none"}
         style={{
-          filter: hovered ? `drop-shadow(0 0 8px ${isEmpty ? posColor : occupiedColor})` : "none",
+          filter: hovered
+            ? `drop-shadow(0 0 10px ${glowColor}) drop-shadow(0 0 22px ${glowColor}55)`
+            : "none",
           transition: "filter 0.15s",
         }}
         onClick={onSlotClick}
@@ -356,7 +365,7 @@ function PlayerPin({
         </>
       ) : (
         <text textAnchor="middle" dominantBaseline="central"
-          fill={isEmpty ? posColor : "white"}
+          fill={numberFill}
           fontSize={isEmpty ? R * 0.52 : R * 0.65}
           fontWeight="bold"
           opacity={isEmpty ? 0.85 : 1}
@@ -586,9 +595,8 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
           onDragOver={handleSvgDragOver}
           onDrop={handleSvgDrop}
         >
-          {/* Field photo background */}
-          <image href="/pitch-6.jpg" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
-          <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.10)" />
+          {/* Field photo background — tactical dark board */}
+          <image href="/pitch-11.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
 
           {/* Preview arrow while drawing */}
           {drawingFrom && mousePos && (() => {
@@ -879,16 +887,41 @@ function TacticsSettingsPanelHorizontal({ tatica, onUpdate }: {
 
 function FormationShape({ formation }: { formation: string }) {
   const slots = computeSlotPositions(formation, "balanced", "wide")
-  // Portrait mini field: 80x122, field bounds x=15-495, y=15-765
+  const W = 80, H = 122
+  const lc = "rgba(232,112,42,0.9)"
+  const lw = 0.6
   return (
-    <svg width="80" height="122" viewBox="0 0 80 122">
-      <rect x="0" y="0" width="80" height="122" rx="4" fill="#1a4a2e" />
-      <line x1="0" y1="61" x2="80" y2="61" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+      {/* Dark tactical board background */}
+      <rect width={W} height={H} rx="4" fill="#1e1e26" />
+      {/* Field border */}
+      <rect x="4" y="4" width={W - 8} height={H - 8} rx="1" fill="none" stroke={lc} strokeWidth={lw} />
+      {/* Center line */}
+      <line x1="4" y1={H / 2} x2={W - 4} y2={H / 2} stroke={lc} strokeWidth={lw} />
+      {/* Center circle */}
+      <circle cx={W / 2} cy={H / 2} r="12" fill="none" stroke={lc} strokeWidth={lw} />
+      <circle cx={W / 2} cy={H / 2} r="1" fill={lc} />
+      {/* Top penalty area */}
+      <rect x="20" y="4" width={W - 40} height="20" fill="none" stroke={lc} strokeWidth={lw} />
+      {/* Bottom penalty area */}
+      <rect x="20" y={H - 24} width={W - 40} height="20" fill="none" stroke={lc} strokeWidth={lw} />
+      {/* Top 6-yard box */}
+      <rect x="29" y="4" width={W - 58} height="9" fill="none" stroke={lc} strokeWidth={lw} />
+      {/* Bottom 6-yard box */}
+      <rect x="29" y={H - 13} width={W - 58} height="9" fill="none" stroke={lc} strokeWidth={lw} />
+      {/* Players */}
       {slots.map((s, i) => {
-        const cx = 3 + (s.x - 15) / 480 * 74
-        const cy = 3 + (s.y - 15) / 750 * 116
+        const cx = 4 + (s.x - 15) / 480 * (W - 8)
+        const cy = 4 + (s.y - 15) / 750 * (H - 8)
         const isGK = s.posicao === "GK"
-        return <circle key={i} cx={cx} cy={cy} r={isGK ? 4 : 3.5} fill={isGK ? "#111111" : "#0066FF"} />
+        return (
+          <circle key={i} cx={cx} cy={cy}
+            r={isGK ? 5 : 4.5}
+            fill={isGK ? "#111111" : "#FFFFFF"}
+            stroke={isGK ? "rgba(255,255,255,0.6)" : "none"}
+            strokeWidth="0.8"
+          />
+        )
       })}
     </svg>
   )
