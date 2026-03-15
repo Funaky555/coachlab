@@ -579,9 +579,9 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label }:
           viewBox="0 0 510 780"
           className="rounded-xl mx-auto block"
           style={{
-            height: "calc(100vh - 190px)",
-            width: "auto",
-            maxWidth: "100%",
+            width: "100%",
+            height: "auto",
+            maxHeight: "calc(100vh - 190px)",
             cursor: draggingPinState ? "grabbing" : drawingFrom ? "crosshair" : "default",
             userSelect: "none",
           }}
