@@ -198,6 +198,8 @@ export interface TacticaConfig {
   ipArrows: TacticArrow[]
   oopArrows: TacticArrow[]
   slotOverrides: Record<string, { x: number; y: number }>
+  ipSlotOverrides: Record<string, { x: number; y: number }>
+  oopSlotOverrides: Record<string, { x: number; y: number }>
   mentalidade_oop: "very_defensive" | "defensive" | "balanced" | "offensive" | "very_offensive"
 }
 
@@ -446,6 +448,8 @@ function getDefaultTatica(): TacticaConfig {
     ipArrows: [],
     oopArrows: [],
     slotOverrides: {},
+    ipSlotOverrides: {},
+    oopSlotOverrides: {},
     mentalidade_oop: "balanced",
   }
 }

@@ -11,10 +11,11 @@ import {
 // ─── Formações ────────────────────────────────────────────────────────────────
 
 const FORMATION_POSITIONS: Record<string, { posicao: string; label: string; row: number }[]> = {
+  // ── 2 DEF ──
   "1-2-3-5": [
     { posicao: "GK",  label: "GK",  row: 5 },
     { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
-    { posicao: "CML", label: "LM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "CMR", label: "RM",  row: 3 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
     { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "OM",  label: "SS",  row: 2 }, { posicao: "ST",  label: "ST",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
     { posicao: "ST",  label: "CF",  row: 1 },
   ],
@@ -22,137 +23,162 @@ const FORMATION_POSITIONS: Record<string, { posicao: string; label: string; row:
     { posicao: "GK",  label: "GK",  row: 5 },
     { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
     { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
-    { posicao: "ST",  label: "LW",  row: 2 }, { posicao: "OM",  label: "SS",  row: 2 }, { posicao: "ST",  label: "ST",  row: 2 }, { posicao: "ST",  label: "RW",  row: 1 },
+    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "OM",  label: "SS",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "ST",  label: "ST",  row: 1 },
   ],
-  "1-3-3-3-1": [
+  "1-2-5-3": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CM",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
-    { posicao: "CML", label: "DM",  row: 3 }, { posicao: "CMR", label: "DM",  row: 3 }, { posicao: "OM",  label: "DM",  row: 3 },
-    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "WR",  label: "AM",  row: 2 }, { posicao: "LB",  label: "RW",  row: 2 },
+    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "WL",  label: "LW",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "WR",  label: "RW",  row: 1 },
+  ],
+  // ── 3 DEF ──
+  "1-3-2-5": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
+    { posicao: "CML", label: "DM",  row: 3 }, { posicao: "CMR", label: "DM",  row: 3 },
+    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "OM",  label: "SS",  row: 2 }, { posicao: "ST",  label: "ST",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "ST",  label: "CF",  row: 1 },
+  ],
+  "1-3-3-4": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "OM",  label: "SS",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
     { posicao: "ST",  label: "ST",  row: 1 },
   ],
   "1-3-4-3": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CM",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
-    { posicao: "LB",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 },
-    { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "RB",  label: "RM",  row: 3 },
-    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "ST",  label: "ST",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "WL",  label: "LW",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "WR",  label: "RW",  row: 1 },
   ],
   "1-3-5-2": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CM",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
-    { posicao: "LB",  label: "LWB", row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 },
-    { posicao: "OM",  label: "CM",  row: 3 }, { posicao: "RB",  label: "RWB", row: 3 },
-    { posicao: "ST",  label: "ST",  row: 2 }, { posicao: "ST",  label: "ST",  row: 2 },
-  ],
-  "1-3-6-1": [
-    { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CM",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
-    { posicao: "LB",  label: "LWB", row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 },
-    { posicao: "OM",  label: "CM",  row: 3 }, { posicao: "WL",  label: "AM",  row: 3 }, { posicao: "RB",  label: "RWB", row: 3 },
-    { posicao: "ST",  label: "ST",  row: 2 },
-  ],
-  "1-4-1-2-3": [
-    { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "CM",  label: "DM",  row: 3 },
-    { posicao: "CML", label: "CM",  row: 2 }, { posicao: "CMR", label: "CM",  row: 2 },
-    { posicao: "WL",  label: "LW",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "WR",  label: "RW",  row: 1 },
-  ],
-  "1-4-1-3-2": [
-    { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "CM",  label: "DM",  row: 3 },
-    { posicao: "WL",  label: "LM",  row: 2 }, { posicao: "CMR", label: "CM",  row: 2 }, { posicao: "WR",  label: "RM",  row: 2 },
+    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
+    { posicao: "WL",  label: "LWB", row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RWB", row: 3 },
     { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 },
   ],
-  "1-4-1-4-1": [
+  "1-3-4-2-1": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "CM",  label: "DM",  row: 3 },
-    { posicao: "WL",  label: "LM",  row: 2 }, { posicao: "CML", label: "CM",  row: 2 },
-    { posicao: "CMR", label: "CM",  row: 2 }, { posicao: "WR",  label: "RM",  row: 2 },
+    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "WL",  label: "LAM", row: 2 }, { posicao: "WR",  label: "RAM", row: 2 },
     { posicao: "ST",  label: "ST",  row: 1 },
   ],
-  "1-4-2-2-2": [
+  "1-3-4-1-2": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "CML", label: "DM",  row: 3 }, { posicao: "CMR", label: "DM",  row: 3 },
-    { posicao: "WL",  label: "LM",  row: 2 }, { posicao: "WR",  label: "RM",  row: 2 },
+    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "OM",  label: "AM",  row: 2 },
     { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 },
   ],
-  "1-4-2-3-1": [
+  "1-3-3-3-1": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "CML", label: "DM",  row: 3 }, { posicao: "CMR", label: "DM",  row: 3 },
-    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "CM",  label: "AM",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
+    { posicao: "WL",  label: "LDM", row: 3 }, { posicao: "CM",  label: "DM",  row: 3 }, { posicao: "WR",  label: "RDM", row: 3 },
+    { posicao: "WL",  label: "LAM", row: 2 }, { posicao: "OM",  label: "AM",  row: 2 }, { posicao: "WR",  label: "RAM", row: 2 },
     { posicao: "ST",  label: "ST",  row: 1 },
   ],
-  "1-4-3-2-1": [
+  // ── 4 DEF ──
+  "1-4-2-4": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 },
-    { posicao: "WL",  label: "SS",  row: 2 }, { posicao: "WR",  label: "SS",  row: 2 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "CML", label: "DM",  row: 3 }, { posicao: "CMR", label: "DM",  row: 3 },
+    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "OM",  label: "SS",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
     { posicao: "ST",  label: "ST",  row: 1 },
   ],
   "1-4-3-3": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
     { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 },
-    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "ST",  label: "ST",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "WL",  label: "LW",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "WR",  label: "RW",  row: 1 },
   ],
   "1-4-4-2": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 },
-    { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
-    { posicao: "ST",  label: "ST",  row: 2 }, { posicao: "ST",  label: "ST",  row: 2 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 },
   ],
   "1-4-5-1": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 },
-    { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
-    { posicao: "ST",  label: "ST",  row: 2 },
-  ],
-  "1-5-2-2-1": [
-    { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CM",  label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 },
-    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
     { posicao: "ST",  label: "ST",  row: 1 },
   ],
+  "1-4-1-4-1": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "CM",  label: "DM",  row: 3 },
+    { posicao: "WL",  label: "LM",  row: 2 }, { posicao: "CML", label: "AM",  row: 2 }, { posicao: "CMR", label: "AM",  row: 2 }, { posicao: "WR",  label: "RM",  row: 2 },
+    { posicao: "ST",  label: "ST",  row: 1 },
+  ],
+  "1-4-2-3-1": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "CML", label: "DM",  row: 3 }, { posicao: "CMR", label: "DM",  row: 3 },
+    { posicao: "WL",  label: "LAM", row: 2 }, { posicao: "OM",  label: "AM",  row: 2 }, { posicao: "WR",  label: "RAM", row: 2 },
+    { posicao: "ST",  label: "ST",  row: 1 },
+  ],
+  "1-4-3-2-1": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 },
+    { posicao: "WL",  label: "SS",  row: 2 }, { posicao: "WR",  label: "SS",  row: 2 },
+    { posicao: "ST",  label: "ST",  row: 1 },
+  ],
+  "1-4-1-3-2": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "CM",  label: "DM",  row: 3 },
+    { posicao: "WL",  label: "LAM", row: 2 }, { posicao: "OM",  label: "AM",  row: 2 }, { posicao: "WR",  label: "RAM", row: 2 },
+    { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 },
+  ],
+  // ── 5 DEF ──
   "1-5-2-3": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CM",  label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
     { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 },
-    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "ST",  label: "ST",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "WL",  label: "LW",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "WR",  label: "RW",  row: 1 },
   ],
   "1-5-3-2": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CM",  label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "OM",  label: "CM",  row: 3 },
-    { posicao: "ST",  label: "ST",  row: 2 }, { posicao: "ST",  label: "ST",  row: 2 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 },
   ],
   "1-5-4-1": [
     { posicao: "GK",  label: "GK",  row: 5 },
-    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CM",  label: "CB",  row: 4 },
-    { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 },
-    { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
-    { posicao: "ST",  label: "ST",  row: 2 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "ST",  label: "ST",  row: 1 },
+  ],
+  "1-5-2-2-1": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "CML", label: "DM",  row: 3 }, { posicao: "CMR", label: "DM",  row: 3 },
+    { posicao: "WL",  label: "LAM", row: 2 }, { posicao: "WR",  label: "RAM", row: 2 },
+    { posicao: "ST",  label: "ST",  row: 1 },
+  ],
+  "1-5-3-1-1": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "OM",  label: "AM",  row: 2 },
+    { posicao: "ST",  label: "ST",  row: 1 },
+  ],
+  // ── 6 DEF ──
+  "1-6-2-2": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 }, { posicao: "CM",  label: "SW",  row: 4 },
+    { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 },
+    { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 },
+  ],
+  "1-6-3-1": [
+    { posicao: "GK",  label: "GK",  row: 5 },
+    { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 }, { posicao: "CM",  label: "SW",  row: 4 },
+    { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
+    { posicao: "ST",  label: "ST",  row: 1 },
   ],
 }
 
@@ -167,9 +193,9 @@ function getPositions(formacao: string) {
 function sectorColor(posicoes: string[]): string {
   const setor = getPrimarySetor(posicoes as Parameters<typeof getPrimarySetor>[0])
   if (setor === "GR")  return "#111111"
-  if (setor === "DEF") return "#0277BD"
-  if (setor === "MED") return "#8B5CF6"
-  return "#FF6B35"
+  if (setor === "DEF") return "#00D66C"
+  if (setor === "MED") return "#0066FF"
+  return "#FF2222"
 }
 
 // ─── Mentalidade → Zonas Y absolutas por linha ────────────────────────────────
@@ -316,13 +342,13 @@ function PlayerPin({
   const isGK = occupiedColor === "#111111"
 
   // "White shirt on dark board" — outfield=white fill, GK=black fill
-  const pinFill = isEmpty ? `${posColor}22` : (isGK ? "#111111" : "#FFFFFF")
+  const pinFill = isEmpty ? `${posColor}44` : (isGK ? "#111111" : "#FFFFFF")
   const numberFill = isEmpty ? posColor : (isGK ? "#FFFFFF" : occupiedColor)
 
   const strokeColor = isDrawingFrom ? "#FFD700"
     : isOver ? "#00D66C"
     : hovered ? (isEmpty ? posColor : occupiedColor)
-    : isEmpty ? `${posColor}88` : "rgba(255,255,255,0.45)"
+    : isEmpty ? posColor : occupiedColor
 
   const glowColor = isEmpty ? posColor : occupiedColor
 
@@ -415,13 +441,12 @@ interface PitchSVGProps {
   onUpdate: (partial: Partial<TacticaConfig>) => void
   mode: "ip" | "oop"
   compact?: boolean
-  label?: string
-  showSettingsCenter?: boolean
   selectedArrowType: TacticArrowType
-  onChangeArrowType: (t: TacticArrowType) => void
+  slotOverridesForMode: Record<string, { x: number; y: number }>
+  onUpdateOverrides: (overrides: Record<string, { x: number; y: number }>) => void
 }
 
-function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, selectedArrowType, onChangeArrowType }: PitchSVGProps) {
+function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selectedArrowType, slotOverridesForMode, onUpdateOverrides }: PitchSVGProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [drawingFrom, setDrawingFrom] = useState<string | null>(null)
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
@@ -437,7 +462,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
   }
 
   const slotPositions = computeSlotPositions(
-    tatica.formacao, tatica.mentalidade, tatica.atacarPorCorredor, tatica.slotOverrides ?? {}
+    tatica.formacao, tatica.mentalidade, tatica.atacarPorCorredor, slotOverridesForMode
   )
 
   // Convert SVG coordinates from mouse/pointer event
@@ -492,7 +517,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
     if (draggingPinRef.current) {
       const pos = svgCoords(e)
       const clamped = { x: Math.max(30, Math.min(480, pos.x)), y: Math.max(30, Math.min(750, pos.y)) }
-      onUpdate({ slotOverrides: { ...(tatica.slotOverrides ?? {}), [draggingPinRef.current]: clamped } })
+      onUpdateOverrides({ ...slotOverridesForMode, [draggingPinRef.current]: clamped })
       return
     }
     if (!drawingFrom) return
@@ -553,15 +578,20 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
 
   return (
     <div className="relative h-full flex items-center justify-center">
+      <div className="relative" style={{ height: "100%", aspectRatio: "510/780" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/23.png"
+          className="absolute inset-0 w-full h-full rounded-xl pointer-events-none select-none"
+          style={{ objectFit: "fill" }}
+          alt=""
+          crossOrigin="anonymous"
+        />
         <svg
           ref={svgRef}
           viewBox="0 0 510 780"
-          className="rounded-xl block"
+          className="absolute inset-0 w-full h-full rounded-xl"
           style={{
-            height: "100%",
-            maxHeight: "100%",
-            width: "auto",
-            maxWidth: "100%",
             cursor: draggingPinState ? "grabbing" : drawingFrom ? "crosshair" : "default",
             userSelect: "none",
           }}
@@ -575,8 +605,6 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
           onDragOver={handleSvgDragOver}
           onDrop={handleSvgDrop}
         >
-          {/* Field photo background */}
-          <image href="/23.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid meet" />
           <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.08)" />
 
           {/* Preview arrow while drawing */}
@@ -628,38 +656,8 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, label, s
             />
           ))}
 
-          {/* Label in SVG only when not compact */}
-          {label && !compact && (
-            <text x="25" y="770" fill="rgba(255,255,255,0.5)" fontSize="11" fontWeight="600"
-              letterSpacing="0.08em" style={{ textTransform: "uppercase" }}>
-              {label}
-            </text>
-          )}
         </svg>
-        {/* Arrow type overlay */}
-        <div className="absolute bottom-2 left-2 z-10 flex gap-1">
-          {([
-            { v: "run" as const,         label: "Run",     color: "#FF4444" },
-            { v: "run_no_ball" as const, label: "No ball", color: "#60A5FA" },
-          ]).map(opt => (
-            <button key={opt.v} onClick={() => onChangeArrowType(opt.v)}
-              className="px-2 py-0.5 rounded text-[8px] font-bold border transition-all"
-              style={selectedArrowType === opt.v
-                ? { background: opt.color + "33", borderColor: opt.color, color: opt.color }
-                : { background: "rgba(0,0,0,0.55)", borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.45)" }
-              }
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Label below SVG when compact */}
-        {label && compact && (
-          <div className="text-center text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mt-1">
-            {label}
-          </div>
-        )}
+      </div>
     </div>
   )
 }
@@ -770,11 +768,11 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
 // ─── Mentality Selector ───────────────────────────────────────────────────────
 
 const MENTALITY_OPTIONS: { value: TacticaConfig["mentalidade"]; label: string; color: string; short: string }[] = [
-  { value: "very_offensive",  label: "Very Offensive",  color: "#FF4444", short: "V.OFF" },
-  { value: "offensive",       label: "Offensive",        color: "#FF6B35", short: "OFF"   },
+  { value: "very_offensive",  label: "Very Offensive",  color: "#FF2222", short: "V.OFF" },
+  { value: "offensive",       label: "Offensive",        color: "#FF8C00", short: "OFF"   },
   { value: "balanced",        label: "Balanced",         color: "#00D66C", short: "BAL"   },
   { value: "defensive",       label: "Defensive",        color: "#0066FF", short: "DEF"   },
-  { value: "very_defensive",  label: "Very Defensive",   color: "#8B5CF6", short: "V.DEF" },
+  { value: "very_defensive",  label: "Very Defensive",   color: "#CC00FF", short: "V.DEF" },
 ]
 
 function MentalitySelector({ value, onChange, compact = false }: {
@@ -1016,7 +1014,7 @@ export function TacticsTab() {
   const [jogadores, setJogadores] = useState<Jogador[]>([])
   const [tatica, setTatica] = useState<TacticaConfig>(getTatica())
   const [tab, setTab] = useState<TabMode>("ip")
-  const [arrowType, setArrowType] = useState<TacticArrowType>("run")
+  const [arrowType] = useState<TacticArrowType>("run")
   const [settingsOpen, setSettingsOpen] = useState(false)
   const pitchRef = useRef<HTMLDivElement>(null)
   const uid = useId()
@@ -1047,7 +1045,7 @@ export function TacticsTab() {
     if (!el) return
     try {
       const { default: html2canvas } = await import("html2canvas")
-      const canvas = await html2canvas(el, { backgroundColor: null, scale: 2 })
+      const canvas = await html2canvas(el, { backgroundColor: null, scale: 2, useCORS: true, allowTaint: true, logging: false })
       const link = document.createElement("a")
       link.download = `tatica-${tatica.formacao}-${tab}.png`
       link.href = canvas.toDataURL("image/png")
@@ -1058,8 +1056,8 @@ export function TacticsTab() {
   }
 
   function handleReset() {
-    if (!confirm("Limpar todos os jogadores e setas das táticas?")) return
-    update({ titulares: [], ipArrows: [], oopArrows: [] })
+    if (!confirm("Retirar os jogadores das tactics?")) return
+    update({ titulares: [], ipSlotOverrides: {}, oopSlotOverrides: {} })
   }
 
   const tabBtnClass = (active: boolean) =>
@@ -1125,18 +1123,24 @@ export function TacticsTab() {
         {/* CENTER — Pitch(es) */}
         <div ref={pitchRef} className="flex-1 min-w-0 min-h-0 h-full">
           {tab === "ip" && (
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" label="In Possession"
-              selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
+            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
+              selectedArrowType={arrowType}
+              slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+              onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })} />
           )}
           {tab === "oop" && (
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" label="Out of Possession"
-              selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
+            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop"
+              selectedArrowType={arrowType}
+              slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
+              onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })} />
           )}
           {tab === "both" && (
             <div className="flex gap-1 h-full">
               <div className="flex-1 min-w-0 h-full">
-                <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact label="In Possession"
-                  selectedArrowType={arrowType} onChangeArrowType={setArrowType} />
+                <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact
+                  selectedArrowType={arrowType}
+                  slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+                  onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })} />
               </div>
               <div className="flex-1 min-w-0 h-full">
                 <PitchSVG
@@ -1148,9 +1152,9 @@ export function TacticsTab() {
                   }}
                   mode="oop"
                   compact
-                  label="Out of Possession"
                   selectedArrowType={arrowType}
-                  onChangeArrowType={setArrowType}
+                  slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
+                  onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
                 />
               </div>
             </div>
