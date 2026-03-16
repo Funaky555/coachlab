@@ -204,6 +204,16 @@ export interface TacticaConfig {
   oopSlotLabelOverrides?: Record<string, string>
   mentalidade_oop: "very_defensive" | "defensive" | "balanced" | "offensive" | "very_offensive"
   formacao_oop?: string
+  // Tactical Settings
+  attackingWidth: "maximum" | "medium" | "low"
+  dribbling: "1v1" | "teamplay"
+  creativeFreedom: "expressive" | "disciplined"
+  playFromGK: boolean
+  centralBacksOpen: boolean
+  centralMidfielders: "low" | "rotations" | "move_high" | "move_low"
+  fullbacksPosition: "low" | "high"
+  wingersPosition: "open" | "inside"
+  strikerMovement: "offside" | "drop" | "sides" | "on_cb"
 }
 
 // --- Set Pieces ---
@@ -457,6 +467,15 @@ function getDefaultTatica(): TacticaConfig {
     oopSlotLabelOverrides: {},
     mentalidade_oop: "balanced",
     formacao_oop: "1-4-3-3",
+    attackingWidth: "medium",
+    dribbling: "teamplay",
+    creativeFreedom: "disciplined",
+    playFromGK: true,
+    centralBacksOpen: false,
+    centralMidfielders: "low",
+    fullbacksPosition: "low",
+    wingersPosition: "open",
+    strikerMovement: "drop",
   }
 }
 
