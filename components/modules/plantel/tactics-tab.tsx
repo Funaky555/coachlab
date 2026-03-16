@@ -1471,7 +1471,7 @@ export function TacticsTab() {
           <div className="flex gap-[10px] p-2 items-start">
 
             {/* Phase 1 */}
-            <div className="shrink-0 w-[120px] flex flex-col">
+            <div className="shrink-0 w-[145px] flex flex-col">
               <div className="shrink-0 py-1 text-center">
                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
                   1<sup>st</sup> Phase
@@ -1485,7 +1485,7 @@ export function TacticsTab() {
             </div>
 
             {/* Phase 2 */}
-            <div className="shrink-0 w-[120px] flex flex-col">
+            <div className="shrink-0 w-[145px] flex flex-col">
               <div className="shrink-0 py-1 text-center">
                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
                   2<sup>nd</sup> Phase
@@ -1499,7 +1499,7 @@ export function TacticsTab() {
             </div>
 
             {/* Phase 3 */}
-            <div className="shrink-0 w-[120px] flex flex-col">
+            <div className="shrink-0 w-[145px] flex flex-col">
               <div className="shrink-0 py-1 text-center">
                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
                   3<sup>rd</sup> Phase
@@ -1515,7 +1515,10 @@ export function TacticsTab() {
           </div>
         </div>
 
-        {/* ── CENTRO: Formation field ── */}
+        {/* Espaçador — empurra formation para centro-direita */}
+        <div className="flex-1" />
+
+        {/* ── CENTRO-DIREITA: Formation field ── */}
         <div className="w-[300px] shrink-0 flex flex-col border-l border-border/15">
           {/* Controlos acima do campo */}
           <div className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15 flex-wrap">
