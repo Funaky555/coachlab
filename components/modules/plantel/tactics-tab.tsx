@@ -768,12 +768,10 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
 
 // ─── Bench Panel ──────────────────────────────────────────────────────────────
 
-function BenchPanel({ jogadores, tatica, onUnassign, onExport, onReset }: {
+function BenchPanel({ jogadores, tatica, onUnassign }: {
   jogadores: Jogador[]
   tatica: TacticaConfig
   onUnassign: (jogadorId: string) => void
-  onExport: () => void
-  onReset: () => void
 }) {
   const assignedIds = new Set(tatica.titulares.map(s => s.jogadorId).filter(Boolean))
   const SETOR_ORDER: Record<string, number> = { GR: 0, DEF: 1, MED: 2, AV: 3 }
@@ -791,18 +789,6 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExport, onReset }: {
 
   return (
     <div className="flex flex-col h-full overflow-hidden gap-0">
-
-      {/* ── PNG + Reset ── */}
-      <div className="flex gap-1 mb-2 shrink-0">
-        <button onClick={onExport}
-          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded border border-[#8B5CF6]/40 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 transition-all text-[10px] font-semibold">
-          <Camera className="w-3 h-3" />PNG
-        </button>
-        <button onClick={onReset}
-          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded border border-red-500/40 text-red-400 hover:bg-red-500/10 transition-all text-[10px] font-semibold">
-          <RotateCcw className="w-3 h-3" />Reset
-        </button>
-      </div>
 
       {/* ── TITULARES (maiores, em cima) ── */}
       <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 shrink-0 mb-1">
@@ -938,10 +924,10 @@ function TBtn({ active, color, onClick, children }: {
 }) {
   return (
     <button onClick={onClick}
-      className="px-2 py-1 rounded text-[10px] font-semibold border transition-all"
+      className="px-2 py-0.5 rounded text-[9px] font-bold border transition-all"
       style={active
-        ? { background: color + "33", borderColor: color, color }
-        : { borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
+        ? { background: color + "25", borderColor: color, color, boxShadow: `0 0 8px ${color}55` }
+        : { borderColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)" }}>
       {children}
     </button>
   )
@@ -992,26 +978,24 @@ function TacticsSettingsPanelHorizontal({ tatica, onUpdate }: {
   onUpdate: (p: Partial<TacticaConfig>) => void
 }) {
   return (
-    <div className="flex items-center gap-8 px-4 py-2.5 rounded-xl border border-border/30 bg-background/30 backdrop-blur-sm">
-      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/50 shrink-0">Settings</div>
-
-      <div className="flex items-center gap-2">
-        <div className="text-[8px] text-muted-foreground/50 uppercase tracking-wider">Attack via</div>
+    <div className="flex items-center justify-center gap-3 px-3 py-1.5">
+      <div className="flex items-center gap-1.5">
+        <span className="text-[7px] font-black uppercase tracking-[0.15em] text-muted-foreground/40">Attack</span>
         <TBtn active={tatica.atacarPorCorredor === "wide"} color="#00D66C" onClick={() => onUpdate({ atacarPorCorredor: "wide" })}>Wide</TBtn>
         <TBtn active={tatica.atacarPorCorredor === "center"} color="#0066FF" onClick={() => onUpdate({ atacarPorCorredor: "center" })}>Center</TBtn>
       </div>
-
-      <div className="flex items-center gap-2">
-        <div className="text-[8px] text-muted-foreground/50 uppercase tracking-wider">Crosses</div>
-        <TBtn active={tatica.cruzamentos === "low"} color="#8B5CF6" onClick={() => onUpdate({ cruzamentos: "low" })}>Low</TBtn>
-        <TBtn active={tatica.cruzamentos === "whipped"} color="#FF6B35" onClick={() => onUpdate({ cruzamentos: "whipped" })}>Whipped</TBtn>
-        <TBtn active={tatica.cruzamentos === "floated"} color="#0066FF" onClick={() => onUpdate({ cruzamentos: "floated" })}>Floated</TBtn>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="text-[8px] text-muted-foreground/50 uppercase tracking-wider">Pass Type</div>
+      <div className="w-px h-4 bg-border/30" />
+      <div className="flex items-center gap-1.5">
+        <span className="text-[7px] font-black uppercase tracking-[0.15em] text-muted-foreground/40">Pass</span>
         <TBtn active={tatica.tipoJogada === "short"} color="#00D66C" onClick={() => onUpdate({ tipoJogada: "short" })}>Short</TBtn>
         <TBtn active={tatica.tipoJogada === "long"} color="#FF6B35" onClick={() => onUpdate({ tipoJogada: "long" })}>Long</TBtn>
+      </div>
+      <div className="w-px h-4 bg-border/30" />
+      <div className="flex items-center gap-1.5">
+        <span className="text-[7px] font-black uppercase tracking-[0.15em] text-muted-foreground/40">Cross</span>
+        <TBtn active={tatica.cruzamentos === "low"} color="#8B5CF6" onClick={() => onUpdate({ cruzamentos: "low" })}>Low</TBtn>
+        <TBtn active={tatica.cruzamentos === "whipped"} color="#FF6B35" onClick={() => onUpdate({ cruzamentos: "whipped" })}>Whip</TBtn>
+        <TBtn active={tatica.cruzamentos === "floated"} color="#0066FF" onClick={() => onUpdate({ cruzamentos: "floated" })}>Float</TBtn>
       </div>
     </div>
   )
@@ -1226,12 +1210,19 @@ export function TacticsTab() {
           </>
         )}
 
-        {/* Settings */}
+        {/* PNG + Reset — lado direito */}
         <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-          <button onClick={() => setSettingsOpen(true)}
-            className="flex items-center gap-1 px-2 py-1 rounded border border-border/30 text-muted-foreground hover:bg-muted/20 transition-all"
-            title="Settings">
-            <Settings2 className="w-3.5 h-3.5" />
+          <button onClick={handleExport}
+            className="flex items-center gap-1 px-2 py-1 rounded border border-[#8B5CF6]/40 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 transition-all"
+            title="Exportar PNG">
+            <Camera className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-semibold">PNG</span>
+          </button>
+          <button onClick={handleReset}
+            className="flex items-center gap-1 px-2 py-1 rounded border border-red-500/40 text-red-400 hover:bg-red-500/10 transition-all"
+            title="Reset">
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-semibold">Reset</span>
           </button>
         </div>
       </div>
@@ -1250,6 +1241,11 @@ export function TacticsTab() {
               <button className={tabBtnClass(activeTab === "both")} onClick={() => setTab("both")}>Both</button>
             </div>
           )}
+
+          {/* Settings strip — sempre visível abaixo dos tabs */}
+          <div className="shrink-0 border-b border-border/10">
+            <TacticsSettingsPanelHorizontal tatica={tatica} onUpdate={update} />
+          </div>
 
           {/* Pitch(es) */}
           <div className="flex-1 min-h-0">
@@ -1327,20 +1323,9 @@ export function TacticsTab() {
 
         {/* RIGHT — Bench */}
         <div className="w-44 shrink-0 border-l border-border/20 pl-2 pt-2 flex flex-col overflow-hidden">
-          <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign}
-            onExport={handleExport} onReset={handleReset} />
+          <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
       </div>
-
-      {/* Settings Dialog */}
-      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">Tactics Settings</DialogTitle>
-          </DialogHeader>
-          <TacticsSettingsPanel tatica={tatica} onUpdate={update} />
-        </DialogContent>
-      </Dialog>
 
       {/* Hidden uid usage to suppress lint warning */}
       <span className="hidden" aria-hidden>{uid}</span>
