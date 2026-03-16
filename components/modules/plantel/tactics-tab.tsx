@@ -656,7 +656,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
   const scale = compact ? 0.85 : 1
 
   return (
-    <div className="relative h-full flex items-center justify-start">
+    <div className="relative h-full flex items-center justify-center">
       <div className="relative" style={{ height: "100%", aspectRatio: "510/780" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -915,37 +915,6 @@ const MENTALITY_OPTIONS: { value: TacticaConfig["mentalidade"]; label: string; c
   { value: "very_defensive",  label: "Very Defensive",   color: "#CC00FF", short: "V.DEF" },
 ]
 
-function MentalitySelector({ value, onChange, compact = false }: {
-  value: TacticaConfig["mentalidade"]
-  onChange: (v: TacticaConfig["mentalidade"]) => void
-  compact?: boolean
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">
-        {compact ? "Ment." : "Mentality"}
-      </div>
-      {MENTALITY_OPTIONS.map(opt => (
-        <button
-          key={opt.value}
-          onClick={() => onChange(opt.value)}
-          className="flex items-center gap-1.5 px-1.5 py-1.5 rounded-lg border transition-all text-left"
-          style={value === opt.value
-            ? { background: opt.color + "22", borderColor: opt.color, boxShadow: `0 0 8px ${opt.color}44` }
-            : { borderColor: "rgba(255,255,255,0.08)", background: "transparent" }}
-        >
-          <div className="w-2 h-2 rounded-full shrink-0 transition-all"
-            style={{ background: value === opt.value ? opt.color : "rgba(255,255,255,0.15)" }} />
-          <span className="text-[9px] font-semibold"
-            style={{ color: value === opt.value ? opt.color : "rgba(255,255,255,0.5)" }}>
-            {compact ? opt.short : opt.label}
-          </span>
-        </button>
-      ))}
-    </div>
-  )
-}
-
 // ─── TBtn ─────────────────────────────────────────────────────────────────────
 
 function TBtn({ active, color, onClick, children }: {
@@ -953,10 +922,10 @@ function TBtn({ active, color, onClick, children }: {
 }) {
   return (
     <button onClick={onClick}
-      className="px-2 py-0.5 rounded text-[9px] font-bold border transition-all"
+      className="px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all"
       style={active
-        ? { background: color + "25", borderColor: color, color, boxShadow: `0 0 8px ${color}55` }
-        : { borderColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)" }}>
+        ? { background: color + "25", borderColor: color, color, boxShadow: `0 0 10px ${color}55` }
+        : { borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.03)" }}>
       {children}
     </button>
   )
@@ -1062,8 +1031,8 @@ function AttackingWidthSlider({ value, onChange }: {
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex justify-between items-center">
-        <span className="text-[8px] font-black uppercase tracking-wider text-muted-foreground/60">Attacking Width</span>
-        <span className="text-[9px] font-bold" style={{ color }}>{labels[value]}</span>
+        <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/60">Attacking Width</span>
+        <span className="text-[11px] font-bold" style={{ color }}>{labels[value]}</span>
       </div>
       {/* Track */}
       <div className="relative h-5 flex items-center px-2">
@@ -1096,7 +1065,7 @@ function AttackingWidthSlider({ value, onChange }: {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[7px] font-black uppercase tracking-[0.12em] text-muted-foreground/40 mb-1">
+    <div className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/50 mb-1">
       {children}
     </div>
   )
@@ -1106,6 +1075,48 @@ function TRow({ children }: { children: React.ReactNode }) {
   return <div className="flex gap-1 flex-wrap">{children}</div>
 }
 
+function MentalityDropdown({ value, onChange }: {
+  value: TacticaConfig["mentalidade"]
+  onChange: (v: TacticaConfig["mentalidade"]) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const opt = MENTALITY_OPTIONS.find(o => o.value === value) ?? MENTALITY_OPTIONS[2]
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(p => !p)}
+        className="flex items-center gap-1.5 h-8 px-3 rounded-lg border transition-all text-xs font-bold"
+        style={{ borderColor: opt.color + "66", background: opt.color + "18", color: opt.color }}
+      >
+        <div className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.color }} />
+        <span>{opt.label}</span>
+        <ChevronDown className="w-3 h-3 opacity-60" />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-full mt-1 z-50 rounded-xl p-1.5 min-w-[170px]"
+            style={{ background: "#0d0f14", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)" }}>
+            {MENTALITY_OPTIONS.map(o => (
+              <button key={o.value}
+                onClick={() => { onChange(o.value); setOpen(false) }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all text-left"
+                style={o.value === value
+                  ? { background: o.color + "22", color: o.color }
+                  : { color: "rgba(255,255,255,0.5)" }}
+              >
+                <div className="w-2 h-2 rounded-full shrink-0"
+                  style={{ background: o.value === value ? o.color : "rgba(255,255,255,0.2)" }} />
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 function LeftTacticsPanel({ tatica, onUpdate, tab }: {
   tatica: TacticaConfig
   onUpdate: (p: Partial<TacticaConfig>) => void
@@ -1113,23 +1124,20 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
 }) {
   return (
     <div className="w-[380px] shrink-0 border-r border-border/20 flex flex-col overflow-hidden">
-      <div className="overflow-y-auto flex-1 min-h-0 px-2 py-2 flex flex-col gap-3">
+      <div className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-hidden">
 
         {/* ── Formation + Mentality ── */}
         {tab !== "both" ? (
-          <div className="flex flex-col gap-2">
-            <div>
-              <SectionLabel>{tab === "ip" ? "IP Formation" : "OOP Formation"}</SectionLabel>
+          <div className="flex flex-col gap-1.5">
+            <SectionLabel>{tab === "ip" ? "In Possession" : "Out of Possession"}</SectionLabel>
+            <div className="flex gap-2 flex-wrap">
               <FormationPickerDialog
                 value={tab === "ip" ? tatica.formacao : (tatica.formacao_oop ?? tatica.formacao)}
                 onChange={f => tab === "ip"
                   ? onUpdate({ formacao: f, ipSlotOverrides: {} })
                   : onUpdate({ formacao_oop: f, oopSlotOverrides: {} })}
               />
-            </div>
-            <div>
-              <SectionLabel>Mentality</SectionLabel>
-              <MentalitySelector
+              <MentalityDropdown
                 value={tab === "ip" ? tatica.mentalidade : (tatica.mentalidade_oop ?? "balanced")}
                 onChange={v => tab === "ip"
                   ? onUpdate({ mentalidade: v, ipSlotOverrides: {} })
@@ -1139,25 +1147,23 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            <div>
-              <SectionLabel>IP Formation</SectionLabel>
-              <FormationPickerDialog value={tatica.formacao}
-                onChange={f => onUpdate({ formacao: f, ipSlotOverrides: {} })} />
+            <div className="flex flex-col gap-1">
+              <SectionLabel>In Possession</SectionLabel>
+              <div className="flex gap-2 flex-wrap">
+                <FormationPickerDialog value={tatica.formacao}
+                  onChange={f => onUpdate({ formacao: f, ipSlotOverrides: {} })} />
+                <MentalityDropdown value={tatica.mentalidade}
+                  onChange={v => onUpdate({ mentalidade: v, ipSlotOverrides: {} })} />
+              </div>
             </div>
-            <div>
-              <SectionLabel>IP Mentality</SectionLabel>
-              <MentalitySelector value={tatica.mentalidade}
-                onChange={v => onUpdate({ mentalidade: v, ipSlotOverrides: {} })} />
-            </div>
-            <div className="border-t border-border/20 pt-2">
-              <SectionLabel>OOP Formation</SectionLabel>
-              <FormationPickerDialog value={tatica.formacao_oop ?? tatica.formacao}
-                onChange={f => onUpdate({ formacao_oop: f, oopSlotOverrides: {} })} />
-            </div>
-            <div>
-              <SectionLabel>OOP Mentality</SectionLabel>
-              <MentalitySelector value={tatica.mentalidade_oop ?? "balanced"}
-                onChange={v => onUpdate({ mentalidade_oop: v, oopSlotOverrides: {} })} />
+            <div className="flex flex-col gap-1">
+              <SectionLabel>Out of Possession</SectionLabel>
+              <div className="flex gap-2 flex-wrap">
+                <FormationPickerDialog value={tatica.formacao_oop ?? tatica.formacao}
+                  onChange={f => onUpdate({ formacao_oop: f, oopSlotOverrides: {} })} />
+                <MentalityDropdown value={tatica.mentalidade_oop ?? "balanced"}
+                  onChange={v => onUpdate({ mentalidade_oop: v, oopSlotOverrides: {} })} />
+              </div>
             </div>
           </div>
         )}
