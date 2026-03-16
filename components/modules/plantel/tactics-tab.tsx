@@ -380,7 +380,7 @@ function ArrowSVG({ arrow, fromX, fromY, onRemove }: {
   const endX = arrow.toX - nx * 5
   const endY = arrow.toY - ny * 5
 
-  const color = "#000000"
+  const color = "#FFD700"
   const dash  = "12,7"
 
   const angle = Math.atan2(ny, nx) * (180 / Math.PI)
@@ -724,7 +724,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
           {drawingFrom && mousePos && (() => {
             const from = slotPositions.find(s => s.slotKey === drawingFrom)
             if (!from) return null
-            const color = "#000000"
+            const color = "#FFD700"
             const dash = "12,7"
             return (
               <line x1={from.x} y1={from.y} x2={mousePos.x} y2={mousePos.y}
@@ -1201,174 +1201,6 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
         <AttackingWidthSlider value={tatica.attackingWidth ?? "medium"}
           onChange={v => onUpdate({ attackingWidth: v })} />
 
-        {/* ── Team Instructions divider ── */}
-        <div className="flex items-center gap-1.5">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#0066FF]/40 to-transparent" />
-          <span className="text-[8px] font-black uppercase tracking-[0.15em] text-[#0066FF]/60">Team Instructions</span>
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#0066FF]/40 to-transparent" />
-        </div>
-
-        {/* ── Pass Type ── */}
-        <div>
-          <SectionLabel>Pass</SectionLabel>
-          <TRow>
-            <TBtn active={tatica.tipoJogada === "short"} color="#00D66C" onClick={() => onUpdate({ tipoJogada: "short" })}>Short Pass</TBtn>
-            <TBtn active={tatica.tipoJogada === "long"} color="#FF6B35" onClick={() => onUpdate({ tipoJogada: "long" })}>Long Pass</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── Cross ── */}
-        <div>
-          <SectionLabel>Cross</SectionLabel>
-          <TRow>
-            <TBtn active={tatica.cruzamentos === "low"} color="#8B5CF6" onClick={() => onUpdate({ cruzamentos: "low" })}>Low</TBtn>
-            <TBtn active={tatica.cruzamentos === "whipped"} color="#FF6B35" onClick={() => onUpdate({ cruzamentos: "whipped" })}>Driven</TBtn>
-            <TBtn active={tatica.cruzamentos === "floated"} color="#0066FF" onClick={() => onUpdate({ cruzamentos: "floated" })}>Aerial</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── Dribbling ── */}
-        <div>
-          <SectionLabel>Dribbling & Feint</SectionLabel>
-          <TRow>
-            <TBtn active={(tatica.dribbling ?? "teamplay") === "1v1"} color="#FF2222" onClick={() => onUpdate({ dribbling: "1v1" })}>1v1</TBtn>
-            <TBtn active={(tatica.dribbling ?? "teamplay") === "teamplay"} color="#00D66C" onClick={() => onUpdate({ dribbling: "teamplay" })}>Team Play</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── Creative Freedom ── */}
-        <div>
-          <SectionLabel>Creative Freedom</SectionLabel>
-          <TRow>
-            <TBtn active={(tatica.creativeFreedom ?? "disciplined") === "expressive"} color="#8B5CF6" onClick={() => onUpdate({ creativeFreedom: "expressive" })}>Expressive</TBtn>
-            <TBtn active={(tatica.creativeFreedom ?? "disciplined") === "disciplined"} color="#0066FF" onClick={() => onUpdate({ creativeFreedom: "disciplined" })}>Disciplined</TBtn>
-          </TRow>
-        </div>
-
-        {/* Divider: Approach Play */}
-        <div className="flex items-center gap-1.5">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#00D66C]/40 to-transparent" />
-          <span className="text-[8px] font-black uppercase tracking-[0.15em] text-[#00D66C]/60">Position Instructions</span>
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#00D66C]/40 to-transparent" />
-        </div>
-
-        {/* ── Play from GK ── */}
-        <div>
-          <SectionLabel>Play from GK</SectionLabel>
-          <TRow>
-            <TBtn active={tatica.playFromGK !== false} color="#00D66C" onClick={() => onUpdate({ playFromGK: true })}>Yes</TBtn>
-            <TBtn active={tatica.playFromGK === false} color="#FF2222" onClick={() => onUpdate({ playFromGK: false })}>No</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── RB ── */}
-        <div>
-          <SectionLabel>RB</SectionLabel>
-          <TRow>
-            <TBtn active={(tatica.rbPosition ?? "low") === "low"} color="#0066FF" onClick={() => onUpdate({ rbPosition: "low" })}>Low</TBtn>
-            <TBtn active={(tatica.rbPosition ?? "low") === "high"} color="#00D66C" onClick={() => onUpdate({ rbPosition: "high" })}>High</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── LB ── */}
-        <div>
-          <SectionLabel>LB</SectionLabel>
-          <TRow>
-            <TBtn active={(tatica.lbPosition ?? "low") === "low"} color="#0066FF" onClick={() => onUpdate({ lbPosition: "low" })}>Low</TBtn>
-            <TBtn active={(tatica.lbPosition ?? "low") === "high"} color="#00D66C" onClick={() => onUpdate({ lbPosition: "high" })}>High</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── RCB ── */}
-        <div>
-          <SectionLabel>RCB</SectionLabel>
-          <TRow>
-            <TBtn active={(tatica.rcbPosition ?? "central") === "central"} color="#0066FF" onClick={() => onUpdate({ rcbPosition: "central" })}>Central</TBtn>
-            <TBtn active={(tatica.rcbPosition ?? "central") === "wide"} color="#00D66C" onClick={() => onUpdate({ rcbPosition: "wide" })}>Wide</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── LCB ── */}
-        <div>
-          <SectionLabel>LCB</SectionLabel>
-          <TRow>
-            <TBtn active={(tatica.lcbPosition ?? "central") === "central"} color="#0066FF" onClick={() => onUpdate({ lcbPosition: "central" })}>Central</TBtn>
-            <TBtn active={(tatica.lcbPosition ?? "central") === "wide"} color="#00D66C" onClick={() => onUpdate({ lcbPosition: "wide" })}>Wide</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── CM ── */}
-        <div>
-          <SectionLabel>CM</SectionLabel>
-          <TRow>
-            <TBtn active={(tatica.cmPosition ?? "center") === "inside_cbs"} color="#0066FF" onClick={() => onUpdate({ cmPosition: "inside_cbs" })}>Inside CBs</TBtn>
-            <TBtn active={(tatica.cmPosition ?? "center") === "center"} color="#00D66C" onClick={() => onUpdate({ cmPosition: "center" })}>Center</TBtn>
-            <TBtn active={(tatica.cmPosition ?? "center") === "rotations"} color="#FF6B35" onClick={() => onUpdate({ cmPosition: "rotations" })}>Rotations</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── RCM ── */}
-        <div>
-          <SectionLabel>RCM</SectionLabel>
-          <div className="flex flex-col gap-1">
-            <TRow>
-              <TBtn active={(tatica.rcmPosition ?? "center") === "low"} color="#0066FF" onClick={() => onUpdate({ rcmPosition: "low" })}>Low</TBtn>
-              <TBtn active={(tatica.rcmPosition ?? "center") === "center"} color="#00D66C" onClick={() => onUpdate({ rcmPosition: "center" })}>Center</TBtn>
-            </TRow>
-            <TRow>
-              <TBtn active={(tatica.rcmPosition ?? "center") === "high"} color="#FF2222" onClick={() => onUpdate({ rcmPosition: "high" })}>High</TBtn>
-              <TBtn active={(tatica.rcmPosition ?? "center") === "rotations"} color="#FF6B35" onClick={() => onUpdate({ rcmPosition: "rotations" })}>Rotations</TBtn>
-            </TRow>
-          </div>
-        </div>
-
-        {/* ── LCM ── */}
-        <div>
-          <SectionLabel>LCM</SectionLabel>
-          <div className="flex flex-col gap-1">
-            <TRow>
-              <TBtn active={(tatica.lcmPosition ?? "center") === "low"} color="#0066FF" onClick={() => onUpdate({ lcmPosition: "low" })}>Low</TBtn>
-              <TBtn active={(tatica.lcmPosition ?? "center") === "center"} color="#00D66C" onClick={() => onUpdate({ lcmPosition: "center" })}>Center</TBtn>
-            </TRow>
-            <TRow>
-              <TBtn active={(tatica.lcmPosition ?? "center") === "high"} color="#FF2222" onClick={() => onUpdate({ lcmPosition: "high" })}>High</TBtn>
-              <TBtn active={(tatica.lcmPosition ?? "center") === "rotations"} color="#FF6B35" onClick={() => onUpdate({ lcmPosition: "rotations" })}>Rotations</TBtn>
-            </TRow>
-          </div>
-        </div>
-
-        {/* ── WR ── */}
-        <div>
-          <SectionLabel>WR</SectionLabel>
-          <TRow>
-            <TBtn active={(tatica.wrPosition ?? "open") === "open"} color="#00D66C" onClick={() => onUpdate({ wrPosition: "open" })}>Open</TBtn>
-            <TBtn active={(tatica.wrPosition ?? "open") === "inside"} color="#FF6B35" onClick={() => onUpdate({ wrPosition: "inside" })}>Inside</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── WL ── */}
-        <div>
-          <SectionLabel>WL</SectionLabel>
-          <TRow>
-            <TBtn active={(tatica.wlPosition ?? "open") === "open"} color="#00D66C" onClick={() => onUpdate({ wlPosition: "open" })}>Open</TBtn>
-            <TBtn active={(tatica.wlPosition ?? "open") === "inside"} color="#FF6B35" onClick={() => onUpdate({ wlPosition: "inside" })}>Inside</TBtn>
-          </TRow>
-        </div>
-
-        {/* ── ST ── */}
-        <div>
-          <SectionLabel>ST</SectionLabel>
-          <div className="flex flex-col gap-1">
-            <TRow>
-              <TBtn active={(tatica.strikerMovement ?? "center") === "low"} color="#0066FF" onClick={() => onUpdate({ strikerMovement: "low" })}>Low</TBtn>
-              <TBtn active={(tatica.strikerMovement ?? "center") === "center"} color="#00D66C" onClick={() => onUpdate({ strikerMovement: "center" })}>Center</TBtn>
-            </TRow>
-            <TRow>
-              <TBtn active={(tatica.strikerMovement ?? "center") === "side"} color="#FF6B35" onClick={() => onUpdate({ strikerMovement: "side" })}>Side</TBtn>
-              <TBtn active={(tatica.strikerMovement ?? "center") === "offside"} color="#FF2222" onClick={() => onUpdate({ strikerMovement: "offside" })}>Offside</TBtn>
-            </TRow>
-          </div>
-        </div>
 
       </div>
     </div>
