@@ -1456,7 +1456,7 @@ export function TacticsTab() {
       </div>
 
       {/* ── MAIN AREA ── */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-x-auto">
 
         {/* ── ESQUERDA: 3 fases juntas à esquerda ── */}
         <div className="shrink-0 flex flex-col border-r border-border/15">
@@ -1515,8 +1515,8 @@ export function TacticsTab() {
           </div>
         </div>
 
-        {/* Gap fixo ~2cm entre phases e formation */}
-        <div className="w-5 shrink-0" />
+        {/* Gap ~2cm entre phases e formation */}
+        <div className="w-10 shrink-0" />
 
         {/* ── CENTRO-DIREITA: Formation field ── */}
         <div className="w-[300px] shrink-0 flex flex-col">
@@ -1557,7 +1557,7 @@ export function TacticsTab() {
         </div>
 
         {/* Gap ~2cm entre formation e bench */}
-        <div className="w-5 shrink-0" />
+        <div className="w-10 shrink-0" />
 
         {/* ── DIREITA: Bench (pinos com foto) ── */}
         <div className="w-[160px] shrink-0 flex flex-col overflow-hidden">
