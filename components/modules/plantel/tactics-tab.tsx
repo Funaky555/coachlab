@@ -1515,8 +1515,8 @@ export function TacticsTab() {
           </div>
         </div>
 
-        {/* Gap ~2cm entre phases e formation */}
-        <div className="w-10 shrink-0" />
+        {/* Gap ~5cm entre phases e formation */}
+        <div className="w-20 shrink-0" />
 
         {/* ── CENTRO-DIREITA: Formation field ── */}
         <div className="w-[300px] shrink-0 flex flex-col">
@@ -1556,8 +1556,8 @@ export function TacticsTab() {
           </div>
         </div>
 
-        {/* Gap ~2cm entre formation e bench */}
-        <div className="w-10 shrink-0" />
+        {/* Gap ~5cm entre formation e bench */}
+        <div className="w-20 shrink-0" />
 
         {/* ── DIREITA: Bench (pinos com foto) ── */}
         <div className="w-[160px] shrink-0 flex flex-col overflow-hidden">
