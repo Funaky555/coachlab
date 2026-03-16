@@ -431,7 +431,7 @@ function PlayerPin({
   onSlotClick, isOver, isDragging, scale = 1,
 }: PlayerPinProps) {
   const [hovered, setHovered] = useState(false)
-  const R = 26 * scale
+  const R = 32 * scale
 
   // Color: row-based (slot colour) — ignores player's own position
   const posColor = sectorColorByRow(row)
@@ -691,7 +691,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
 
   return (
     <div className="relative h-full flex items-center justify-center">
-      <div className="relative" style={{ height: "100%", aspectRatio: "510/780" }}>
+      <div className="relative" style={{ height: "100%", aspectRatio: "510/390" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/23.png"
@@ -1140,7 +1140,7 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
   const svgRef = useRef<SVGSVGElement>(null)
   const draggingRef = useRef<string | null>(null)
   const slotPositions = computeSlotPositions(tatica.formacao, tatica.mentalidade, tatica, overrides)
-  const scale = 0.6
+  const scale = 1.0
 
   function svgCoords(e: React.PointerEvent): { x: number; y: number } {
     const svg = svgRef.current
@@ -1148,14 +1148,14 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
     const rect = svg.getBoundingClientRect()
     return {
       x: (e.clientX - rect.left) * (510 / rect.width),
-      y: (e.clientY - rect.top) * (780 / rect.height),
+      y: 390 + (e.clientY - rect.top) * (390 / rect.height),
     }
   }
 
   return (
     <div className="relative w-full h-full">
-      <img src="/23.png" alt="" className="absolute inset-0 w-full h-full" style={{ objectFit: "fill" }} />
-      <svg ref={svgRef} viewBox="0 0 510 780" className="absolute inset-0 w-full h-full"
+      <img src="/23.png" alt="" className="absolute inset-0 w-full h-full" style={{ objectFit: "fill", objectPosition: "bottom" }} />
+      <svg ref={svgRef} viewBox="0 390 510 390" className="absolute inset-0 w-full h-full"
         style={{ touchAction: "none" }}
         onPointerDown={e => {
           const pos = svgCoords(e)
@@ -1170,11 +1170,11 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
         onPointerMove={e => {
           if (!draggingRef.current) return
           const pos = svgCoords(e)
-          const clamped = { x: Math.max(30, Math.min(480, pos.x)), y: Math.max(30, Math.min(750, pos.y)) }
+          const clamped = { x: Math.max(30, Math.min(480, pos.x)), y: Math.max(400, Math.min(760, pos.y)) }
           onUpdateOverrides({ ...overrides, [draggingRef.current]: clamped })
         }}
         onPointerUp={() => { draggingRef.current = null }}>
-        <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.08)" />
+        <rect x="0" y="390" width="510" height="390" fill="rgba(0,0,0,0.08)" />
         {slotPositions.map(slot => {
           const color = sectorColorByRow(slot.row)
           const isGK = slot.row === 5
@@ -1217,7 +1217,7 @@ function ConstructionPhasesColumn({ tatica, jogadores, onUpdate }: {
             <span className="text-[8px] font-black uppercase tracking-widest text-[#00D66C]/70">{label}</span>
           </div>
           <div className="flex-1 min-h-0 flex items-center justify-center p-1">
-            <div style={{ height: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded-sm">
+            <div style={{ height: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded-sm">
               <MiniPitchSVG
                 tatica={tatica}
                 jogadores={jogadores}
@@ -1360,12 +1360,6 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-border/20" />
-
-        {/* ── Attacking Width ── */}
-        <AttackingWidthSlider value={tatica.attackingWidth ?? "medium"}
-          onChange={v => onUpdate({ attackingWidth: v })} />
 
 
       </div>
@@ -1470,7 +1464,7 @@ export function TacticsTab() {
             </span>
           </div>
           <div className="flex-1 min-h-0 flex items-center justify-center p-1">
-            <div style={{ height: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
+            <div style={{ height: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
               <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                 overrides={tatica.phase1Overrides ?? {}}
                 onUpdateOverrides={o => update({ phase1Overrides: o })} />
@@ -1487,7 +1481,7 @@ export function TacticsTab() {
             </span>
           </div>
           <div className="flex-1 min-h-0 flex items-center justify-center p-1">
-            <div style={{ height: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
+            <div style={{ height: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
               <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                 overrides={tatica.phase2Overrides ?? {}}
                 onUpdateOverrides={o => update({ phase2Overrides: o })} />
@@ -1504,7 +1498,7 @@ export function TacticsTab() {
             </span>
           </div>
           <div className="flex-1 min-h-0 flex items-center justify-center p-1">
-            <div style={{ height: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
+            <div style={{ height: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
               <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                 overrides={tatica.phase3Overrides ?? {}}
                 onUpdateOverrides={o => update({ phase3Overrides: o })} />
@@ -1528,10 +1522,6 @@ export function TacticsTab() {
                 ? update({ mentalidade: v, ipSlotOverrides: {} })
                 : update({ mentalidade_oop: v, oopSlotOverrides: {} })}
             />
-            <div className="flex-1 max-w-[260px]">
-              <AttackingWidthSlider value={tatica.attackingWidth ?? "medium"}
-                onChange={v => update({ attackingWidth: v })} />
-            </div>
           </div>
           {/* Campo principal */}
           <div ref={fieldRef} className="flex-1 min-h-0">
