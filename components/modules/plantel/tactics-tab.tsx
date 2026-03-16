@@ -1186,7 +1186,7 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
           const R = 20 * scale
           return (
             <g key={slot.slotKey} transform={`translate(${slot.x},${slot.y})`} style={{ cursor: "grab" }}>
-              <circle r={R} fill={isGK ? "#111111" : color + "33"} stroke={color} strokeWidth={1.5} />
+              <circle r={R} fill={isGK ? "#111111" : color + "99"} stroke={color} strokeWidth={2} />
               <text textAnchor="middle" dominantBaseline="central"
                 fill={isGK ? "white" : color} fontSize={9 * scale} fontWeight="800"
                 style={{ pointerEvents: "none", userSelect: "none" }}>
@@ -1477,7 +1477,7 @@ export function TacticsTab() {
                   1<sup>st</sup> Phase
                 </span>
               </div>
-              <div className="flex-1 min-h-0 flex items-start justify-center pt-1 px-1">
+              <div className="flex-1 min-h-0 flex items-start justify-center pt-1">
                 <div style={{ width: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica.phase1Overrides ?? {}}
@@ -1493,7 +1493,7 @@ export function TacticsTab() {
                   2<sup>nd</sup> Phase
                 </span>
               </div>
-              <div className="flex-1 min-h-0 flex items-start justify-center pt-1 px-1">
+              <div className="flex-1 min-h-0 flex items-start justify-center pt-1">
                 <div style={{ width: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica.phase2Overrides ?? {}}
@@ -1509,7 +1509,7 @@ export function TacticsTab() {
                   3<sup>rd</sup> Phase
                 </span>
               </div>
-              <div className="flex-1 min-h-0 flex items-start justify-center pt-1 px-1">
+              <div className="flex-1 min-h-0 flex items-start justify-center pt-1">
                 <div style={{ width: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica.phase3Overrides ?? {}}
