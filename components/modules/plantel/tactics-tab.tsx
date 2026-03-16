@@ -768,10 +768,12 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
 
 // ─── Bench Panel ──────────────────────────────────────────────────────────────
 
-function BenchPanel({ jogadores, tatica, onUnassign }: {
+function BenchPanel({ jogadores, tatica, onUnassign, onExport, onReset }: {
   jogadores: Jogador[]
   tatica: TacticaConfig
   onUnassign: (jogadorId: string) => void
+  onExport: () => void
+  onReset: () => void
 }) {
   const assignedIds = new Set(tatica.titulares.map(s => s.jogadorId).filter(Boolean))
   const SETOR_ORDER: Record<string, number> = { GR: 0, DEF: 1, MED: 2, AV: 3 }
@@ -789,6 +791,18 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
 
   return (
     <div className="flex flex-col h-full overflow-hidden gap-0">
+
+      {/* ── PNG + Reset ── */}
+      <div className="flex gap-1 mb-2 shrink-0">
+        <button onClick={onExport}
+          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded border border-[#8B5CF6]/40 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 transition-all text-[10px] font-semibold">
+          <Camera className="w-3 h-3" />PNG
+        </button>
+        <button onClick={onReset}
+          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded border border-red-500/40 text-red-400 hover:bg-red-500/10 transition-all text-[10px] font-semibold">
+          <RotateCcw className="w-3 h-3" />Reset
+        </button>
+      </div>
 
       {/* ── TITULARES (maiores, em cima) ── */}
       <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 shrink-0 mb-1">
@@ -1197,20 +1211,6 @@ export function TacticsTab() {
             )}
           </div>
         )}
-        {tab === "both" && (
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="flex flex-col items-center gap-0.5">
-              <div className="text-[8px] text-[#00D66C] uppercase tracking-wider font-bold">IP</div>
-              <FormationPickerDialog value={tatica.formacao}
-                onChange={f => update({ formacao: f, ipSlotOverrides: {} })} />
-            </div>
-            <div className="flex flex-col items-center gap-0.5">
-              <div className="text-[8px] text-[#FF8C00] uppercase tracking-wider font-bold">OOP</div>
-              <FormationPickerDialog value={tatica.formacao_oop ?? tatica.formacao}
-                onChange={f => update({ formacao_oop: f, oopSlotOverrides: {} })} />
-            </div>
-          </div>
-        )}
 
         {/* Mentality */}
         {tab === "ip" && (
@@ -1226,24 +1226,12 @@ export function TacticsTab() {
           </>
         )}
 
-        {/* Settings + Export + Reset */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        {/* Settings */}
+        <div className="flex items-center gap-1.5 shrink-0 ml-auto">
           <button onClick={() => setSettingsOpen(true)}
             className="flex items-center gap-1 px-2 py-1 rounded border border-border/30 text-muted-foreground hover:bg-muted/20 transition-all"
             title="Settings">
             <Settings2 className="w-3.5 h-3.5" />
-          </button>
-          <button onClick={handleExport}
-            className="flex items-center gap-1 px-2 py-1 rounded border border-[#8B5CF6]/40 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 transition-all"
-            title="Exportar PNG">
-            <Camera className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-semibold">PNG</span>
-          </button>
-          <button onClick={handleReset}
-            className="flex items-center gap-1 px-2 py-1 rounded border border-red-500/40 text-red-400 hover:bg-red-500/10 transition-all"
-            title="Reset táticas">
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-semibold">Reset</span>
           </button>
         </div>
       </div>
@@ -1283,13 +1271,21 @@ export function TacticsTab() {
             )}
             {tab === "both" && (
               <div className="flex h-full">
-                <div className="flex-1 min-w-0 h-full">
-                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact
-                    selectedArrowType={arrowType}
-                    slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
-                    onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
-                    slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
-                    onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+
+                {/* Campo IP com picker de formação acima */}
+                <div className="flex-1 min-w-0 h-full flex flex-col">
+                  <div className="flex justify-center py-1 shrink-0 border-b border-border/10">
+                    <FormationPickerDialog value={tatica.formacao}
+                      onChange={f => update({ formacao: f, ipSlotOverrides: {} })} />
+                  </div>
+                  <div className="flex-1 min-h-0">
+                    <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact
+                      selectedArrowType={arrowType}
+                      slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+                      onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
+                      slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
+                      onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+                  </div>
                 </div>
 
                 {/* Divider central com tabs verticais */}
@@ -1308,14 +1304,22 @@ export function TacticsTab() {
                   </button>
                 </div>
 
-                <div className="flex-1 min-w-0 h-full">
-                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" compact
-                    selectedArrowType={arrowType}
-                    slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
-                    onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
-                    slotLabelOverridesForMode={tatica.oopSlotLabelOverrides ?? {}}
-                    onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
+                {/* Campo OOP com picker de formação acima */}
+                <div className="flex-1 min-w-0 h-full flex flex-col">
+                  <div className="flex justify-center py-1 shrink-0 border-b border-border/10">
+                    <FormationPickerDialog value={tatica.formacao_oop ?? tatica.formacao}
+                      onChange={f => update({ formacao_oop: f, oopSlotOverrides: {} })} />
+                  </div>
+                  <div className="flex-1 min-h-0">
+                    <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" compact
+                      selectedArrowType={arrowType}
+                      slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
+                      onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
+                      slotLabelOverridesForMode={tatica.oopSlotLabelOverrides ?? {}}
+                      onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
+                  </div>
                 </div>
+
               </div>
             )}
           </div>
@@ -1323,7 +1327,8 @@ export function TacticsTab() {
 
         {/* RIGHT — Bench */}
         <div className="w-44 shrink-0 border-l border-border/20 pl-2 pt-2 flex flex-col overflow-hidden">
-          <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
+          <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign}
+            onExport={handleExport} onReset={handleReset} />
         </div>
       </div>
 
