@@ -1098,9 +1098,10 @@ function FormationPickerDialog({ value, onChange }: {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 h-7 px-3 rounded-lg border border-border/40 bg-background/60 hover:bg-background/90 transition-all text-xs font-bold font-mono"
+        className="flex items-center gap-1.5 h-7 px-3 rounded-lg border border-border/40 bg-background/60 hover:bg-background/90 transition-all"
       >
-        {value}
+        <span className="text-[10px] font-black uppercase tracking-wider">Formation</span>
+        <span className="text-[10px] font-mono text-muted-foreground">{value}</span>
         <ChevronDown className="w-3 h-3 text-muted-foreground" />
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -1148,13 +1149,13 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
     const rect = svg.getBoundingClientRect()
     return {
       x: (e.clientX - rect.left) * (510 / rect.width),
-      y: 390 + (e.clientY - rect.top) * (390 / rect.height),
+      y: (e.clientY - rect.top) * (780 / rect.height),
     }
   }
 
   return (
     <div className="relative w-full h-full">
-      <svg ref={svgRef} viewBox="0 390 510 390" className="w-full h-full"
+      <svg ref={svgRef} viewBox="0 0 510 780" className="w-full h-full"
         style={{ touchAction: "none", display: "block" }}
         onPointerDown={e => {
           const pos = svgCoords(e)
@@ -1169,14 +1170,14 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
         onPointerMove={e => {
           if (!draggingRef.current) return
           const pos = svgCoords(e)
-          const clamped = { x: Math.max(30, Math.min(480, pos.x)), y: Math.max(400, Math.min(760, pos.y)) }
+          const clamped = { x: Math.max(30, Math.min(480, pos.x)), y: Math.max(30, Math.min(750, pos.y)) }
           onUpdateOverrides({ ...overrides, [draggingRef.current]: clamped })
         }}
         onPointerUp={() => { draggingRef.current = null }}>
-        {/* Imagem dentro do SVG — viewBox recorta automaticamente a metade inferior */}
+        {/* Imagem dentro do SVG — campo completo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <image href="/23.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
-        <rect x="0" y="390" width="510" height="390" fill="rgba(0,0,0,0.06)" />
+        <image href="/23.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid meet" />
+        <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.06)" />
         {slotPositions.map(slot => {
           const color = sectorColorByRow(slot.row)
           const isGK = slot.row === 5
@@ -1477,7 +1478,7 @@ export function TacticsTab() {
                 </span>
               </div>
               <div className="flex-1 min-h-0 flex items-center justify-center p-1.5">
-                <div style={{ width: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
+                <div style={{ height: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica.phase1Overrides ?? {}}
                     onUpdateOverrides={o => update({ phase1Overrides: o })} />
@@ -1493,7 +1494,7 @@ export function TacticsTab() {
                 </span>
               </div>
               <div className="flex-1 min-h-0 flex items-center justify-center p-1.5">
-                <div style={{ width: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
+                <div style={{ height: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica.phase2Overrides ?? {}}
                     onUpdateOverrides={o => update({ phase2Overrides: o })} />
@@ -1509,7 +1510,7 @@ export function TacticsTab() {
                 </span>
               </div>
               <div className="flex-1 min-h-0 flex items-center justify-center p-1.5">
-                <div style={{ width: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
+                <div style={{ height: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica.phase3Overrides ?? {}}
                     onUpdateOverrides={o => update({ phase3Overrides: o })} />
@@ -1521,9 +1522,9 @@ export function TacticsTab() {
         </div>
 
         {/* ── DIREITA: Formation column ── */}
-        <div className="w-[300px] shrink-0 flex flex-col">
+        <div className="w-[380px] shrink-0 flex flex-col">
           {/* Controlos acima do campo */}
-          <div className="shrink-0 flex flex-col gap-1.5 px-2 pt-2 pb-1.5 border-b border-border/15">
+          <div className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15 flex-wrap">
             <FormationPickerDialog
               value={tab === "ip" ? tatica.formacao : (tatica.formacao_oop ?? tatica.formacao)}
               onChange={f => tab === "ip"
