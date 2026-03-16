@@ -1154,9 +1154,8 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
 
   return (
     <div className="relative w-full h-full">
-      <img src="/23.png" alt="" className="absolute inset-0 w-full h-full" style={{ objectFit: "fill", objectPosition: "bottom" }} />
-      <svg ref={svgRef} viewBox="0 390 510 390" className="absolute inset-0 w-full h-full"
-        style={{ touchAction: "none" }}
+      <svg ref={svgRef} viewBox="0 390 510 390" className="w-full h-full"
+        style={{ touchAction: "none", display: "block" }}
         onPointerDown={e => {
           const pos = svgCoords(e)
           const pinR = (20 * scale) + 8
@@ -1174,7 +1173,10 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
           onUpdateOverrides({ ...overrides, [draggingRef.current]: clamped })
         }}
         onPointerUp={() => { draggingRef.current = null }}>
-        <rect x="0" y="390" width="510" height="390" fill="rgba(0,0,0,0.08)" />
+        {/* Imagem dentro do SVG — viewBox recorta automaticamente a metade inferior */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <image href="/23.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid slice" />
+        <rect x="0" y="390" width="510" height="390" fill="rgba(0,0,0,0.06)" />
         {slotPositions.map(slot => {
           const color = sectorColorByRow(slot.row)
           const isGK = slot.row === 5
@@ -1452,69 +1454,76 @@ export function TacticsTab() {
         </div>
       </div>
 
-      {/* ── MAIN AREA — 2 colunas ── */}
+      {/* ── MAIN AREA ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
 
-        {/* ── ESQUERDA: 3 fases de construção (empilhadas) ── */}
-        <div className="w-[200px] shrink-0 flex flex-col border-r border-border/15">
+        {/* ── ESQUERDA: 3 fases lado a lado ── */}
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col border-r border-border/15">
+          {/* Section label */}
+          <div className="shrink-0 px-3 py-1 border-b border-border/10"
+            style={{ background: "linear-gradient(to right, rgba(0,214,108,0.04), transparent)" }}>
+            <span className="text-[7px] font-black uppercase tracking-widest text-[#00D66C]/60">
+              In Possession — Construction Phases
+            </span>
+          </div>
+          {/* 3 mini campos lado a lado */}
+          <div className="flex flex-1 min-h-0 divide-x divide-border/10">
 
-          {/* Phase 1 */}
-          <div className="flex-1 min-h-0 flex flex-col border-b border-border/10">
-            <div className="shrink-0 px-2 py-1 text-center"
-              style={{ background: "linear-gradient(to right, rgba(0,214,108,0.04), transparent)" }}>
-              <span className="text-[7px] font-black uppercase tracking-widest text-[#00D66C]/70">
-                1st Phase of Construction
-              </span>
-            </div>
-            <div className="flex-1 min-h-0 flex items-center justify-center p-1">
-              <div style={{ width: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
-                <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                  overrides={tatica.phase1Overrides ?? {}}
-                  onUpdateOverrides={o => update({ phase1Overrides: o })} />
+            {/* Phase 1 */}
+            <div className="flex-1 min-w-0 flex flex-col">
+              <div className="shrink-0 px-1 py-0.5 text-center">
+                <span className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground/50">
+                  1<sup>st</sup> Phase
+                </span>
+              </div>
+              <div className="flex-1 min-h-0 flex items-center justify-center p-1.5">
+                <div style={{ width: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
+                  <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                    overrides={tatica.phase1Overrides ?? {}}
+                    onUpdateOverrides={o => update({ phase1Overrides: o })} />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Phase 2 */}
-          <div className="flex-1 min-h-0 flex flex-col border-b border-border/10">
-            <div className="shrink-0 px-2 py-1 text-center"
-              style={{ background: "linear-gradient(to right, rgba(0,214,108,0.04), transparent)" }}>
-              <span className="text-[7px] font-black uppercase tracking-widest text-[#00D66C]/70">
-                2nd Phase of Construction
-              </span>
-            </div>
-            <div className="flex-1 min-h-0 flex items-center justify-center p-1">
-              <div style={{ width: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
-                <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                  overrides={tatica.phase2Overrides ?? {}}
-                  onUpdateOverrides={o => update({ phase2Overrides: o })} />
+            {/* Phase 2 */}
+            <div className="flex-1 min-w-0 flex flex-col">
+              <div className="shrink-0 px-1 py-0.5 text-center">
+                <span className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground/50">
+                  2<sup>nd</sup> Phase
+                </span>
+              </div>
+              <div className="flex-1 min-h-0 flex items-center justify-center p-1.5">
+                <div style={{ width: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
+                  <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                    overrides={tatica.phase2Overrides ?? {}}
+                    onUpdateOverrides={o => update({ phase2Overrides: o })} />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Phase 3 */}
-          <div className="flex-1 min-h-0 flex flex-col">
-            <div className="shrink-0 px-2 py-1 text-center"
-              style={{ background: "linear-gradient(to right, rgba(0,214,108,0.04), transparent)" }}>
-              <span className="text-[7px] font-black uppercase tracking-widest text-[#00D66C]/70">
-                3rd Phase of Construction
-              </span>
-            </div>
-            <div className="flex-1 min-h-0 flex items-center justify-center p-1">
-              <div style={{ width: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
-                <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                  overrides={tatica.phase3Overrides ?? {}}
-                  onUpdateOverrides={o => update({ phase3Overrides: o })} />
+            {/* Phase 3 */}
+            <div className="flex-1 min-w-0 flex flex-col">
+              <div className="shrink-0 px-1 py-0.5 text-center">
+                <span className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground/50">
+                  3<sup>rd</sup> Phase
+                </span>
+              </div>
+              <div className="flex-1 min-h-0 flex items-center justify-center p-1.5">
+                <div style={{ width: "100%", aspectRatio: "510/390" }} className="relative overflow-hidden rounded">
+                  <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                    overrides={tatica.phase3Overrides ?? {}}
+                    onUpdateOverrides={o => update({ phase3Overrides: o })} />
+                </div>
               </div>
             </div>
-          </div>
 
+          </div>
         </div>
 
         {/* ── DIREITA: Formation column ── */}
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
-          {/* Header: Formation + Mentality */}
-          <div className="shrink-0 flex items-center gap-2 px-3 h-[42px] border-b border-border/20">
+        <div className="w-[300px] shrink-0 flex flex-col">
+          {/* Controlos acima do campo */}
+          <div className="shrink-0 flex flex-col gap-1.5 px-2 pt-2 pb-1.5 border-b border-border/15">
             <FormationPickerDialog
               value={tab === "ip" ? tatica.formacao : (tatica.formacao_oop ?? tatica.formacao)}
               onChange={f => tab === "ip"
