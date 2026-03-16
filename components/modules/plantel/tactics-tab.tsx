@@ -656,7 +656,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
   const scale = compact ? 0.85 : 1
 
   return (
-    <div className="relative h-full flex items-center justify-center">
+    <div className="relative h-full flex items-center justify-start">
       <div className="relative" style={{ height: "100%", aspectRatio: "510/780" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -1112,7 +1112,7 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
   tab: TabMode
 }) {
   return (
-    <div className="w-[200px] shrink-0 border-r border-border/20 flex flex-col overflow-hidden">
+    <div className="w-[380px] shrink-0 border-r border-border/20 flex flex-col overflow-hidden">
       <div className="overflow-y-auto flex-1 min-h-0 px-2 py-2 flex flex-col gap-3">
 
         {/* ── Formation + Mentality ── */}
@@ -1173,8 +1173,8 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
         <div>
           <SectionLabel>Pass</SectionLabel>
           <TRow>
-            <TBtn active={tatica.tipoJogada === "short"} color="#00D66C" onClick={() => onUpdate({ tipoJogada: "short" })}>Short</TBtn>
-            <TBtn active={tatica.tipoJogada === "long"} color="#FF6B35" onClick={() => onUpdate({ tipoJogada: "long" })}>Long</TBtn>
+            <TBtn active={tatica.tipoJogada === "short"} color="#00D66C" onClick={() => onUpdate({ tipoJogada: "short" })}>Short Pass</TBtn>
+            <TBtn active={tatica.tipoJogada === "long"} color="#FF6B35" onClick={() => onUpdate({ tipoJogada: "long" })}>Long Pass</TBtn>
           </TRow>
         </div>
 
@@ -1182,7 +1182,7 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
         <div>
           <SectionLabel>Cross</SectionLabel>
           <TRow>
-            <TBtn active={tatica.cruzamentos === "low"} color="#8B5CF6" onClick={() => onUpdate({ cruzamentos: "low" })}>Chão</TBtn>
+            <TBtn active={tatica.cruzamentos === "low"} color="#8B5CF6" onClick={() => onUpdate({ cruzamentos: "low" })}>Pelo Chão</TBtn>
             <TBtn active={tatica.cruzamentos === "whipped"} color="#FF6B35" onClick={() => onUpdate({ cruzamentos: "whipped" })}>Tenso</TBtn>
             <TBtn active={tatica.cruzamentos === "floated"} color="#0066FF" onClick={() => onUpdate({ cruzamentos: "floated" })}>Aéreo</TBtn>
           </TRow>
@@ -1348,7 +1348,7 @@ export function TacticsTab() {
       {/* ── TOP BAR ── */}
       <div className="flex items-center h-[42px] border-b border-border/20 shrink-0 px-3">
         {/* Spacer left (same width as left panel to allow true centering of tabs) */}
-        <div className="w-[200px] shrink-0" />
+        <div className="w-[380px] shrink-0" />
         {/* Tabs centralizados */}
         <div className="flex-1 flex justify-center gap-1">
           <button className={tabBtnClass(activeTab === "ip")}   onClick={() => setTab("ip")}>In Possession</button>
