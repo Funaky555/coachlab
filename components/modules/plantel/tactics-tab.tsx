@@ -836,104 +836,122 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
   tatica: TacticaConfig
   onUnassign: (jogadorId: string) => void
 }) {
-  const assignedIds = new Set(tatica.titulares.map(s => s.jogadorId).filter(Boolean))
   const SETOR_ORDER: Record<string, number> = { GR: 0, DEF: 1, MED: 2, AV: 3 }
+  const SETOR_LABEL: Record<string, string> = { GR: "GK", DEF: "DEF", MED: "MID", AV: "ATT" }
+
+  const assignedIds = new Set(tatica.titulares.map(s => s.jogadorId).filter(Boolean))
+
+  const starters = tatica.titulares
+    .filter(s => s.jogadorId)
+    .map(slot => ({ slot, jogador: jogadores.find(p => p.id === slot.jogadorId) ?? null }))
+    .filter((s): s is { slot: typeof tatica.titulares[0]; jogador: Jogador } => s.jogador !== null)
+    .sort((a, b) =>
+      (SETOR_ORDER[getPrimarySetor(a.jogador.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3) -
+      (SETOR_ORDER[getPrimarySetor(b.jogador.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3)
+    )
+
   const bench = jogadores
     .filter(j => !assignedIds.has(j.id))
-    .sort((a, b) => {
-      const sa = SETOR_ORDER[getPrimarySetor(a.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3
-      const sb = SETOR_ORDER[getPrimarySetor(b.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3
-      return sa - sb
-    })
-  const starters = tatica.titulares.filter(s => s.jogadorId).map(slot => ({
-    slot,
-    jogador: jogadores.find(p => p.id === slot.jogadorId) ?? null,
-  })).filter(s => s.jogador !== null) as { slot: typeof tatica.titulares[0]; jogador: Jogador }[]
+    .sort((a, b) =>
+      (SETOR_ORDER[getPrimarySetor(a.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3) -
+      (SETOR_ORDER[getPrimarySetor(b.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3)
+    )
+
+  function groupBySector<T>(items: T[], getSetor: (i: T) => string): { setor: string; items: T[] }[] {
+    const groups: { setor: string; items: T[] }[] = []
+    for (const item of items) {
+      const s = getSetor(item)
+      const g = groups.find(x => x.setor === s)
+      if (g) g.items.push(item)
+      else groups.push({ setor: s, items: [item] })
+    }
+    return groups
+  }
+
+  const starterGroups = groupBySector(starters, ({ jogador: j }) =>
+    getPrimarySetor(j.posicoes as Parameters<typeof getPrimarySetor>[0])
+  )
+  const benchGroups = groupBySector(bench, j =>
+    getPrimarySetor(j.posicoes as Parameters<typeof getPrimarySetor>[0])
+  )
+
+  const nickOf = (j: Jogador) => j.alcunha?.trim() || displayName(j)
 
   return (
-    <div className="flex flex-col h-full overflow-hidden gap-0">
+    <div className="flex flex-col h-full overflow-hidden p-1.5 gap-0">
 
-      {/* ── TITULARES (maiores, em cima) ── */}
-      <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 shrink-0 mb-1">
-        Em Campo <span className="text-[#00D66C]">{starters.length}</span>
+      {/* ── TITULARES por setor ── */}
+      <div className="text-[7px] font-black uppercase tracking-widest text-[#00D66C]/60 shrink-0 mb-0.5">
+        Em Campo · {starters.length}
       </div>
-      <div className="flex flex-col gap-1 overflow-y-auto shrink-0 pr-0.5" style={{ maxHeight: "52%" }}>
-        {starters.map(({ slot, jogador: j }) => {
-          const color = sectorColor(j.posicoes)
-          return (
-            <div
-              key={slot.posicao}
-              draggable
-              onDragStart={e => {
-                e.dataTransfer.setData("jogadorId", j.id)
-                onUnassign(j.id)
-              }}
-              className="flex items-center gap-2 p-1.5 rounded-lg border border-border/30 bg-background/40
-                hover:bg-background/70 cursor-grab active:cursor-grabbing transition-all"
-              style={{ borderLeftColor: color, borderLeftWidth: 2 }}
-            >
-              {j.foto ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={j.foto} alt={displayName(j)} className="w-11 h-11 rounded-full object-cover shrink-0 border border-border/40" />
-              ) : (
-                <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                  style={{ background: color + "33", color, border: `1px solid ${color}55` }}>
-                  {j.numero}
-                </div>
-              )}
-              <div className="flex flex-col min-w-0 flex-1">
-                <span className="text-[11px] font-semibold truncate leading-tight">
-                  {displayName(j).split(" ").slice(-1)[0]}
-                </span>
-                <span className="text-[9px]" style={{ color }}>{j.posicoes[0]}</span>
-              </div>
+      <div className="shrink-0 flex flex-col">
+        {starterGroups.map(({ setor, items }) => (
+          <div key={setor}>
+            <div className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground/40 px-0.5 mt-1 mb-0.5">
+              {SETOR_LABEL[setor] ?? setor}
             </div>
-          )
-        })}
+            {items.map(({ slot, jogador: j }) => {
+              const color = sectorColor(j.posicoes)
+              return (
+                <div key={slot.posicao} draggable
+                  onDragStart={e => { e.dataTransfer.setData("jogadorId", j.id); onUnassign(j.id) }}
+                  className="flex items-center gap-1.5 px-1 py-0.5 rounded hover:bg-background/60 cursor-grab transition-all"
+                  style={{ borderLeft: `2px solid ${color}` }}>
+                  {j.foto ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={j.foto} alt={nickOf(j)} className="w-5 h-5 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0"
+                      style={{ background: color + "33", color }}>
+                      {j.numero}
+                    </div>
+                  )}
+                  <span className="text-[9px] font-semibold truncate leading-tight">{nickOf(j)}</span>
+                </div>
+              )
+            })}
+          </div>
+        ))}
         {starters.length === 0 && (
-          <div className="text-[9px] text-muted-foreground/40 py-2 text-center">Arrastra jogadores para o campo</div>
+          <div className="text-[8px] text-muted-foreground/40 py-1 px-1">Arrastra jogadores para o campo</div>
         )}
       </div>
 
-      {/* ── BENCH (menores, em baixo) ── */}
-      <div className="border-t border-border/20 pt-1 mt-1 flex flex-col flex-1 min-h-0 overflow-hidden">
-        <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 shrink-0 mb-1">
-          Bench <span className="text-[#00D66C]">{bench.length}</span>
+      {/* ── BANCO por setor ── */}
+      <div className="border-t border-border/20 mt-1.5 pt-1 shrink-0 flex flex-col">
+        <div className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/50 mb-0.5">
+          Banco · {bench.length}
         </div>
-        <div className="flex flex-col gap-1 overflow-y-auto flex-1 min-h-0 pr-0.5">
-          {bench.map(j => {
-            const color = sectorColor(j.posicoes)
-            return (
-              <div
-                key={j.id}
-                draggable
-                onDragStart={e => e.dataTransfer.setData("jogadorId", j.id)}
-                className="flex items-center gap-2 p-1 rounded-lg border border-border/30 bg-background/40
-                  hover:bg-background/70 cursor-grab active:cursor-grabbing transition-all"
-                style={{ borderLeftColor: color, borderLeftWidth: 2 }}
-              >
-                {j.foto ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={j.foto} alt={displayName(j)} className="w-8 h-8 rounded-full object-cover shrink-0 border border-border/40" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                    style={{ background: color + "33", color, border: `1px solid ${color}55` }}>
-                    {j.numero}
-                  </div>
-                )}
-                <div className="flex flex-col min-w-0 flex-1">
-                  <span className="text-[10px] font-semibold truncate leading-tight">
-                    {displayName(j).split(" ").slice(-1)[0]}
-                  </span>
-                  <span className="text-[9px]" style={{ color }}>{j.posicoes[0]}</span>
+        {benchGroups.map(({ setor, items }) => (
+          <div key={setor}>
+            <div className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground/40 px-0.5 mt-1 mb-0.5">
+              {SETOR_LABEL[setor] ?? setor}
+            </div>
+            {items.map(j => {
+              const color = sectorColor(j.posicoes)
+              return (
+                <div key={j.id} draggable
+                  onDragStart={e => e.dataTransfer.setData("jogadorId", j.id)}
+                  className="flex items-center gap-1.5 px-1 py-0.5 rounded hover:bg-background/60 cursor-grab transition-all"
+                  style={{ borderLeft: `2px solid ${color}` }}>
+                  {j.foto ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={j.foto} alt={nickOf(j)} className="w-4 h-4 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0"
+                      style={{ background: color + "33", color }}>
+                      {j.numero}
+                    </div>
+                  )}
+                  <span className="text-[8px] font-medium truncate leading-tight">{nickOf(j)}</span>
                 </div>
-              </div>
-            )
-          })}
-          {bench.length === 0 && (
-            <div className="text-[9px] text-muted-foreground/40 py-2 text-center">Todos em campo</div>
-          )}
-        </div>
+              )
+            })}
+          </div>
+        ))}
+        {bench.length === 0 && (
+          <div className="text-[8px] text-muted-foreground/40 py-1 px-1">Todos em campo</div>
+        )}
       </div>
     </div>
   )
