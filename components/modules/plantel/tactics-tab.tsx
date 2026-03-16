@@ -198,6 +198,13 @@ function sectorColor(posicoes: string[]): string {
   return "#FF2222"
 }
 
+function sectorColorByRow(row: number): string {
+  if (row === 5) return "#111111"  // GK
+  if (row === 4) return "#00D66C"  // DEF
+  if (row === 3) return "#0066FF"  // MID
+  return "#FF2222"                 // FWD (rows 1 e 2)
+}
+
 // ─── Mentalidade → Zonas Y absolutas por linha ────────────────────────────────
 // SVG field: 780x510, jogável y=20–490; halfway y=255
 // Offensive half = y < 255 (topo), Defensive half = y > 255 (fundo)
@@ -215,7 +222,7 @@ const MENTALITY_ROW_Y: Record<TacticaConfig["mentalidade"], Record<number, numbe
 
 // ─── Calcular posições absolutas (SVG) ───────────────────────────────────────
 
-interface SlotPos { x: number; y: number; slotKey: string; label: string; posicao: string }
+interface SlotPos { x: number; y: number; slotKey: string; label: string; posicao: string; row: number }
 
 const WIDE_POSITIONS = ["LB", "RB", "LWB", "RWB", "WL", "WR", "LW", "RW", "LM", "RM"]
 
@@ -260,6 +267,7 @@ function computeSlotPositions(
       slotKey,
       label: p.label,
       posicao: p.posicao,
+      row: p.row,
     }
   })
 }
@@ -317,6 +325,7 @@ interface PlayerPinProps {
   y: number
   label: string
   posicao: string
+  row: number
   jogador: Jogador | null
   isDrawingFrom: boolean
   onStartArrow: (slotKey: string) => void
@@ -328,22 +337,22 @@ interface PlayerPinProps {
 }
 
 function PlayerPin({
-  slotKey, x, y, label, posicao, jogador,
+  slotKey, x, y, label, posicao: _posicao, row, jogador,
   isDrawingFrom, onStartArrow, onRemoveArrow,
   onSlotClick, isOver, isDragging, scale = 1,
 }: PlayerPinProps) {
   const [hovered, setHovered] = useState(false)
   const R = 26 * scale
 
-  // Color: sector-based
-  const posColor = sectorColor([posicao])
-  const occupiedColor = jogador ? sectorColor(jogador.posicoes) : posColor
+  // Color: row-based (slot colour) — ignores player's own position
+  const posColor = sectorColorByRow(row)
+  const occupiedColor = sectorColorByRow(row)
   const isEmpty = !jogador
-  const isGK = occupiedColor === "#111111"
+  const isGK = row === 5
 
   // "White shirt on dark board" — outfield=white fill, GK=black fill
   const pinFill = isEmpty ? `${posColor}44` : (isGK ? "#111111" : "#FFFFFF")
-  const numberFill = isEmpty ? posColor : (isGK ? "#FFFFFF" : occupiedColor)
+  const numberFill = isEmpty ? (isGK ? "#FFFFFF" : posColor) : (isGK ? "#FFFFFF" : occupiedColor)
 
   const strokeColor = isDrawingFrom ? "#FFD700"
     : isOver ? "#00D66C"
@@ -461,8 +470,16 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
     onUpdate(mode === "ip" ? { ipArrows: updated } : { oopArrows: updated })
   }
 
+  const mentalidadeEfetiva = mode === "oop"
+    ? (tatica.mentalidade_oop ?? "balanced")
+    : tatica.mentalidade
+
+  const formacaoEfetiva = mode === "oop"
+    ? (tatica.formacao_oop ?? tatica.formacao)
+    : tatica.formacao
+
   const slotPositions = computeSlotPositions(
-    tatica.formacao, tatica.mentalidade, tatica.atacarPorCorredor, slotOverridesForMode
+    formacaoEfetiva, mentalidadeEfetiva, tatica.atacarPorCorredor, slotOverridesForMode
   )
 
   // Convert SVG coordinates from mouse/pointer event
@@ -645,6 +662,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
               y={slot.y}
               label={slot.label}
               posicao={slot.posicao}
+              row={slot.row}
               jogador={getSlotJogador(slot.slotKey)}
               isDrawingFrom={drawingFrom === slot.slotKey}
               onStartArrow={handleStartArrow}
@@ -1032,10 +1050,6 @@ export function TacticsTab() {
     })
   }, [])
 
-  function changeFormation(formacao: string) {
-    update({ formacao, titulares: [], ipArrows: [], oopArrows: [], slotOverrides: {} })
-  }
-
   function handleUnassign(jogadorId: string) {
     update({ titulares: tatica.titulares.filter(s => s.jogadorId !== jogadorId) })
   }
@@ -1071,20 +1085,48 @@ export function TacticsTab() {
     <div className="flex flex-col h-full overflow-hidden">
       {/* ── TOP BAR ── */}
       <div className="flex items-center gap-2 px-2 h-[46px] border-b border-border/20 shrink-0 overflow-hidden">
-        {/* Formation */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <div className="text-[9px] text-muted-foreground uppercase tracking-wider hidden sm:block">Formation</div>
-          <FormationPickerDialog value={tatica.formacao} onChange={changeFormation} />
-        </div>
+        {/* Formation — conditional por tab */}
+        {tab !== "both" && (
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="text-[9px] text-muted-foreground uppercase tracking-wider hidden sm:block">
+              {tab === "oop" ? "OOP" : "Formation"}
+            </div>
+            {tab === "ip" && (
+              <FormationPickerDialog value={tatica.formacao}
+                onChange={f => update({ formacao: f, ipSlotOverrides: {} })} />
+            )}
+            {tab === "oop" && (
+              <FormationPickerDialog value={tatica.formacao_oop ?? tatica.formacao}
+                onChange={f => update({ formacao_oop: f, oopSlotOverrides: {} })} />
+            )}
+          </div>
+        )}
+        {tab === "both" && (
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="text-[8px] text-[#00D66C] uppercase tracking-wider font-bold">IP</div>
+              <FormationPickerDialog value={tatica.formacao}
+                onChange={f => update({ formacao: f, ipSlotOverrides: {} })} />
+            </div>
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="text-[8px] text-[#FF8C00] uppercase tracking-wider font-bold">OOP</div>
+              <FormationPickerDialog value={tatica.formacao_oop ?? tatica.formacao}
+                onChange={f => update({ formacao_oop: f, oopSlotOverrides: {} })} />
+            </div>
+          </div>
+        )}
 
         {/* Mentality */}
-        {tab !== "both" && (
-          <MentalityDropdown value={tatica.mentalidade} onChange={v => update({ mentalidade: v, slotOverrides: {} })} />
+        {tab === "ip" && (
+          <MentalityDropdown value={tatica.mentalidade} onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })} />
+        )}
+        {tab === "oop" && (
+          <MentalityDropdown value={tatica.mentalidade_oop ?? "balanced"} onChange={v => update({ mentalidade_oop: v, oopSlotOverrides: {} })} />
         )}
         {tab === "both" && (
           <>
-            <MentalityDropdown label="IP" value={tatica.mentalidade} onChange={v => update({ mentalidade: v, slotOverrides: {} })} />
-            <MentalityDropdown label="OOP" value={tatica.mentalidade_oop ?? "balanced"} onChange={v => update({ mentalidade_oop: v, slotOverrides: {} })} />
+            <MentalityDropdown label="IP" value={tatica.mentalidade} onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })} />
+            <MentalityDropdown label="OOP" value={tatica.mentalidade_oop ?? "balanced"} onChange={v => update({ mentalidade_oop: v, oopSlotOverrides: {} })} />
           </>
         )}
 
@@ -1144,12 +1186,9 @@ export function TacticsTab() {
               </div>
               <div className="flex-1 min-w-0 h-full">
                 <PitchSVG
-                  tatica={{ ...tatica, mentalidade: tatica.mentalidade_oop ?? "balanced" }}
+                  tatica={tatica}
                   jogadores={jogadores}
-                  onUpdate={p => {
-                    const { mentalidade: _, ...rest } = p
-                    update(rest)
-                  }}
+                  onUpdate={update}
                   mode="oop"
                   compact
                   selectedArrowType={arrowType}
