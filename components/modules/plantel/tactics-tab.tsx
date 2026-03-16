@@ -493,11 +493,11 @@ function PlayerPin({
       ) : (
         <text textAnchor="middle" dominantBaseline="central"
           fill={numberFill}
-          fontSize={isEmpty ? R * 0.52 : R * 0.65}
+          fontSize={isEmpty ? R * 0.52 : jogador?.alcunha ? R * 0.42 : R * 0.65}
           fontWeight="bold"
           opacity={isEmpty ? 0.85 : 1}
           style={{ pointerEvents: "none", userSelect: "none" }}>
-          {jogador ? jogador.numero : label}
+          {jogador ? (jogador.alcunha?.substring(0, 7) ?? String(jogador.numero)) : label}
         </text>
       )}
 
@@ -1188,9 +1188,9 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
             <g key={slot.slotKey} transform={`translate(${slot.x},${slot.y})`} style={{ cursor: "grab" }}>
               <circle r={R} fill={isGK ? "#111111" : color + "99"} stroke={color} strokeWidth={2} />
               <text textAnchor="middle" dominantBaseline="central"
-                fill={isGK ? "white" : color} fontSize={9 * scale} fontWeight="800"
+                fill={isGK ? "white" : color} fontSize={jogador?.alcunha ? 7 * scale : 9 * scale} fontWeight="800"
                 style={{ pointerEvents: "none", userSelect: "none" }}>
-                {jogador ? String(jogador.numero) : slot.label}
+                {jogador ? (jogador.alcunha?.substring(0, 6) ?? String(jogador.numero)) : slot.label}
               </text>
             </g>
           )
@@ -1464,7 +1464,7 @@ export function TacticsTab() {
           <div className="shrink-0 py-1 border-b border-border/10 text-center"
             style={{ background: "linear-gradient(to right, rgba(0,214,108,0.04), transparent)" }}>
             <span className="text-[7px] font-black uppercase tracking-widest text-[#00D66C]/60">
-              Construction Phases
+              {activeTab === "ip" ? "Offensive Organization | Construction Phases" : "Defensive Organization | Construction Phases"}
             </span>
           </div>
           {/* 3 mini campos lado a lado — com pequeno gap */}
