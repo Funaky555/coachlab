@@ -272,6 +272,34 @@ function computeSlotPositions(
   })
 }
 
+// ─── Position Variants ────────────────────────────────────────────────────────
+
+const POSITION_VARIANTS: Record<string, string[]> = {
+  GK:  ["GK"],
+  LB:  ["LB", "LWB"],
+  RB:  ["RB", "RWB"],
+  CB:  ["CB", "LCB", "RCB", "SW"],
+  CBL: ["CB", "LCB", "RCB"],
+  CBR: ["CB", "LCB", "RCB"],
+  SW:  ["SW", "CB"],
+  LWB: ["LWB", "LB"],
+  RWB: ["RWB", "RB"],
+  DM:  ["DM", "CDM", "CM"],
+  CM:  ["CM", "DM", "CAM", "LCM", "RCM"],
+  LM:  ["LM", "LAM"],
+  RM:  ["RM", "RAM"],
+  AM:  ["AM", "CAM", "LAM", "RAM"],
+  CAM: ["CAM", "AM"],
+  LW:  ["LW", "WL", "IF"],
+  RW:  ["RW", "WR", "IF"],
+  WL:  ["WL", "LW", "IF"],
+  WR:  ["WR", "RW", "IF"],
+  CF:  ["CF", "F9", "SS", "ST"],
+  ST:  ["ST", "CF", "F9"],
+  SS:  ["SS", "CF", "ST"],
+  OM:  ["OM", "AM", "CAM"],
+}
+
 // ─── SVG Pitch ────────────────────────────────────────────────────────────────
 
 
@@ -453,9 +481,11 @@ interface PitchSVGProps {
   selectedArrowType: TacticArrowType
   slotOverridesForMode: Record<string, { x: number; y: number }>
   onUpdateOverrides: (overrides: Record<string, { x: number; y: number }>) => void
+  slotLabelOverridesForMode: Record<string, string>
+  onUpdateLabelOverrides: (overrides: Record<string, string>) => void
 }
 
-function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selectedArrowType, slotOverridesForMode, onUpdateOverrides }: PitchSVGProps) {
+function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selectedArrowType, slotOverridesForMode, onUpdateOverrides, slotLabelOverridesForMode, onUpdateLabelOverrides }: PitchSVGProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [drawingFrom, setDrawingFrom] = useState<string | null>(null)
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
@@ -463,6 +493,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
   // Use ref for dragging pin to avoid async state lag
   const draggingPinRef = useRef<string | null>(null)
   const [draggingPinState, setDraggingPinState] = useState<string | null>(null)
+  const [popoverSlot, setPopoverSlot] = useState<string | null>(null)
 
   const arrows = mode === "ip" ? tatica.ipArrows : tatica.oopArrows
   const setArrows = (fn: (prev: TacticArrow[]) => TacticArrow[]) => {
@@ -507,8 +538,7 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
 
   function handleSlotClick(slotKey: string) {
     if (drawingFrom) return
-    const current = getSlotJogador(slotKey)
-    if (current) assignToSlot(slotKey, undefined)
+    setPopoverSlot(slotKey)
   }
 
   function handleStartArrow(slotKey: string) {
@@ -587,7 +617,10 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
       const d = Math.sqrt((pos.x - s.x) ** 2 + (pos.y - s.y) ** 2)
       if (d < nearest.dist) nearest = { slotKey: s.slotKey, dist: d }
     })
-    if (nearest.dist < 80) assignToSlot(nearest.slotKey, jogadorId)
+    if (nearest.dist < 80) {
+      assignToSlot(nearest.slotKey, jogadorId)
+      setPopoverSlot(nearest.slotKey)
+    }
     setDragOver(null)
   }
 
@@ -654,27 +687,80 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
           })}
 
           {/* Player pins */}
-          {slotPositions.map(slot => (
-            <PlayerPin
-              key={slot.slotKey}
-              slotKey={slot.slotKey}
-              x={slot.x}
-              y={slot.y}
-              label={slot.label}
-              posicao={slot.posicao}
-              row={slot.row}
-              jogador={getSlotJogador(slot.slotKey)}
-              isDrawingFrom={drawingFrom === slot.slotKey}
-              onStartArrow={handleStartArrow}
-              onRemoveArrow={() => {}}
-              onSlotClick={() => handleSlotClick(slot.slotKey)}
-              isOver={dragOver === slot.slotKey}
-              isDragging={draggingPinState === slot.slotKey}
-              scale={scale}
-            />
-          ))}
+          {slotPositions.map(slot => {
+            const effectiveLabel = slotLabelOverridesForMode[slot.slotKey] ?? slot.label
+            return (
+              <PlayerPin
+                key={slot.slotKey}
+                slotKey={slot.slotKey}
+                x={slot.x}
+                y={slot.y}
+                label={effectiveLabel}
+                posicao={slot.posicao}
+                row={slot.row}
+                jogador={getSlotJogador(slot.slotKey)}
+                isDrawingFrom={drawingFrom === slot.slotKey}
+                onStartArrow={handleStartArrow}
+                onRemoveArrow={() => {}}
+                onSlotClick={() => handleSlotClick(slot.slotKey)}
+                isOver={dragOver === slot.slotKey}
+                isDragging={draggingPinState === slot.slotKey}
+                scale={scale}
+              />
+            )
+          })}
 
         </svg>
+
+        {popoverSlot && (() => {
+          const slot = slotPositions.find(s => s.slotKey === popoverSlot)
+          if (!slot) return null
+          const jogador = getSlotJogador(popoverSlot)
+          const baseLabel = slot.label
+          const currentLabel = slotLabelOverridesForMode[popoverSlot] ?? baseLabel
+          const variants = POSITION_VARIANTS[baseLabel] ?? [baseLabel]
+          const pctX = (slot.x / 510) * 100
+          const pctY = (slot.y / 780) * 100
+
+          return (
+            <div
+              className="absolute z-50 bg-background/95 border border-border/60 rounded-lg shadow-xl p-2"
+              style={{ left: `${pctX}%`, top: `${pctY}%`, transform: "translate(-50%, -115%)", minWidth: "100px" }}
+            >
+              <div className="flex flex-wrap gap-1 mb-2">
+                {variants.map(v => (
+                  <button key={v}
+                    onClick={() => {
+                      onUpdateLabelOverrides({ ...slotLabelOverridesForMode, [popoverSlot]: v })
+                      setPopoverSlot(null)
+                    }}
+                    className={`px-2 py-0.5 rounded text-xs font-bold border transition-all ${
+                      v === currentLabel
+                        ? "bg-[#0066FF]/20 border-[#0066FF] text-[#0066FF]"
+                        : "border-border/40 text-muted-foreground hover:text-foreground hover:border-border"
+                    }`}>
+                    {v}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-1">
+                {jogador && (
+                  <button
+                    onClick={() => { assignToSlot(popoverSlot, undefined); setPopoverSlot(null) }}
+                    className="flex-1 text-[10px] text-red-400 border border-red-500/30 rounded px-1 py-0.5 hover:bg-red-500/10">
+                    Remover
+                  </button>
+                )}
+                <button
+                  onClick={() => setPopoverSlot(null)}
+                  className="text-[10px] text-muted-foreground border border-border/30 rounded px-1 py-0.5 hover:bg-muted/20">
+                  ✕
+                </button>
+              </div>
+            </div>
+          )
+        })()}
+
       </div>
     </div>
   )
@@ -688,7 +774,14 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
   onUnassign: (jogadorId: string) => void
 }) {
   const assignedIds = new Set(tatica.titulares.map(s => s.jogadorId).filter(Boolean))
-  const bench = jogadores.filter(j => !assignedIds.has(j.id))
+  const SETOR_ORDER: Record<string, number> = { GR: 0, DEF: 1, MED: 2, AV: 3 }
+  const bench = jogadores
+    .filter(j => !assignedIds.has(j.id))
+    .sort((a, b) => {
+      const sa = SETOR_ORDER[getPrimarySetor(a.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3
+      const sb = SETOR_ORDER[getPrimarySetor(b.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3
+      return sa - sb
+    })
   const starters = tatica.titulares.filter(s => s.jogadorId).map(slot => ({
     slot,
     jogador: jogadores.find(p => p.id === slot.jogadorId) ?? null,
@@ -1074,6 +1167,9 @@ export function TacticsTab() {
     update({ titulares: [], ipSlotOverrides: {}, oopSlotOverrides: {} })
   }
 
+  // Non-narrowed tab reference for tabBtnClass comparisons inside conditional blocks
+  const activeTab = tab as string
+
   const tabBtnClass = (active: boolean) =>
     `px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all ${
       active
@@ -1130,13 +1226,6 @@ export function TacticsTab() {
           </>
         )}
 
-        {/* Tabs */}
-        <div className="flex items-center gap-1 ml-auto shrink-0">
-          <button className={tabBtnClass(tab === "ip")}   onClick={() => setTab("ip")}>In Possession</button>
-          <button className={tabBtnClass(tab === "oop")}  onClick={() => setTab("oop")}>Out of Possession</button>
-          <button className={tabBtnClass(tab === "both")} onClick={() => setTab("both")}>Both</button>
-        </div>
-
         {/* Settings + Export + Reset */}
         <div className="flex items-center gap-1.5 shrink-0">
           <button onClick={() => setSettingsOpen(true)}
@@ -1162,42 +1251,74 @@ export function TacticsTab() {
       {/* ── MAIN AREA ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
 
-        {/* CENTER — Pitch(es) */}
-        <div ref={pitchRef} className="flex-1 min-w-0 min-h-0 h-full">
-          {tab === "ip" && (
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
-              selectedArrowType={arrowType}
-              slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
-              onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })} />
-          )}
-          {tab === "oop" && (
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop"
-              selectedArrowType={arrowType}
-              slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
-              onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })} />
-          )}
-          {tab === "both" && (
-            <div className="flex gap-1 h-full">
-              <div className="flex-1 min-w-0 h-full">
-                <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact
-                  selectedArrowType={arrowType}
-                  slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
-                  onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })} />
-              </div>
-              <div className="flex-1 min-w-0 h-full">
-                <PitchSVG
-                  tatica={tatica}
-                  jogadores={jogadores}
-                  onUpdate={update}
-                  mode="oop"
-                  compact
-                  selectedArrowType={arrowType}
-                  slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
-                  onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
-                />
-              </div>
+        {/* CENTER — Tabs + Pitch(es) */}
+        <div ref={pitchRef} className="flex-1 min-w-0 min-h-0 h-full flex flex-col">
+
+          {/* Tab buttons centralizados — apenas IP e OOP (Both usa divider central) */}
+          {tab !== "both" && (
+            <div className="flex justify-center items-center gap-1 py-1.5 shrink-0 border-b border-border/10">
+              <button className={tabBtnClass(activeTab === "ip")}   onClick={() => setTab("ip")}>In Possession</button>
+              <button className={tabBtnClass(activeTab === "oop")}  onClick={() => setTab("oop")}>Out of Possession</button>
+              <button className={tabBtnClass(activeTab === "both")} onClick={() => setTab("both")}>Both</button>
             </div>
           )}
+
+          {/* Pitch(es) */}
+          <div className="flex-1 min-h-0">
+            {tab === "ip" && (
+              <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
+                selectedArrowType={arrowType}
+                slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+                onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
+                slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
+                onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+            )}
+            {tab === "oop" && (
+              <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop"
+                selectedArrowType={arrowType}
+                slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
+                onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
+                slotLabelOverridesForMode={tatica.oopSlotLabelOverrides ?? {}}
+                onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
+            )}
+            {tab === "both" && (
+              <div className="flex h-full">
+                <div className="flex-1 min-w-0 h-full">
+                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact
+                    selectedArrowType={arrowType}
+                    slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+                    onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
+                    slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
+                    onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+                </div>
+
+                {/* Divider central com tabs verticais */}
+                <div className="flex flex-col items-center justify-center gap-2 px-1.5 shrink-0 border-x border-border/20">
+                  <button className={tabBtnClass(activeTab === "ip")} onClick={() => setTab("ip")}
+                    style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
+                    IP
+                  </button>
+                  <button className={tabBtnClass(activeTab === "both")} onClick={() => setTab("both")}
+                    style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
+                    ●
+                  </button>
+                  <button className={tabBtnClass(activeTab === "oop")} onClick={() => setTab("oop")}
+                    style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
+                    OOP
+                  </button>
+                </div>
+
+                <div className="flex-1 min-w-0 h-full">
+                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" compact
+                    selectedArrowType={arrowType}
+                    slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
+                    onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
+                    slotLabelOverridesForMode={tatica.oopSlotLabelOverrides ?? {}}
+                    onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* RIGHT — Bench */}

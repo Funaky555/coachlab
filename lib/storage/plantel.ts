@@ -200,6 +200,8 @@ export interface TacticaConfig {
   slotOverrides: Record<string, { x: number; y: number }>
   ipSlotOverrides: Record<string, { x: number; y: number }>
   oopSlotOverrides: Record<string, { x: number; y: number }>
+  ipSlotLabelOverrides?: Record<string, string>
+  oopSlotLabelOverrides?: Record<string, string>
   mentalidade_oop: "very_defensive" | "defensive" | "balanced" | "offensive" | "very_offensive"
   formacao_oop?: string
 }
@@ -451,6 +453,8 @@ function getDefaultTatica(): TacticaConfig {
     slotOverrides: {},
     ipSlotOverrides: {},
     oopSlotOverrides: {},
+    ipSlotLabelOverrides: {},
+    oopSlotLabelOverrides: {},
     mentalidade_oop: "balanced",
     formacao_oop: "1-4-3-3",
   }
