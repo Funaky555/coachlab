@@ -1458,8 +1458,8 @@ export function TacticsTab() {
       {/* ── MAIN AREA ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
 
-        {/* ── ESQUERDA: 3 fases lado a lado ── */}
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col border-r border-border/15">
+        {/* ── ESQUERDA: 3 fases juntas à esquerda ── */}
+        <div className="shrink-0 flex flex-col border-r border-border/15">
           {/* Section label */}
           <div className="shrink-0 py-1 border-b border-border/10 text-center"
             style={{ background: "linear-gradient(to right, rgba(0,214,108,0.04), transparent)" }}>
@@ -1467,54 +1467,48 @@ export function TacticsTab() {
               Construction Phases
             </span>
           </div>
-          {/* 3 mini campos lado a lado — colados */}
-          <div className="flex flex-1 min-h-0">
+          {/* 3 mini campos lado a lado — com pequeno gap */}
+          <div className="flex gap-[10px] p-2 items-start">
 
             {/* Phase 1 */}
-            <div className="flex-1 min-w-0 flex flex-col">
-              <div className="shrink-0 px-2 py-1 text-center border-b border-border/10">
+            <div className="shrink-0 w-[120px] flex flex-col">
+              <div className="shrink-0 py-1 text-center">
                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
                   1<sup>st</sup> Phase
                 </span>
               </div>
-              <div className="flex-1 min-h-0 flex items-start justify-center">
-                <div style={{ width: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
-                  <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                    overrides={tatica.phase1Overrides ?? {}}
-                    onUpdateOverrides={o => update({ phase1Overrides: o })} />
-                </div>
+              <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
+                <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                  overrides={tatica.phase1Overrides ?? {}}
+                  onUpdateOverrides={o => update({ phase1Overrides: o })} />
               </div>
             </div>
 
             {/* Phase 2 */}
-            <div className="flex-1 min-w-0 flex flex-col">
-              <div className="shrink-0 px-2 py-1 text-center border-b border-border/10">
+            <div className="shrink-0 w-[120px] flex flex-col">
+              <div className="shrink-0 py-1 text-center">
                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
                   2<sup>nd</sup> Phase
                 </span>
               </div>
-              <div className="flex-1 min-h-0 flex items-start justify-center">
-                <div style={{ width: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
-                  <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                    overrides={tatica.phase2Overrides ?? {}}
-                    onUpdateOverrides={o => update({ phase2Overrides: o })} />
-                </div>
+              <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
+                <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                  overrides={tatica.phase2Overrides ?? {}}
+                  onUpdateOverrides={o => update({ phase2Overrides: o })} />
               </div>
             </div>
 
             {/* Phase 3 */}
-            <div className="flex-1 min-w-0 flex flex-col">
-              <div className="shrink-0 px-2 py-1 text-center border-b border-border/10">
+            <div className="shrink-0 w-[120px] flex flex-col">
+              <div className="shrink-0 py-1 text-center">
                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
                   3<sup>rd</sup> Phase
                 </span>
               </div>
-              <div className="flex-1 min-h-0 flex items-start justify-center">
-                <div style={{ width: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
-                  <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                    overrides={tatica.phase3Overrides ?? {}}
-                    onUpdateOverrides={o => update({ phase3Overrides: o })} />
-                </div>
+              <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
+                <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                  overrides={tatica.phase3Overrides ?? {}}
+                  onUpdateOverrides={o => update({ phase3Overrides: o })} />
               </div>
             </div>
 
