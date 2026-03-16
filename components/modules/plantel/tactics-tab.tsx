@@ -1051,6 +1051,109 @@ function FormationPickerDialog({ value, onChange }: {
   )
 }
 
+// ─── Mini Pitch SVG (Construction Phases) ─────────────────────────────────────
+
+function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
+  tatica: TacticaConfig
+  jogadores: Jogador[]
+  overrides: Record<string, { x: number; y: number }>
+  onUpdateOverrides: (o: Record<string, { x: number; y: number }>) => void
+}) {
+  const svgRef = useRef<SVGSVGElement>(null)
+  const draggingRef = useRef<string | null>(null)
+  const slotPositions = computeSlotPositions(tatica.formacao, tatica.mentalidade, tatica, overrides)
+  const scale = 0.6
+
+  function svgCoords(e: React.PointerEvent): { x: number; y: number } {
+    const svg = svgRef.current
+    if (!svg) return { x: 0, y: 0 }
+    const rect = svg.getBoundingClientRect()
+    return {
+      x: (e.clientX - rect.left) * (510 / rect.width),
+      y: (e.clientY - rect.top) * (780 / rect.height),
+    }
+  }
+
+  return (
+    <div className="relative w-full h-full">
+      <img src="/23.png" alt="" className="absolute inset-0 w-full h-full" style={{ objectFit: "fill" }} />
+      <svg ref={svgRef} viewBox="0 0 510 780" className="absolute inset-0 w-full h-full"
+        style={{ touchAction: "none" }}
+        onPointerDown={e => {
+          const pos = svgCoords(e)
+          const pinR = (20 * scale) + 8
+          const hit = slotPositions.find(s => Math.sqrt((pos.x - s.x) ** 2 + (pos.y - s.y) ** 2) < pinR)
+          if (hit) {
+            e.preventDefault()
+            draggingRef.current = hit.slotKey
+            e.currentTarget.setPointerCapture(e.pointerId)
+          }
+        }}
+        onPointerMove={e => {
+          if (!draggingRef.current) return
+          const pos = svgCoords(e)
+          const clamped = { x: Math.max(30, Math.min(480, pos.x)), y: Math.max(30, Math.min(750, pos.y)) }
+          onUpdateOverrides({ ...overrides, [draggingRef.current]: clamped })
+        }}
+        onPointerUp={() => { draggingRef.current = null }}>
+        <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.08)" />
+        {slotPositions.map(slot => {
+          const color = sectorColorByRow(slot.row)
+          const isGK = slot.row === 5
+          const titular = tatica.titulares.find(s => s.posicao === slot.slotKey)
+          const jogador = titular?.jogadorId ? jogadores.find(j => j.id === titular.jogadorId) ?? null : null
+          const R = 20 * scale
+          return (
+            <g key={slot.slotKey} transform={`translate(${slot.x},${slot.y})`} style={{ cursor: "grab" }}>
+              <circle r={R} fill={isGK ? "#111111" : color + "33"} stroke={color} strokeWidth={1.5} />
+              <text textAnchor="middle" dominantBaseline="central"
+                fill={isGK ? "white" : color} fontSize={9 * scale} fontWeight="800"
+                style={{ pointerEvents: "none", userSelect: "none" }}>
+                {jogador ? String(jogador.numero) : slot.label}
+              </text>
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
+}
+
+// ─── Construction Phases Column ───────────────────────────────────────────────
+
+function ConstructionPhasesColumn({ tatica, jogadores, onUpdate }: {
+  tatica: TacticaConfig
+  jogadores: Jogador[]
+  onUpdate: (p: Partial<TacticaConfig>) => void
+}) {
+  const phases: { label: string; key: "phase1Overrides" | "phase2Overrides" | "phase3Overrides" }[] = [
+    { label: "1st Phase of Construction", key: "phase1Overrides" },
+    { label: "2nd Phase of Construction", key: "phase2Overrides" },
+    { label: "3rd Phase of Construction", key: "phase3Overrides" },
+  ]
+  return (
+    <div className="w-[200px] shrink-0 border-r border-border/20 flex flex-col overflow-hidden">
+      {phases.map(({ label, key }) => (
+        <div key={key} className="flex-1 min-h-0 flex flex-col border-b border-border/10 last:border-b-0">
+          <div className="shrink-0 px-2 py-1 text-center">
+            <span className="text-[8px] font-black uppercase tracking-widest text-[#00D66C]/70">{label}</span>
+          </div>
+          <div className="flex-1 min-h-0 flex items-center justify-center p-1">
+            <div style={{ height: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded-sm">
+              <MiniPitchSVG
+                tatica={tatica}
+                jogadores={jogadores}
+                overrides={tatica[key] ?? {}}
+                onUpdateOverrides={o => onUpdate({ [key]: o })}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Left Tactics Panel ───────────────────────────────────────────────────────
 
 function AttackingWidthSlider({ value, onChange }: {
@@ -1270,8 +1373,6 @@ export function TacticsTab() {
     <div className="flex flex-col h-full overflow-hidden">
       {/* ── TOP BAR ── */}
       <div className="flex items-center h-[42px] border-b border-border/20 shrink-0 px-3">
-        {/* Spacer left (same width as left panel to allow true centering of tabs) */}
-        <div className="w-[380px] shrink-0" />
         {/* Tabs centralizados */}
         <div className="flex-1 flex justify-center gap-1">
           <button className={tabBtnClass(activeTab === "ip")}   onClick={() => setTab("ip")}>In Possession</button>
@@ -1298,72 +1399,121 @@ export function TacticsTab() {
       {/* ── MAIN AREA ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
 
-        {/* LEFT PANEL — Tactics Settings */}
-        <LeftTacticsPanel tatica={tatica} onUpdate={update} tab={tab} />
+        {/* LEFT — 3 Construction Phase fields */}
+        <ConstructionPhasesColumn tatica={tatica} jogadores={jogadores} onUpdate={update} />
 
-        {/* CENTER — Field only (fieldRef for PNG) */}
-        <div ref={fieldRef} className="flex-1 min-w-0 min-h-0 h-full flex flex-col">
-          {tab === "ip" && (
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
-              selectedArrowType={arrowType}
-              slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
-              onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
-              slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
-              onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
-          )}
-          {tab === "oop" && (
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop"
-              selectedArrowType={arrowType}
-              slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
-              onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
-              slotLabelOverridesForMode={tatica.oopSlotLabelOverrides ?? {}}
-              onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
-          )}
-          {tab === "both" && (
-            <div className="flex h-full">
-              {/* Campo IP */}
-              <div className="flex-1 min-w-0 h-full flex flex-col">
-                <div className="flex justify-center items-center gap-2 py-1 shrink-0 border-b border-border/10">
-                  <FormationPickerDialog value={tatica.formacao}
-                    onChange={f => update({ formacao: f, ipSlotOverrides: {} })} />
-                  <MentalityDropdown value={tatica.mentalidade}
-                    onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })} />
+        {/* CENTER+RIGHT: controls bar + field + bench */}
+        <div className="flex-1 min-w-0 flex flex-col min-h-0">
+
+          {/* Controls bar: Formation + Mentality + Attacking Width */}
+          <div className="flex items-center gap-3 px-3 border-b border-border/20 shrink-0 h-[48px]">
+            {tab !== "both" ? (
+              <>
+                <FormationPickerDialog
+                  value={tab === "ip" ? tatica.formacao : (tatica.formacao_oop ?? tatica.formacao)}
+                  onChange={f => tab === "ip"
+                    ? update({ formacao: f, ipSlotOverrides: {} })
+                    : update({ formacao_oop: f, oopSlotOverrides: {} })}
+                />
+                <MentalityDropdown
+                  value={tab === "ip" ? tatica.mentalidade : (tatica.mentalidade_oop ?? "balanced")}
+                  onChange={v => tab === "ip"
+                    ? update({ mentalidade: v, ipSlotOverrides: {} })
+                    : update({ mentalidade_oop: v, oopSlotOverrides: {} })}
+                />
+                <div className="flex-1 max-w-[260px]">
+                  <AttackingWidthSlider value={tatica.attackingWidth ?? "medium"}
+                    onChange={v => update({ attackingWidth: v })} />
                 </div>
-                <div className="flex-1 min-h-0">
-                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact
-                    selectedArrowType={arrowType}
-                    slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
-                    onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
-                    slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
-                    onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-wider">IP</span>
+                  <FormationPickerDialog value={tatica.formacao} onChange={f => update({ formacao: f, ipSlotOverrides: {} })} />
+                  <MentalityDropdown value={tatica.mentalidade} onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })} />
                 </div>
-              </div>
-              {/* Separador simples */}
-              <div className="w-px bg-border/20 self-stretch shrink-0" />
-              {/* Campo OOP */}
-              <div className="flex-1 min-w-0 h-full flex flex-col">
-                <div className="flex justify-center items-center gap-2 py-1 shrink-0 border-b border-border/10">
-                  <FormationPickerDialog value={tatica.formacao_oop ?? tatica.formacao}
-                    onChange={f => update({ formacao_oop: f, oopSlotOverrides: {} })} />
-                  <MentalityDropdown value={tatica.mentalidade_oop ?? "balanced"}
-                    onChange={v => update({ mentalidade_oop: v, oopSlotOverrides: {} })} />
+                <div className="w-px h-5 bg-border/30" />
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-wider">OOP</span>
+                  <FormationPickerDialog value={tatica.formacao_oop ?? tatica.formacao} onChange={f => update({ formacao_oop: f, oopSlotOverrides: {} })} />
+                  <MentalityDropdown value={tatica.mentalidade_oop ?? "balanced"} onChange={v => update({ mentalidade_oop: v, oopSlotOverrides: {} })} />
                 </div>
-                <div className="flex-1 min-h-0">
-                  <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" compact
-                    selectedArrowType={arrowType}
-                    slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
-                    onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
-                    slotLabelOverridesForMode={tatica.oopSlotLabelOverrides ?? {}}
-                    onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
+                <div className="flex-1 max-w-[220px] ml-auto">
+                  <AttackingWidthSlider value={tatica.attackingWidth ?? "medium"} onChange={v => update({ attackingWidth: v })} />
                 </div>
-              </div>
+              </>
+            )}
+          </div>
+
+          {/* Field + Bench row */}
+          <div className="flex flex-1 min-h-0">
+
+            {/* Field (fieldRef for PNG) */}
+            <div ref={fieldRef} className="flex-1 min-w-0 min-h-0 h-full flex flex-col">
+              {tab === "ip" && (
+                <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
+                  selectedArrowType={arrowType}
+                  slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+                  onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
+                  slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
+                  onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+              )}
+              {tab === "oop" && (
+                <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop"
+                  selectedArrowType={arrowType}
+                  slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
+                  onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
+                  slotLabelOverridesForMode={tatica.oopSlotLabelOverrides ?? {}}
+                  onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
+              )}
+              {tab === "both" && (
+                <div className="flex h-full">
+                  {/* Campo IP */}
+                  <div className="flex-1 min-w-0 h-full flex flex-col">
+                    <div className="flex justify-center items-center gap-2 py-1 shrink-0 border-b border-border/10">
+                      <FormationPickerDialog value={tatica.formacao}
+                        onChange={f => update({ formacao: f, ipSlotOverrides: {} })} />
+                      <MentalityDropdown value={tatica.mentalidade}
+                        onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })} />
+                    </div>
+                    <div className="flex-1 min-h-0">
+                      <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip" compact
+                        selectedArrowType={arrowType}
+                        slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+                        onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
+                        slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
+                        onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+                    </div>
+                  </div>
+                  <div className="w-px bg-border/20 self-stretch shrink-0" />
+                  {/* Campo OOP */}
+                  <div className="flex-1 min-w-0 h-full flex flex-col">
+                    <div className="flex justify-center items-center gap-2 py-1 shrink-0 border-b border-border/10">
+                      <FormationPickerDialog value={tatica.formacao_oop ?? tatica.formacao}
+                        onChange={f => update({ formacao_oop: f, oopSlotOverrides: {} })} />
+                      <MentalityDropdown value={tatica.mentalidade_oop ?? "balanced"}
+                        onChange={v => update({ mentalidade_oop: v, oopSlotOverrides: {} })} />
+                    </div>
+                    <div className="flex-1 min-h-0">
+                      <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop" compact
+                        selectedArrowType={arrowType}
+                        slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
+                        onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
+                        slotLabelOverridesForMode={tatica.oopSlotLabelOverrides ?? {}}
+                        onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* RIGHT — Bench */}
-        <div className="w-44 shrink-0 border-l border-border/20 pl-2 pt-2 flex flex-col overflow-hidden">
-          <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
+            {/* Bench */}
+            <div className="w-44 shrink-0 border-l border-border/20 pl-2 pt-2 flex flex-col overflow-hidden">
+              <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
+            </div>
+
+          </div>
         </div>
       </div>
 
