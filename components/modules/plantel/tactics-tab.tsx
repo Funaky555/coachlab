@@ -1461,14 +1461,14 @@ export function TacticsTab() {
         {/* ── ESQUERDA: 3 fases lado a lado ── */}
         <div className="flex-1 min-w-0 min-h-0 flex flex-col border-r border-border/15">
           {/* Section label */}
-          <div className="shrink-0 px-3 py-1 border-b border-border/10"
+          <div className="shrink-0 py-1 border-b border-border/10 text-center"
             style={{ background: "linear-gradient(to right, rgba(0,214,108,0.04), transparent)" }}>
             <span className="text-[7px] font-black uppercase tracking-widest text-[#00D66C]/60">
               Construction Phases
             </span>
           </div>
-          {/* 3 mini campos lado a lado */}
-          <div className="flex flex-1 min-h-0 divide-x divide-border/10">
+          {/* 3 mini campos lado a lado — colados */}
+          <div className="flex flex-1 min-h-0">
 
             {/* Phase 1 */}
             <div className="flex-1 min-w-0 flex flex-col">
@@ -1477,7 +1477,7 @@ export function TacticsTab() {
                   1<sup>st</sup> Phase
                 </span>
               </div>
-              <div className="flex-1 min-h-0 flex items-start justify-center pt-1">
+              <div className="flex-1 min-h-0 flex items-start justify-center">
                 <div style={{ width: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica.phase1Overrides ?? {}}
@@ -1493,7 +1493,7 @@ export function TacticsTab() {
                   2<sup>nd</sup> Phase
                 </span>
               </div>
-              <div className="flex-1 min-h-0 flex items-start justify-center pt-1">
+              <div className="flex-1 min-h-0 flex items-start justify-center">
                 <div style={{ width: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica.phase2Overrides ?? {}}
@@ -1509,7 +1509,7 @@ export function TacticsTab() {
                   3<sup>rd</sup> Phase
                 </span>
               </div>
-              <div className="flex-1 min-h-0 flex items-start justify-center pt-1">
+              <div className="flex-1 min-h-0 flex items-start justify-center">
                 <div style={{ width: "100%", maxHeight: "260px", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica.phase3Overrides ?? {}}
@@ -1521,8 +1521,8 @@ export function TacticsTab() {
           </div>
         </div>
 
-        {/* ── DIREITA: Formation column ── */}
-        <div className="w-[380px] shrink-0 flex flex-col">
+        {/* ── CENTRO: Formation field ── */}
+        <div className="w-[300px] shrink-0 flex flex-col border-l border-border/15">
           {/* Controlos acima do campo */}
           <div className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15 flex-wrap">
             <FormationPickerDialog
@@ -1557,10 +1557,11 @@ export function TacticsTab() {
                 onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
             )}
           </div>
-          {/* Bench horizontal abaixo do campo */}
-          <div className="shrink-0 border-t border-border/20 overflow-x-auto">
-            <HorizontalBenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
-          </div>
+        </div>
+
+        {/* ── DIREITA: Bench (pinos com foto) ── */}
+        <div className="w-[160px] shrink-0 border-l border-border/20 flex flex-col overflow-hidden">
+          <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
 
       </div>
