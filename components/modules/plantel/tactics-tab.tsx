@@ -1471,7 +1471,7 @@ export function TacticsTab() {
           <div className="flex gap-[10px] p-2 items-start">
 
             {/* Phase 1 */}
-            <div className="shrink-0 w-[145px] flex flex-col">
+            <div className="shrink-0 w-[175px] flex flex-col">
               <div className="shrink-0 py-1 text-center">
                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
                   1<sup>st</sup> Phase
@@ -1485,7 +1485,7 @@ export function TacticsTab() {
             </div>
 
             {/* Phase 2 */}
-            <div className="shrink-0 w-[145px] flex flex-col">
+            <div className="shrink-0 w-[175px] flex flex-col">
               <div className="shrink-0 py-1 text-center">
                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
                   2<sup>nd</sup> Phase
@@ -1499,7 +1499,7 @@ export function TacticsTab() {
             </div>
 
             {/* Phase 3 */}
-            <div className="shrink-0 w-[145px] flex flex-col">
+            <div className="shrink-0 w-[175px] flex flex-col">
               <div className="shrink-0 py-1 text-center">
                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
                   3<sup>rd</sup> Phase
@@ -1515,11 +1515,11 @@ export function TacticsTab() {
           </div>
         </div>
 
-        {/* Espaçador — empurra formation para centro-direita */}
-        <div className="flex-1" />
+        {/* Gap fixo ~2cm entre phases e formation */}
+        <div className="w-5 shrink-0" />
 
         {/* ── CENTRO-DIREITA: Formation field ── */}
-        <div className="w-[300px] shrink-0 flex flex-col border-l border-border/15">
+        <div className="w-[300px] shrink-0 flex flex-col">
           {/* Controlos acima do campo */}
           <div className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15 flex-wrap">
             <FormationPickerDialog
@@ -1556,8 +1556,11 @@ export function TacticsTab() {
           </div>
         </div>
 
+        {/* Gap ~2cm entre formation e bench */}
+        <div className="w-5 shrink-0" />
+
         {/* ── DIREITA: Bench (pinos com foto) ── */}
-        <div className="w-[160px] shrink-0 border-l border-border/20 flex flex-col overflow-hidden">
+        <div className="w-[160px] shrink-0 flex flex-col overflow-hidden">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
 
