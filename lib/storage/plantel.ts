@@ -213,7 +213,16 @@ export interface TacticaConfig {
   centralMidfielders: "low" | "rotations" | "move_high" | "move_low"
   fullbacksPosition: "low" | "high"
   wingersPosition: "open" | "inside"
-  strikerMovement: "offside" | "drop" | "sides" | "on_cb"
+  strikerMovement: "low" | "center" | "side" | "offside"
+  rbPosition?: "low" | "high"
+  lbPosition?: "low" | "high"
+  rcbPosition?: "central" | "wide"
+  lcbPosition?: "central" | "wide"
+  cmPosition?: "inside_cbs" | "center" | "rotations"
+  rcmPosition?: "low" | "high" | "center" | "rotations"
+  lcmPosition?: "low" | "high" | "center" | "rotations"
+  wrPosition?: "open" | "inside"
+  wlPosition?: "open" | "inside"
 }
 
 // --- Set Pieces ---
@@ -475,7 +484,16 @@ function getDefaultTatica(): TacticaConfig {
     centralMidfielders: "low",
     fullbacksPosition: "low",
     wingersPosition: "open",
-    strikerMovement: "drop",
+    strikerMovement: "center",
+    rbPosition: "low",
+    lbPosition: "low",
+    rcbPosition: "central",
+    lcbPosition: "central",
+    cmPosition: "center",
+    rcmPosition: "center",
+    lcmPosition: "center",
+    wrPosition: "open",
+    wlPosition: "open",
   }
 }
 
