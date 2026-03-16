@@ -1112,7 +1112,7 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
   tab: TabMode
 }) {
   return (
-    <div className="w-[156px] shrink-0 border-r border-border/20 flex flex-col overflow-hidden">
+    <div className="w-[200px] shrink-0 border-r border-border/20 flex flex-col overflow-hidden">
       <div className="overflow-y-auto flex-1 min-h-0 px-2 py-2 flex flex-col gap-3">
 
         {/* ── Formation + Mentality ── */}
@@ -1134,7 +1134,6 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
                 onChange={v => tab === "ip"
                   ? onUpdate({ mentalidade: v, ipSlotOverrides: {} })
                   : onUpdate({ mentalidade_oop: v, oopSlotOverrides: {} })}
-                compact
               />
             </div>
           </div>
@@ -1148,7 +1147,7 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
             <div>
               <SectionLabel>IP Mentality</SectionLabel>
               <MentalitySelector value={tatica.mentalidade}
-                onChange={v => onUpdate({ mentalidade: v, ipSlotOverrides: {} })} compact />
+                onChange={v => onUpdate({ mentalidade: v, ipSlotOverrides: {} })} />
             </div>
             <div className="border-t border-border/20 pt-2">
               <SectionLabel>OOP Formation</SectionLabel>
@@ -1158,7 +1157,7 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
             <div>
               <SectionLabel>OOP Mentality</SectionLabel>
               <MentalitySelector value={tatica.mentalidade_oop ?? "balanced"}
-                onChange={v => onUpdate({ mentalidade_oop: v, oopSlotOverrides: {} })} compact />
+                onChange={v => onUpdate({ mentalidade_oop: v, oopSlotOverrides: {} })} />
             </div>
           </div>
         )}
@@ -1194,7 +1193,7 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
           <SectionLabel>Dribbling & Feint</SectionLabel>
           <TRow>
             <TBtn active={(tatica.dribbling ?? "teamplay") === "1v1"} color="#FF2222" onClick={() => onUpdate({ dribbling: "1v1" })}>1v1</TBtn>
-            <TBtn active={(tatica.dribbling ?? "teamplay") === "teamplay"} color="#00D66C" onClick={() => onUpdate({ dribbling: "teamplay" })}>Team</TBtn>
+            <TBtn active={(tatica.dribbling ?? "teamplay") === "teamplay"} color="#00D66C" onClick={() => onUpdate({ dribbling: "teamplay" })}>Team Play</TBtn>
           </TRow>
         </div>
 
@@ -1238,11 +1237,11 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
           <div className="flex flex-col gap-1">
             <TRow>
               <TBtn active={(tatica.centralMidfielders ?? "low") === "low"} color="#0066FF" onClick={() => onUpdate({ centralMidfielders: "low" })}>Low</TBtn>
-              <TBtn active={(tatica.centralMidfielders ?? "low") === "rotations"} color="#FF6B35" onClick={() => onUpdate({ centralMidfielders: "rotations" })}>Rot.</TBtn>
+              <TBtn active={(tatica.centralMidfielders ?? "low") === "rotations"} color="#FF6B35" onClick={() => onUpdate({ centralMidfielders: "rotations" })}>Rotations</TBtn>
             </TRow>
             <TRow>
               <TBtn active={(tatica.centralMidfielders ?? "low") === "move_high"} color="#00D66C" onClick={() => onUpdate({ centralMidfielders: "move_high" })}>High</TBtn>
-              <TBtn active={(tatica.centralMidfielders ?? "low") === "move_low"} color="#8B5CF6" onClick={() => onUpdate({ centralMidfielders: "move_low" })}>▼Low</TBtn>
+              <TBtn active={(tatica.centralMidfielders ?? "low") === "move_low"} color="#8B5CF6" onClick={() => onUpdate({ centralMidfielders: "move_low" })}>Move Low</TBtn>
             </TRow>
           </div>
         </div>
@@ -1349,7 +1348,7 @@ export function TacticsTab() {
       {/* ── TOP BAR ── */}
       <div className="flex items-center h-[42px] border-b border-border/20 shrink-0 px-3">
         {/* Spacer left (same width as left panel to allow true centering of tabs) */}
-        <div className="w-[156px] shrink-0" />
+        <div className="w-[200px] shrink-0" />
         {/* Tabs centralizados */}
         <div className="flex-1 flex justify-center gap-1">
           <button className={tabBtnClass(activeTab === "ip")}   onClick={() => setTab("ip")}>In Possession</button>
