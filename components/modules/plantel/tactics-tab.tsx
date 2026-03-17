@@ -924,16 +924,27 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
     )
   }
 
-  // ── Bench pin: vertical (circle on top, name below) ──
-  const BenchPin = ({ j }: { j: Jogador }) => {
+  // ── Row reutilizável para Bench e Not Selected ──
+  const PlayerRow = ({
+    j, source, onRowExclude, onRowInclude,
+  }: {
+    j: Jogador
+    source: "bench" | "notSelected"
+    onRowExclude?: () => void
+    onRowInclude?: () => void
+  }) => {
     const tk = pinTokens(j)
-    const nick = nickOf(j).split(" ")[0]
+    const nick = nickOf(j).split(" ").slice(0, 2).join(" ")
+    const dimmed = source === "notSelected"
     return (
       <div
         draggable
-        onDragStart={e => e.dataTransfer.setData("jogadorId", j.id)}
-        className="flex flex-col items-center cursor-grab active:cursor-grabbing select-none"
-        style={{ gap: 2 }}
+        onDragStart={e => {
+          e.dataTransfer.setData("jogadorId", j.id)
+          e.dataTransfer.setData("source", source)
+        }}
+        className="flex items-center gap-2 px-1.5 py-0.5 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5 group"
+        style={{ opacity: dimmed ? 0.5 : 1 }}
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
         <div className="relative shrink-0" style={{ width: 42, height: 42 }}>
@@ -952,18 +963,39 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
             {j.posicoes[0]}
           </div>
         </div>
-        <span className="text-center font-semibold leading-tight truncate" style={{ fontSize: 8, color: tk.nameColor, maxWidth: 52 }}>
-          {nick}
-        </span>
+        <div className="flex flex-col min-w-0 flex-1">
+          <span className="text-[10px] font-bold truncate leading-tight" style={{ color: tk.nameColor }}>{nick}</span>
+          <span className="text-[8px] font-medium opacity-60" style={{ color: tk.accent }}>{j.posicoes[0]}</span>
+        </div>
+        {/* Botão de ação ao hover */}
+        {onRowExclude && (
+          <button onClick={e => { e.stopPropagation(); onRowExclude() }}
+            className="shrink-0 w-4 h-4 rounded-full items-center justify-center hidden group-hover:flex"
+            style={{ background: "#FF2222", color: "#fff", fontSize: 8 }} title="Não convocado">✕</button>
+        )}
+        {onRowInclude && (
+          <button onClick={e => { e.stopPropagation(); onRowInclude() }}
+            className="shrink-0 w-4 h-4 rounded-full items-center justify-center hidden group-hover:flex"
+            style={{ background: "#00D66C", color: "#000", fontSize: 9 }} title="Convocar">↩</button>
+        )}
       </div>
     )
+  }
+
+  function handleColDrop(e: React.DragEvent, target: "bench" | "notSelected") {
+    e.preventDefault()
+    const id = e.dataTransfer.getData("jogadorId")
+    const src = e.dataTransfer.getData("source")
+    if (!id) return
+    if (target === "notSelected" && src !== "notSelected") onExclude(id)
+    if (target === "bench" && src === "notSelected") onInclude(id)
   }
 
   return (
     <div className="flex h-full overflow-hidden" style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.18) 0%,rgba(0,0,0,0.04) 100%)" }}>
 
-      {/* ── XI INICIAL — coluna única, linha a linha, preenche altura ── */}
-      <div className="w-[150px] shrink-0 overflow-hidden p-2 flex flex-col">
+      {/* ── XI INICIAL — coluna única, preenche altura ── */}
+      <div className="w-[160px] shrink-0 overflow-hidden p-2 flex flex-col">
         <div className="flex items-center gap-1.5 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(0,214,108,0.22)" }}>
           <div className="w-1 h-3 rounded-full bg-[#00D66C]" style={{ boxShadow: "0 0 6px #00D66C" }} />
           <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">XI Inicial</span>
@@ -984,27 +1016,23 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
       {/* Divider */}
       <div className="w-px shrink-0" style={{ background: "linear-gradient(to bottom,transparent,rgba(255,255,255,0.09),transparent)" }} />
 
-      {/* ── BANCO — 2 sub-colunas ── */}
-      <div className="w-[140px] shrink-0 overflow-hidden p-1.5 flex flex-col">
+      {/* ── BANCO — 1 coluna, drop zone ── */}
+      <div
+        className="w-[160px] shrink-0 overflow-y-auto p-1.5 flex flex-col"
+        onDrop={e => handleColDrop(e, "bench")}
+        onDragOver={e => e.preventDefault()}
+      >
         <div className="flex items-center gap-1 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="w-1 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />
           <span className="text-[7px] font-black uppercase tracking-[0.15em] text-white/40">Banco</span>
           <span className="ml-auto text-[7px] font-mono text-white/25">{bench.length}</span>
         </div>
-        <div className="grid grid-cols-2 gap-x-1 gap-y-2.5">
+        <div className="flex flex-col gap-0.5">
           {bench.map(j => (
-            <div key={j.id} className="relative group">
-              <BenchPin j={j} />
-              <button
-                onClick={() => onExclude(j.id)}
-                className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full items-center justify-center hidden group-hover:flex"
-                style={{ background: "#FF2222", color: "#fff", fontSize: 8, lineHeight: 1 }}
-                title="Não convocado"
-              >✕</button>
-            </div>
+            <PlayerRow key={j.id} j={j} source="bench" onRowExclude={() => onExclude(j.id)} />
           ))}
           {bench.length === 0 && (
-            <div className="col-span-2 text-[7px] text-muted-foreground/30 text-center py-3">—</div>
+            <div className="text-[7px] text-muted-foreground/30 text-center py-3">—</div>
           )}
         </div>
       </div>
@@ -1012,27 +1040,23 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
       {/* Divider */}
       <div className="w-px shrink-0" style={{ background: "linear-gradient(to bottom,transparent,rgba(255,80,80,0.2),transparent)" }} />
 
-      {/* ── NOT SELECTED ── */}
-      <div className="w-[130px] shrink-0 overflow-hidden p-1.5 flex flex-col">
+      {/* ── NOT SELECTED — 1 coluna, drop zone ── */}
+      <div
+        className="w-[160px] shrink-0 overflow-y-auto p-1.5 flex flex-col"
+        onDrop={e => handleColDrop(e, "notSelected")}
+        onDragOver={e => e.preventDefault()}
+      >
         <div className="flex items-center gap-1 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(255,50,50,0.2)" }}>
           <div className="w-1 h-2.5 rounded-full" style={{ background: "rgba(255,80,80,0.5)" }} />
           <span className="text-[7px] font-black uppercase tracking-[0.15em]" style={{ color: "rgba(255,80,80,0.7)" }}>Not Selected</span>
           <span className="ml-auto text-[7px] font-mono" style={{ color: "rgba(255,80,80,0.4)" }}>{notSelected.length}</span>
         </div>
-        <div className="grid grid-cols-2 gap-x-1 gap-y-2.5">
+        <div className="flex flex-col gap-0.5">
           {notSelected.map(j => (
-            <div key={j.id} className="relative group opacity-50 hover:opacity-80 transition-opacity">
-              <BenchPin j={j} />
-              <button
-                onClick={() => onInclude(j.id)}
-                className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full items-center justify-center hidden group-hover:flex"
-                style={{ background: "#00D66C", color: "#000", fontSize: 8, lineHeight: 1 }}
-                title="Convocar"
-              >↩</button>
-            </div>
+            <PlayerRow key={j.id} j={j} source="notSelected" onRowInclude={() => onInclude(j.id)} />
           ))}
           {notSelected.length === 0 && (
-            <div className="col-span-2 text-[7px] text-center py-3" style={{ color: "rgba(255,80,80,0.3)" }}>—</div>
+            <div className="text-[7px] text-center py-3" style={{ color: "rgba(255,80,80,0.3)" }}>—</div>
           )}
         </div>
       </div>
@@ -1625,8 +1649,8 @@ export function TacticsTab() {
           </div>
         </div>
 
-        {/* Gap flexível — empurra formation+bench para a direita */}
-        <div className="flex-1 min-w-6 max-w-40 shrink-0" />
+        {/* Gap flexível — afasta formation da 3ª phase (~2cm mínimo) */}
+        <div className="flex-1 min-w-20 max-w-48 shrink-0" />
 
         {/* ── CENTRO-DIREITA: Formation field ── */}
         <div className="w-[300px] shrink-0 flex flex-col">
@@ -1667,7 +1691,7 @@ export function TacticsTab() {
         </div>
 
         {/* ── DIREITA: Bench — ocupa até ao limite direito do ecrã ── */}
-        <div className="shrink-0 flex flex-col overflow-hidden ml-24">
+        <div className="shrink-0 flex flex-col overflow-hidden ml-24" style={{ width: 485 }}>
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
         </div>
 
