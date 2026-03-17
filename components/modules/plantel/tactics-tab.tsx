@@ -831,14 +831,17 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
 
 // ─── Bench Panel ──────────────────────────────────────────────────────────────
 
-function BenchPanel({ jogadores, tatica, onUnassign }: {
+function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
   jogadores: Jogador[]
   tatica: TacticaConfig
   onUnassign: (jogadorId: string) => void
+  onExclude: (jogadorId: string) => void
+  onInclude: (jogadorId: string) => void
 }) {
   const SETOR_ORDER: Record<string, number> = { GR: 0, DEF: 1, MED: 2, AV: 3 }
 
   const assignedIds = new Set(tatica.titulares.map(s => s.jogadorId).filter(Boolean))
+  const notSelectedIds = new Set(tatica.notSelected ?? [])
 
   const starters = tatica.titulares
     .filter(s => s.jogadorId)
@@ -850,7 +853,14 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
     )
 
   const bench = jogadores
-    .filter(j => !assignedIds.has(j.id))
+    .filter(j => !assignedIds.has(j.id) && !notSelectedIds.has(j.id))
+    .sort((a, b) =>
+      (SETOR_ORDER[getPrimarySetor(a.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3) -
+      (SETOR_ORDER[getPrimarySetor(b.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3)
+    )
+
+  const notSelected = jogadores
+    .filter(j => notSelectedIds.has(j.id))
     .sort((a, b) =>
       (SETOR_ORDER[getPrimarySetor(a.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3) -
       (SETOR_ORDER[getPrimarySetor(b.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3)
@@ -983,10 +993,46 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
         </div>
         <div className="grid grid-cols-2 gap-x-1 gap-y-2.5">
           {bench.map(j => (
-            <BenchPin key={j.id} j={j} />
+            <div key={j.id} className="relative group">
+              <BenchPin j={j} />
+              <button
+                onClick={() => onExclude(j.id)}
+                className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full items-center justify-center hidden group-hover:flex"
+                style={{ background: "#FF2222", color: "#fff", fontSize: 8, lineHeight: 1 }}
+                title="Não convocado"
+              >✕</button>
+            </div>
           ))}
           {bench.length === 0 && (
             <div className="col-span-2 text-[7px] text-muted-foreground/30 text-center py-3">—</div>
+          )}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="w-px shrink-0" style={{ background: "linear-gradient(to bottom,transparent,rgba(255,80,80,0.2),transparent)" }} />
+
+      {/* ── NOT SELECTED ── */}
+      <div className="w-[130px] shrink-0 overflow-hidden p-1.5 flex flex-col">
+        <div className="flex items-center gap-1 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(255,50,50,0.2)" }}>
+          <div className="w-1 h-2.5 rounded-full" style={{ background: "rgba(255,80,80,0.5)" }} />
+          <span className="text-[7px] font-black uppercase tracking-[0.15em]" style={{ color: "rgba(255,80,80,0.7)" }}>Not Selected</span>
+          <span className="ml-auto text-[7px] font-mono" style={{ color: "rgba(255,80,80,0.4)" }}>{notSelected.length}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-x-1 gap-y-2.5">
+          {notSelected.map(j => (
+            <div key={j.id} className="relative group opacity-50 hover:opacity-80 transition-opacity">
+              <BenchPin j={j} />
+              <button
+                onClick={() => onInclude(j.id)}
+                className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full items-center justify-center hidden group-hover:flex"
+                style={{ background: "#00D66C", color: "#000", fontSize: 8, lineHeight: 1 }}
+                title="Convocar"
+              >↩</button>
+            </div>
+          ))}
+          {notSelected.length === 0 && (
+            <div className="col-span-2 text-[7px] text-center py-3" style={{ color: "rgba(255,80,80,0.3)" }}>—</div>
           )}
         </div>
       </div>
@@ -1455,6 +1501,14 @@ export function TacticsTab() {
     update({ titulares: tatica.titulares.filter(s => s.jogadorId !== jogadorId) })
   }
 
+  function handleExclude(jogadorId: string) {
+    update({ notSelected: [...(tatica.notSelected ?? []), jogadorId] })
+  }
+
+  function handleInclude(jogadorId: string) {
+    update({ notSelected: (tatica.notSelected ?? []).filter(id => id !== jogadorId) })
+  }
+
   async function handleExport() {
     const el = fieldRef.current
     if (!el) return
@@ -1614,7 +1668,7 @@ export function TacticsTab() {
 
         {/* ── DIREITA: Bench — ocupa até ao limite direito do ecrã ── */}
         <div className="shrink-0 flex flex-col overflow-hidden ml-24">
-          <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
+          <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
         </div>
 
       </div>

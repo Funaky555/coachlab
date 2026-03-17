@@ -226,6 +226,7 @@ export interface TacticaConfig {
   lcmPosition?: "low" | "high" | "center" | "rotations"
   wrPosition?: "open" | "inside"
   wlPosition?: "open" | "inside"
+  notSelected?: string[]
 }
 
 // --- Set Pieces ---
@@ -500,6 +501,7 @@ function getDefaultTatica(): TacticaConfig {
     lcmPosition: "center",
     wrPosition: "open",
     wlPosition: "open",
+    notSelected: [],
   }
 }
 
