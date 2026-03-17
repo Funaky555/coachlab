@@ -898,14 +898,14 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
         className="flex flex-col items-center gap-1 py-0.5 px-1 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5"
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
-        <div className="relative shrink-0" style={{ width: 40, height: 40 }}>
+        <div className="relative shrink-0" style={{ width: 30, height: 30 }}>
           {j.foto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={j.foto} alt={nick} className="rounded-full object-cover w-full h-full"
               style={{ border: tk.circleBorder, boxShadow: tk.circleGlow }} />
           ) : (
             <div className="rounded-full w-full h-full flex items-center justify-center font-black"
-              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 13 }}>
+              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 10 }}>
               {j.numero}
             </div>
           )}
@@ -943,14 +943,14 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
         style={{ opacity: dimmed ? 0.5 : 1 }}
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
-        <div className="relative shrink-0" style={{ width: 40, height: 40 }}>
+        <div className="relative shrink-0" style={{ width: 30, height: 30 }}>
           {j.foto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={j.foto} alt={nick} className="rounded-full object-cover w-full h-full"
               style={{ border: tk.circleBorder, boxShadow: tk.circleGlow }} />
           ) : (
             <div className="rounded-full w-full h-full flex items-center justify-center font-black"
-              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 13 }}>
+              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 10 }}>
               {j.numero}
             </div>
           )}
@@ -1852,9 +1852,9 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden">
-          {/* Formation field */}
-          <div className="w-[300px] shrink-0 flex flex-col ml-8">
+        <div className="flex flex-1 min-h-0 overflow-hidden items-start justify-center">
+          {/* Formation field — centered */}
+          <div className="w-[300px] shrink-0 flex flex-col">
             <div className="shrink-0 flex flex-row items-center justify-center gap-3 px-2 pt-2 pb-1.5 border-b border-border/15">
               <FormationPickerDialog
                 value={tatica.formacao}
@@ -1875,7 +1875,7 @@ export function TacticsTab() {
             </div>
           </div>
           {/* Players panel */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-16">
+          <div className="shrink-0 flex flex-col overflow-hidden ml-8">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
