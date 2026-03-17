@@ -1220,13 +1220,29 @@ function FormationShape({ formation }: { formation: string }) {
 
 // ─── Formation Picker Dialog ──────────────────────────────────────────────────
 
-function FormationPickerDialog({ value, onChange }: {
+function FormationPickerDialog({ value, onChange, sidebar = false }: {
   value: string
   onChange: (f: string) => void
+  sidebar?: boolean
 }) {
   const [open, setOpen] = useState(false)
   return (
     <>
+      {sidebar ? (
+        <button onClick={() => setOpen(true)}
+          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.04] group">
+          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.22)" }}>Formation</span>
+          <div className="flex flex-col items-center gap-[3px] my-1">
+            {value.split("-").map((seg, i) => (
+              <span key={i} className="text-[13px] font-black font-mono leading-none"
+                style={{ color: i === 0 ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.82)" }}>
+                {seg}
+              </span>
+            ))}
+          </div>
+          <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.18)" }} />
+        </button>
+      ) : (
       <button
         onClick={() => setOpen(true)}
         className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border transition-all text-[10px] font-bold hover:border-white/25"
@@ -1236,6 +1252,7 @@ function FormationPickerDialog({ value, onChange }: {
         <span>{value}</span>
         <ChevronDown className="w-3 h-3 opacity-50" />
       </button>
+      )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
@@ -1443,27 +1460,38 @@ function TRow({ children }: { children: React.ReactNode }) {
   return <div className="flex gap-1 flex-wrap">{children}</div>
 }
 
-function MentalityDropdown({ value, onChange }: {
+function MentalityDropdown({ value, onChange, sidebar = false }: {
   value: TacticaConfig["mentalidade"]
   onChange: (v: TacticaConfig["mentalidade"]) => void
+  sidebar?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const opt = MENTALITY_OPTIONS.find(o => o.value === value) ?? MENTALITY_OPTIONS[2]
   return (
     <div className="relative">
-      <button
-        onClick={() => setOpen(p => !p)}
-        className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border transition-all text-[10px] font-bold"
-        style={{ borderColor: opt.color + "66", background: opt.color + "18", color: opt.color }}
-      >
-        <div className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.color }} />
-        <span>{opt.label}</span>
-        <ChevronDown className="w-3 h-3 opacity-60" />
-      </button>
+      {sidebar ? (
+        <button onClick={() => setOpen(p => !p)}
+          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.04]">
+          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.22)" }}>Mentality</span>
+          <div className="w-2.5 h-2.5 rounded-full my-1" style={{ background: opt.color, boxShadow: `0 0 8px ${opt.color}99` }} />
+          <span className="text-[9px] font-bold text-center leading-tight" style={{ color: opt.color }}>{opt.label}</span>
+          <ChevronDown className="w-3 h-3 mt-1" style={{ color: opt.color + "88" }} />
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(p => !p)}
+          className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border transition-all text-[10px] font-bold"
+          style={{ borderColor: opt.color + "66", background: opt.color + "18", color: opt.color }}
+        >
+          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.color }} />
+          <span>{opt.label}</span>
+          <ChevronDown className="w-3 h-3 opacity-60" />
+        </button>
+      )}
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full mt-1 z-50 rounded-xl p-1.5 min-w-[170px]"
+          <div className={`absolute z-50 rounded-xl p-1.5 min-w-[170px] ${sidebar ? "left-full top-0 ml-1" : "left-0 top-full mt-1"}`}
             style={{ background: "#0d0f14", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)" }}>
             {MENTALITY_OPTIONS.map(o => (
               <button key={o.value}
@@ -1770,15 +1798,6 @@ export function TacticsTab() {
   const [tab, setTab] = useState<TabMode>("overview")
   const [arrowType] = useState<TacticArrowType>("run")
   const fieldRef = useRef<HTMLDivElement>(null)
-  const controlsBarRef = useRef<HTMLDivElement>(null)
-  const [controlsBarHeight, setControlsBarHeight] = useState(0)
-  useEffect(() => {
-    if (!controlsBarRef.current) return
-    const obs = new ResizeObserver(() => setControlsBarHeight(controlsBarRef.current?.offsetHeight ?? 0))
-    obs.observe(controlsBarRef.current)
-    setControlsBarHeight(controlsBarRef.current.offsetHeight)
-    return () => obs.disconnect()
-  }, [])
   const uid = useId()
 
   useEffect(() => {
@@ -1919,29 +1938,30 @@ export function TacticsTab() {
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
         <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
-          {/* Coluna do campo — controls acima + campo abaixo */}
-          <div className="w-[300px] shrink-0 flex flex-col h-full">
-            <div ref={controlsBarRef} className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15">
-              <FormationPickerDialog
-                value={tatica.formacao}
-                onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
-              />
-              <MentalityDropdown
-                value={tatica.mentalidade}
-                onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
-              />
-            </div>
-            <div ref={fieldRef} className="flex-1 min-h-0">
-              <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
-                selectedArrowType={arrowType}
-                slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
-                onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
-                slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
-                onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
-            </div>
+          {/* Sidebar esquerdo: Formation + Mentality */}
+          <div className="shrink-0 w-[68px] flex flex-col border-r border-border/10"
+            style={{ background: "rgba(0,0,0,0.18)" }}>
+            <FormationPickerDialog sidebar
+              value={tatica.formacao}
+              onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
+            />
+            <div className="h-px mx-3" style={{ background: "rgba(255,255,255,0.05)" }} />
+            <MentalityDropdown sidebar
+              value={tatica.mentalidade}
+              onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
+            />
           </div>
-          {/* Painéis XI / Bench / Not Selected — alinhados com o início do campo */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-[76px]" style={{ paddingTop: controlsBarHeight }}>
+          {/* Campo */}
+          <div ref={fieldRef} className="w-[300px] shrink-0 h-full">
+            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
+              selectedArrowType={arrowType}
+              slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+              onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
+              slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
+              onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+          </div>
+          {/* Painéis XI / Bench / Not Selected */}
+          <div className="shrink-0 flex flex-col overflow-hidden ml-[76px]">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
