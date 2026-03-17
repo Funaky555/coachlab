@@ -1329,15 +1329,18 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
             <g key={slot.slotKey} transform={`translate(${slot.x},${slot.y})`} style={{ cursor: "grab" }}>
               <circle r={R} fill={isGK ? "#111111" : color + "99"} stroke={color} strokeWidth={2} />
               <text textAnchor="middle" dominantBaseline="central"
-                fill="white" fontSize={jogador?.alcunha ? 10 * scale : 13 * scale} fontWeight="800"
-                style={{ pointerEvents: "none", userSelect: "none" }}>
+                fill="white" fontSize={jogador?.alcunha ? 13 * scale : 14 * scale} fontWeight="900"
+                fontFamily="Inter, system-ui, sans-serif"
+                style={{ pointerEvents: "none", userSelect: "none" }}
+                stroke="rgba(0,0,0,0.5)" strokeWidth={1.5 * scale} paintOrder="stroke">
                 {jogador ? (jogador.alcunha?.substring(0, 6) ?? String(jogador.numero)) : slot.label}
               </text>
               {jogador && (
                 <text textAnchor="middle" dominantBaseline="hanging"
-                  y={22 * scale} fill="white" fontSize={8 * scale} fontWeight="600"
+                  y={23 * scale} fill="white" fontSize={9 * scale} fontWeight="700"
+                  fontFamily="Inter, system-ui, sans-serif"
                   style={{ pointerEvents: "none", userSelect: "none" }}
-                  stroke="rgba(0,0,0,0.7)" strokeWidth={3 * scale} paintOrder="stroke">
+                  stroke="rgba(0,0,0,0.8)" strokeWidth={3.5 * scale} paintOrder="stroke">
                   {(jogador.alcunha || jogador.nome?.split(" ").pop() || "").substring(0, 10)}
                 </text>
               )}
@@ -1931,7 +1934,7 @@ export function TacticsTab() {
                 onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
             </div>
             {/* Players panel — começa na mesma linha do campo */}
-            <div className="shrink-0 flex flex-col overflow-hidden ml-4">
+            <div className="shrink-0 flex flex-col overflow-hidden ml-[76px]">
               <BenchPanel jogadores={jogadores} tatica={tatica}
                 onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
             </div>
