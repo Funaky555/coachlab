@@ -898,19 +898,19 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
         className="flex flex-col items-center gap-1 py-0.5 px-1 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5"
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
-        <div className="relative shrink-0" style={{ width: 28, height: 28 }}>
+        <div className="relative shrink-0" style={{ width: 40, height: 40 }}>
           {j.foto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={j.foto} alt={nick} className="rounded-full object-cover w-full h-full"
               style={{ border: tk.circleBorder, boxShadow: tk.circleGlow }} />
           ) : (
             <div className="rounded-full w-full h-full flex items-center justify-center font-black"
-              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 10 }}>
+              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 13 }}>
               {j.numero}
             </div>
           )}
           <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 font-black rounded-sm px-0.5"
-            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 5, lineHeight: "9px", minWidth: 11, textAlign: "center" }}>
+            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 6, lineHeight: "10px", minWidth: 13, textAlign: "center" }}>
             {j.posicoes[0]}
           </div>
         </div>
@@ -943,19 +943,19 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
         style={{ opacity: dimmed ? 0.5 : 1 }}
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
-        <div className="relative shrink-0" style={{ width: 28, height: 28 }}>
+        <div className="relative shrink-0" style={{ width: 40, height: 40 }}>
           {j.foto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={j.foto} alt={nick} className="rounded-full object-cover w-full h-full"
               style={{ border: tk.circleBorder, boxShadow: tk.circleGlow }} />
           ) : (
             <div className="rounded-full w-full h-full flex items-center justify-center font-black"
-              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 10 }}>
+              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 13 }}>
               {j.numero}
             </div>
           )}
           <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 font-black rounded-sm px-0.5"
-            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 5, lineHeight: "9px", minWidth: 11, textAlign: "center" }}>
+            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 6, lineHeight: "10px", minWidth: 13, textAlign: "center" }}>
             {j.posicoes[0]}
           </div>
         </div>
@@ -995,7 +995,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">Starting XI</span>
           <span className="ml-auto text-[7px] font-mono text-[#00D66C]/50">{starters.length}/11</span>
         </div>
-        <div className="flex flex-col flex-1 justify-between">
+        <div className="flex flex-col gap-1 overflow-y-auto">
           {starters.map(({ slot, jogador: j }) => (
             <StarterRow key={slot.posicao} slot={slot} j={j} />
           ))}
@@ -1021,7 +1021,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           <span className="text-[7px] font-black uppercase tracking-[0.15em] text-white/40">Bench</span>
           <span className="ml-auto text-[7px] font-mono text-white/25">{bench.length}</span>
         </div>
-        <div className="flex flex-col flex-1 justify-between">
+        <div className="flex flex-col gap-1 overflow-y-auto">
           {bench.map(j => (
             <PlayerRow key={j.id} j={j} source="bench" onRowExclude={() => onExclude(j.id)} />
           ))}
@@ -1045,7 +1045,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           <span className="text-[7px] font-black uppercase tracking-[0.15em]" style={{ color: "rgba(255,80,80,0.7)" }}>Not Selected</span>
           <span className="ml-auto text-[7px] font-mono" style={{ color: "rgba(255,80,80,0.4)" }}>{notSelected.length}</span>
         </div>
-        <div className="flex flex-col flex-1 justify-between">
+        <div className="flex flex-col gap-1 overflow-y-auto">
           {notSelected.map(j => (
             <PlayerRow key={j.id} j={j} source="notSelected" onRowInclude={() => onInclude(j.id)} />
           ))}
