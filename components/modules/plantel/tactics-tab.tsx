@@ -953,7 +953,7 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
     <div className="flex h-full overflow-hidden" style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.18) 0%,rgba(0,0,0,0.04) 100%)" }}>
 
       {/* ── XI INICIAL — coluna única, linha a linha, preenche altura ── */}
-      <div className="flex-1 min-w-0 overflow-hidden p-2 flex flex-col">
+      <div className="w-[150px] shrink-0 overflow-hidden p-2 flex flex-col">
         <div className="flex items-center gap-1.5 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(0,214,108,0.22)" }}>
           <div className="w-1 h-3 rounded-full bg-[#00D66C]" style={{ boxShadow: "0 0 6px #00D66C" }} />
           <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">XI Inicial</span>
@@ -1613,7 +1613,7 @@ export function TacticsTab() {
         </div>
 
         {/* ── DIREITA: Bench — ocupa até ao limite direito do ecrã ── */}
-        <div className="flex-1 min-w-[220px] max-w-[360px] flex flex-col overflow-hidden ml-10">
+        <div className="shrink-0 flex flex-col overflow-hidden ml-16">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
 
