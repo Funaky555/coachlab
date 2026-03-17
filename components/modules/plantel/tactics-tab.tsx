@@ -1218,11 +1218,33 @@ function FormationPickerDialog({ value, onChange }: {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 h-7 px-3 rounded-lg border border-border/40 bg-background/60 hover:bg-background/90 transition-all"
+        className="flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all relative overflow-hidden group"
+        style={{
+          background: "linear-gradient(135deg, rgba(0,214,108,0.08), rgba(139,92,246,0.05))",
+          borderColor: "rgba(0,214,108,0.3)",
+          boxShadow: "0 0 14px rgba(0,214,108,0.1), inset 0 1px 0 rgba(255,255,255,0.05)",
+          minWidth: 130,
+        }}
       >
-        <span className="text-[10px] font-black uppercase tracking-wider">Formation</span>
-        <span className="text-[10px] font-mono text-muted-foreground">{value}</span>
-        <ChevronDown className="w-3 h-3 text-muted-foreground" />
+        {/* Hover glow */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-xl"
+          style={{ background: "radial-gradient(circle at 50% 50%, rgba(0,214,108,0.12), transparent 70%)" }} />
+        {/* Mini field preview */}
+        <div className="shrink-0 overflow-hidden rounded" style={{ width: 22, height: 34 }}>
+          <div style={{ transform: "scale(0.275)", transformOrigin: "top left", width: 80, height: 122 }}>
+            <FormationShape formation={value} />
+          </div>
+        </div>
+        {/* Text */}
+        <div className="flex flex-col items-start gap-0.5 flex-1 min-w-0">
+          <span className="text-[7px] font-black uppercase tracking-[0.18em] leading-none"
+            style={{ color: "rgba(0,214,108,0.55)" }}>Formation</span>
+          <span className="text-[14px] font-black font-mono leading-none whitespace-nowrap"
+            style={{ color: "#00D66C", textShadow: "0 0 10px rgba(0,214,108,0.5)" }}>
+            {value.replace(/^1-/, "")}
+          </span>
+        </div>
+        <ChevronDown className="w-3 h-3 shrink-0" style={{ color: "rgba(0,214,108,0.5)" }} />
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
