@@ -205,6 +205,9 @@ export interface TacticaConfig {
   phase1Overrides?: Record<string, { x: number; y: number }>
   phase2Overrides?: Record<string, { x: number; y: number }>
   phase3Overrides?: Record<string, { x: number; y: number }>
+  oop_phase1Overrides?: Record<string, { x: number; y: number }>
+  oop_phase2Overrides?: Record<string, { x: number; y: number }>
+  oop_phase3Overrides?: Record<string, { x: number; y: number }>
   mentalidade_oop: "very_defensive" | "defensive" | "balanced" | "offensive" | "very_offensive"
   formacao_oop?: string
   // Tactical Settings
@@ -227,6 +230,30 @@ export interface TacticaConfig {
   wrPosition?: "open" | "inside"
   wlPosition?: "open" | "inside"
   notSelected?: string[]
+  strategy?: {
+    playingStyle: string[]
+    pressingIntensity: "high" | "mid" | "low"
+    pressingTriggers: string
+    buildUpGK: string
+    buildUpCB: string
+    buildUpMF: string
+    attackingPrinciples: string[]
+    attackingTriggers: string
+    defensiveLine: "low" | "medium" | "high"
+    offsideTrap: boolean
+    markingType: "zonal" | "man-to-man" | "mixed"
+    defensiveInstructions: string
+    setpieceAttackCorners: string
+    setpieceAttackFreeKicks: string
+    setpieceDefenseCorners: string
+    setpieceDefenseFreeKicks: string
+    transitionToDefenseType: string[]
+    transitionToDefenseNotes: string
+    transitionToAttackType: string[]
+    transitionToAttackNotes: string
+    opponentKeyPlayers: string
+    matchNotes: string
+  }
 }
 
 // --- Set Pieces ---
@@ -481,6 +508,9 @@ function getDefaultTatica(): TacticaConfig {
     phase1Overrides: {},
     phase2Overrides: {},
     phase3Overrides: {},
+    oop_phase1Overrides: {},
+    oop_phase2Overrides: {},
+    oop_phase3Overrides: {},
     mentalidade_oop: "balanced",
     formacao_oop: "1-4-3-3",
     attackingWidth: "medium",
@@ -502,6 +532,30 @@ function getDefaultTatica(): TacticaConfig {
     wrPosition: "open",
     wlPosition: "open",
     notSelected: [],
+    strategy: {
+      playingStyle: [],
+      pressingIntensity: "mid",
+      pressingTriggers: "",
+      buildUpGK: "",
+      buildUpCB: "",
+      buildUpMF: "",
+      attackingPrinciples: [],
+      attackingTriggers: "",
+      defensiveLine: "medium",
+      offsideTrap: false,
+      markingType: "zonal",
+      defensiveInstructions: "",
+      setpieceAttackCorners: "",
+      setpieceAttackFreeKicks: "",
+      setpieceDefenseCorners: "",
+      setpieceDefenseFreeKicks: "",
+      transitionToDefenseType: [],
+      transitionToDefenseNotes: "",
+      transitionToAttackType: [],
+      transitionToAttackNotes: "",
+      opponentKeyPlayers: "",
+      matchNotes: "",
+    },
   }
 }
 

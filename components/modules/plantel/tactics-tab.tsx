@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback, useId } from "react"
+import React, { useState, useEffect, useRef, useCallback, useId } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Camera, RotateCcw, ChevronDown } from "lucide-react"
 import {
@@ -1252,15 +1252,22 @@ function FormationPickerDialog({ value, onChange }: {
 
 // ─── Mini Pitch SVG (Construction Phases) ─────────────────────────────────────
 
-function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides }: {
+function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formacaoOverride, mentalidadeOverride }: {
   tatica: TacticaConfig
   jogadores: Jogador[]
   overrides: Record<string, { x: number; y: number }>
   onUpdateOverrides: (o: Record<string, { x: number; y: number }>) => void
+  formacaoOverride?: string
+  mentalidadeOverride?: TacticaConfig["mentalidade"]
 }) {
   const svgRef = useRef<SVGSVGElement>(null)
   const draggingRef = useRef<string | null>(null)
-  const slotPositions = computeSlotPositions(tatica.formacao, tatica.mentalidade, tatica, overrides)
+  const slotPositions = computeSlotPositions(
+    formacaoOverride ?? tatica.formacao,
+    mentalidadeOverride ?? tatica.mentalidade,
+    tatica,
+    overrides
+  )
   const scale = 1.0
 
   function svgCoords(e: React.PointerEvent): { x: number; y: number } {
@@ -1490,14 +1497,254 @@ function LeftTacticsPanel({ tatica, onUpdate, tab }: {
   )
 }
 
+// ─── Strategy helpers ─────────────────────────────────────────────────────────
+
+type StrategyData = NonNullable<TacticaConfig["strategy"]>
+
+function getDefaultStrategy(): StrategyData {
+  return {
+    playingStyle: [],
+    pressingIntensity: "mid",
+    pressingTriggers: "",
+    buildUpGK: "",
+    buildUpCB: "",
+    buildUpMF: "",
+    attackingPrinciples: [],
+    attackingTriggers: "",
+    defensiveLine: "medium",
+    offsideTrap: false,
+    markingType: "zonal",
+    defensiveInstructions: "",
+    setpieceAttackCorners: "",
+    setpieceAttackFreeKicks: "",
+    setpieceDefenseCorners: "",
+    setpieceDefenseFreeKicks: "",
+    transitionToDefenseType: [],
+    transitionToDefenseNotes: "",
+    transitionToAttackType: [],
+    transitionToAttackNotes: "",
+    opponentKeyPlayers: "",
+    matchNotes: "",
+  }
+}
+
+// ─── StrategyPanel ────────────────────────────────────────────────────────────
+
+function StrategyPanel({ strat, onUpdate }: {
+  strat: StrategyData
+  onUpdate: (partial: Partial<StrategyData>) => void
+}) {
+  const s = { ...getDefaultStrategy(), ...strat }
+
+  function toggleArr<K extends keyof StrategyData>(key: K, val: string) {
+    const arr = (s[key] as string[]) ?? []
+    onUpdate({ [key]: arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val] } as Partial<StrategyData>)
+  }
+
+  // Chip toggle button
+  function Chip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+    return (
+      <button onClick={onClick}
+        className="px-2 py-0.5 rounded-full text-[9px] font-bold border transition-all"
+        style={active
+          ? { background: "#FF6B35", borderColor: "#FF6B35", color: "#000" }
+          : { background: "transparent", borderColor: "rgba(255,107,53,0.35)", color: "rgba(255,107,53,0.7)" }}>
+        {label}
+      </button>
+    )
+  }
+
+  // 3-option toggle
+  function Toggle3<T extends string>({ value, options, onChange, color }: {
+    value: T; options: { value: T; label: string }[]; onChange: (v: T) => void; color: string
+  }) {
+    return (
+      <div className="flex gap-1">
+        {options.map(o => (
+          <button key={o.value} onClick={() => onChange(o.value)}
+            className="px-2 py-0.5 rounded text-[9px] font-bold border transition-all"
+            style={value === o.value
+              ? { background: color + "30", borderColor: color, color }
+              : { background: "transparent", borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  function Card({ title, color, children }: { title: string; color: string; children: React.ReactNode }) {
+    return (
+      <div className="rounded-xl border border-border/20 bg-background/40 backdrop-blur p-3 flex flex-col gap-2"
+        style={{ borderColor: color + "25" }}>
+        <div className="text-[8px] font-black uppercase tracking-widest" style={{ color }}>{title}</div>
+        {children}
+      </div>
+    )
+  }
+
+  function Area({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+    return (
+      <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        className="w-full rounded-lg border border-border/20 bg-background/60 px-2 py-1.5 text-[10px] text-foreground/80
+          placeholder:text-muted-foreground/40 resize-none focus:outline-none focus:border-[#FF6B35]/40 transition-all"
+        rows={3} />
+    )
+  }
+
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto p-4">
+      <div className="grid grid-cols-3 gap-3 max-w-[1200px]">
+
+        {/* ── Match Setup ── */}
+        <div className="col-span-3">
+          <Card title="Match Setup" color="#FF6B35">
+            <div className="flex flex-wrap gap-1.5 items-center">
+              <span className="text-[8px] text-muted-foreground/60 mr-1">Playing Style:</span>
+              {["Possession", "Counter-attack", "High Press", "Direct Play", "Low Block", "Build-up", "Set Pieces"].map(v => (
+                <Chip key={v} label={v} active={s.playingStyle.includes(v)} onClick={() => toggleArr("playingStyle", v)} />
+              ))}
+            </div>
+            <div className="flex items-center gap-3 mt-1">
+              <span className="text-[8px] text-muted-foreground/60">Pressing Block:</span>
+              <Toggle3
+                value={s.pressingIntensity}
+                options={[{ value: "high", label: "High Press" }, { value: "mid", label: "Mid Block" }, { value: "low", label: "Low Block" }]}
+                onChange={v => onUpdate({ pressingIntensity: v })}
+                color="#FF6B35"
+              />
+            </div>
+          </Card>
+        </div>
+
+        {/* ── Build-up & Structure ── */}
+        <Card title="Build-up & Structure" color="#00D66C">
+          <label className="text-[8px] text-muted-foreground/50">GK Distribution</label>
+          <Area value={s.buildUpGK} onChange={v => onUpdate({ buildUpGK: v })} placeholder="Short passes to CBs, play out from back..." />
+          <label className="text-[8px] text-muted-foreground/50">CB / Defender Build-up</label>
+          <Area value={s.buildUpCB} onChange={v => onUpdate({ buildUpCB: v })} placeholder="CBs split wide, carry ball if space..." />
+          <label className="text-[8px] text-muted-foreground/50">Midfield Connections</label>
+          <Area value={s.buildUpMF} onChange={v => onUpdate({ buildUpMF: v })} placeholder="6 drops deep, 8+10 rotate..." />
+        </Card>
+
+        {/* ── Attacking Principles ── */}
+        <Card title="Attacking Principles" color="#FF2222">
+          <div className="flex flex-wrap gap-1.5">
+            {["Wide overloads", "Central combinations", "Direct forward runs", "Late arrivals in box", "Crosses", "1v1 duels", "Set piece variations"].map(v => (
+              <Chip key={v} label={v} active={s.attackingPrinciples.includes(v)} onClick={() => toggleArr("attackingPrinciples", v)} />
+            ))}
+          </div>
+          <label className="text-[8px] text-muted-foreground/50 mt-1">Key Attacking Triggers</label>
+          <Area value={s.attackingTriggers} onChange={v => onUpdate({ attackingTriggers: v })} placeholder="Enter box with at least 3 players, switch play when..." />
+        </Card>
+
+        {/* ── Defensive Organization ── */}
+        <Card title="Defensive Organization" color="#0066FF">
+          <div className="flex items-center gap-3">
+            <span className="text-[8px] text-muted-foreground/60">Defensive Line:</span>
+            <Toggle3
+              value={s.defensiveLine}
+              options={[{ value: "low", label: "Deep" }, { value: "medium", label: "Mid" }, { value: "high", label: "High" }]}
+              onChange={v => onUpdate({ defensiveLine: v })}
+              color="#0066FF"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[8px] text-muted-foreground/60">Offside Trap:</span>
+            <button onClick={() => onUpdate({ offsideTrap: !s.offsideTrap })}
+              className="px-2 py-0.5 rounded text-[9px] font-bold border transition-all"
+              style={s.offsideTrap
+                ? { background: "#0066FF30", borderColor: "#0066FF", color: "#0066FF" }
+                : { background: "transparent", borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
+              {s.offsideTrap ? "ON" : "OFF"}
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[8px] text-muted-foreground/60">Marking:</span>
+            <Toggle3
+              value={s.markingType}
+              options={[{ value: "zonal", label: "Zonal" }, { value: "man-to-man", label: "Man-to-Man" }, { value: "mixed", label: "Mixed" }]}
+              onChange={v => onUpdate({ markingType: v })}
+              color="#0066FF"
+            />
+          </div>
+          <Area value={s.defensiveInstructions} onChange={v => onUpdate({ defensiveInstructions: v })} placeholder="Press triggers: back pass to GK, lateral pass to CB..." />
+        </Card>
+
+        {/* ── Set Pieces Attack ── */}
+        <Card title="Set Pieces · Attack" color="#8B5CF6">
+          <label className="text-[8px] text-muted-foreground/50">Corners</label>
+          <Area value={s.setpieceAttackCorners} onChange={v => onUpdate({ setpieceAttackCorners: v })} placeholder="Near-post run, far-post runner, short corner option..." />
+          <label className="text-[8px] text-muted-foreground/50">Free Kicks</label>
+          <Area value={s.setpieceAttackFreeKicks} onChange={v => onUpdate({ setpieceAttackFreeKicks: v })} placeholder="Direct shot if <25m, layoff option, wall pass..." />
+        </Card>
+
+        {/* ── Set Pieces Defense ── */}
+        <Card title="Set Pieces · Defense" color="#8B5CF6">
+          <label className="text-[8px] text-muted-foreground/50">Corners</label>
+          <Area value={s.setpieceDefenseCorners} onChange={v => onUpdate({ setpieceDefenseCorners: v })} placeholder="Zonal marking, 2 on posts, 1 at edge..." />
+          <label className="text-[8px] text-muted-foreground/50">Free Kicks</label>
+          <Area value={s.setpieceDefenseFreeKicks} onChange={v => onUpdate({ setpieceDefenseFreeKicks: v })} placeholder="Wall of 4+1, GK commands crosses..." />
+        </Card>
+
+        {/* ── Transition to Defense ── */}
+        <Card title="Transition · Attack → Defense" color="#FF8C00">
+          <div className="flex flex-wrap gap-1.5">
+            {["Immediate Press", "Delay & Reorganize", "Drop to Shape", "Counter-press 5s"].map(v => (
+              <Chip key={v} label={v} active={s.transitionToDefenseType.includes(v)} onClick={() => toggleArr("transitionToDefenseType", v)} />
+            ))}
+          </div>
+          <Area value={s.transitionToDefenseNotes} onChange={v => onUpdate({ transitionToDefenseNotes: v })} placeholder="When losing ball in final third, 2 players press immediately..." />
+        </Card>
+
+        {/* ── Transition to Attack ── */}
+        <Card title="Transition · Defense → Attack" color="#FF8C00">
+          <div className="flex flex-wrap gap-1.5">
+            {["Direct / Fast", "Controlled Build-up", "Switch Play", "Long Ball Forward"].map(v => (
+              <Chip key={v} label={v} active={s.transitionToAttackType.includes(v)} onClick={() => toggleArr("transitionToAttackType", v)} />
+            ))}
+          </div>
+          <Area value={s.transitionToAttackNotes} onChange={v => onUpdate({ transitionToAttackNotes: v })} placeholder="Win ball → look forward immediately, if not available recycle..." />
+        </Card>
+
+        {/* ── Opponent Key Players ── */}
+        <Card title="Opponent Key Threats" color="#CC00FF">
+          <textarea value={s.opponentKeyPlayers} onChange={e => onUpdate({ opponentKeyPlayers: e.target.value })}
+            placeholder="#10 — creative, man-mark with DM&#10;#9 — physical, don't give space behind CBs&#10;#7 — pace on right flank, double up..."
+            className="w-full rounded-lg border border-border/20 bg-background/60 px-2 py-1.5 text-[10px] text-foreground/80
+              placeholder:text-muted-foreground/40 resize-none focus:outline-none focus:border-[#CC00FF]/40 transition-all"
+            rows={6} />
+        </Card>
+
+        {/* ── Pressing Triggers ── */}
+        <Card title="Pressing Triggers" color="#00D66C">
+          <Area value={s.pressingTriggers} onChange={v => onUpdate({ pressingTriggers: v })} placeholder="Back pass to GK, CB receives under pressure, long ball clearance, throw-in in our half..." />
+        </Card>
+
+        {/* ── Match Notes ── */}
+        <div className="col-span-3">
+          <Card title="Match Notes" color="#FF6B35">
+            <textarea value={s.matchNotes} onChange={e => onUpdate({ matchNotes: e.target.value })}
+              placeholder="Pre-match briefing notes, weather conditions, key messages to the team..."
+              className="w-full rounded-lg border border-border/20 bg-background/60 px-2 py-1.5 text-[10px] text-foreground/80
+                placeholder:text-muted-foreground/40 resize-none focus:outline-none focus:border-[#FF6B35]/40 transition-all"
+              rows={4} />
+          </Card>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
 // ─── Main TacticsTab ──────────────────────────────────────────────────────────
 
-type TabMode = "ip" | "oop"
+type TabMode = "overview" | "ip" | "oop" | "strategy"
 
 export function TacticsTab() {
   const [jogadores, setJogadores] = useState<Jogador[]>([])
   const [tatica, setTatica] = useState<TacticaConfig>(getTatica())
-  const [tab, setTab] = useState<TabMode>("ip")
+  const [tab, setTab] = useState<TabMode>("overview")
   const [arrowType] = useState<TacticArrowType>("run")
   const fieldRef = useRef<HTMLDivElement>(null)
   const uid = useId()
@@ -1547,26 +1794,46 @@ export function TacticsTab() {
     update({ titulares: [], ipSlotOverrides: {}, oopSlotOverrides: {} })
   }
 
-  // Non-narrowed tab reference for tabBtnClass comparisons inside conditional blocks
+  // Non-narrowed tab reference
   const activeTab = tab as string
 
-  const tabBtnClass = (active: boolean) =>
-    `px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all ${
-      active
-        ? "bg-[#00D66C]/20 border-[#00D66C] text-[#00D66C]"
-        : "border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60"
-    }`
+  // Tab button helper with per-tab accent colors
+  const TAB_COLORS: Record<string, string> = {
+    overview: "#8B5CF6",
+    ip: "#00D66C",
+    oop: "#0066FF",
+    strategy: "#FF6B35",
+  }
+  function tabBtn(label: string, tabName: TabMode) {
+    const active = activeTab === tabName
+    const color = TAB_COLORS[tabName]
+    return (
+      <button key={tabName} onClick={() => setTab(tabName)}
+        className="px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all"
+        style={active
+          ? { color, borderColor: color, backgroundColor: color + "20" }
+          : { borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.45)" }}>
+        {label}
+      </button>
+    )
+  }
+
+  // Strategy state helper
+  const strat = tatica.strategy ?? {}
+  function updateStrategy(partial: Partial<NonNullable<TacticaConfig["strategy"]>>) {
+    update({ strategy: { ...getDefaultStrategy(), ...strat, ...partial } })
+  }
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* ── TOP BAR ── */}
       <div className="flex items-center h-[42px] border-b border-border/20 shrink-0 px-3">
-        {/* Tabs centralizados */}
         <div className="flex-1 flex justify-center gap-1">
-          <button className={tabBtnClass(activeTab === "ip")}   onClick={() => setTab("ip")}>Offensive Organization</button>
-          <button className={tabBtnClass(activeTab === "oop")}  onClick={() => setTab("oop")}>Defensive Organization</button>
+          {tabBtn("Overview", "overview")}
+          {tabBtn("Offensive Organization", "ip")}
+          {tabBtn("Defensive Organization", "oop")}
+          {tabBtn("Strategy", "strategy")}
         </div>
-        {/* PNG + Reset à direita */}
         <div className="flex items-center gap-1.5 shrink-0">
           <button onClick={handleExport}
             className="flex items-center gap-1 px-2 py-1 rounded border border-[#8B5CF6]/40 text-[#8B5CF6] hover:bg-[#8B5CF6]/10 transition-all"
@@ -1583,113 +1850,102 @@ export function TacticsTab() {
         </div>
       </div>
 
-      {/* ── MAIN AREA ── */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
-
-        {/* ── ESQUERDA: 3 fases juntas à esquerda ── */}
-        <div className="shrink-0 flex flex-col border-r border-border/15">
-          {/* Section label */}
-          <div className="shrink-0 py-1 border-b border-border/10 text-center"
-            style={{ background: "linear-gradient(to right, rgba(0,214,108,0.04), transparent)" }}>
-            <span className="text-[7px] font-black uppercase tracking-widest text-[#00D66C]/60">
-              {activeTab === "ip" ? "Offensive Organization | Construction Phases" : "Defensive Organization | Construction Phases"}
-            </span>
-          </div>
-          {/* 3 mini campos lado a lado — com pequeno gap */}
-          <div className="flex gap-[10px] p-2 items-start">
-
-            {/* Phase 1 */}
-            <div className="shrink-0 w-[175px] flex flex-col">
-              <div className="shrink-0 py-1 text-center">
-                <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
-                  1<sup>st</sup> Phase
-                </span>
-              </div>
-              <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
-                <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                  overrides={tatica.phase1Overrides ?? {}}
-                  onUpdateOverrides={o => update({ phase1Overrides: o })} />
-              </div>
+      {/* ── OVERVIEW ── Formation + Players ── */}
+      {activeTab === "overview" && (
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          {/* Formation field */}
+          <div className="w-[300px] shrink-0 flex flex-col ml-8">
+            <div className="shrink-0 flex flex-row items-center justify-center gap-3 px-2 pt-2 pb-1.5 border-b border-border/15">
+              <FormationPickerDialog
+                value={tatica.formacao}
+                onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
+              />
+              <MentalityDropdown
+                value={tatica.mentalidade}
+                onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
+              />
             </div>
-
-            {/* Phase 2 */}
-            <div className="shrink-0 w-[175px] flex flex-col">
-              <div className="shrink-0 py-1 text-center">
-                <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
-                  2<sup>nd</sup> Phase
-                </span>
-              </div>
-              <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
-                <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                  overrides={tatica.phase2Overrides ?? {}}
-                  onUpdateOverrides={o => update({ phase2Overrides: o })} />
-              </div>
-            </div>
-
-            {/* Phase 3 */}
-            <div className="shrink-0 w-[175px] flex flex-col">
-              <div className="shrink-0 py-1 text-center">
-                <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
-                  3<sup>rd</sup> Phase
-                </span>
-              </div>
-              <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
-                <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                  overrides={tatica.phase3Overrides ?? {}}
-                  onUpdateOverrides={o => update({ phase3Overrides: o })} />
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Gap entre phases e formation (~2.5cm) */}
-        <div className="w-24 shrink-0" />
-
-        {/* ── CENTRO-DIREITA: Formation field ── */}
-        <div className="w-[260px] shrink-0 flex flex-col">
-          {/* Controlos acima do campo */}
-          <div className="shrink-0 flex flex-row items-center justify-center gap-3 px-2 pt-2 pb-1.5 border-b border-border/15">
-            <FormationPickerDialog
-              value={tab === "ip" ? tatica.formacao : (tatica.formacao_oop ?? tatica.formacao)}
-              onChange={f => tab === "ip"
-                ? update({ formacao: f, ipSlotOverrides: {} })
-                : update({ formacao_oop: f, oopSlotOverrides: {} })}
-            />
-            <MentalityDropdown
-              value={tab === "ip" ? tatica.mentalidade : (tatica.mentalidade_oop ?? "balanced")}
-              onChange={v => tab === "ip"
-                ? update({ mentalidade: v, ipSlotOverrides: {} })
-                : update({ mentalidade_oop: v, oopSlotOverrides: {} })}
-            />
-          </div>
-          {/* Campo principal */}
-          <div ref={fieldRef} className="flex-1 min-h-0">
-            {tab === "ip" && (
+            <div ref={fieldRef} className="flex-1 min-h-0">
               <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
                 selectedArrowType={arrowType}
                 slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
                 onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
                 slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
                 onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
-            )}
-            {tab === "oop" && (
-              <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="oop"
-                selectedArrowType={arrowType}
-                slotOverridesForMode={tatica.oopSlotOverrides ?? {}}
-                onUpdateOverrides={overrides => update({ oopSlotOverrides: overrides })}
-                slotLabelOverridesForMode={tatica.oopSlotLabelOverrides ?? {}}
-                onUpdateLabelOverrides={o => update({ oopSlotLabelOverrides: o })} />
-            )}
+            </div>
+          </div>
+          {/* Players panel */}
+          <div className="shrink-0 flex flex-col overflow-hidden ml-16">
+            <BenchPanel jogadores={jogadores} tatica={tatica}
+              onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
         </div>
+      )}
 
-        {/* ── DIREITA: XI + Bench + Not Selected ── */}
-        <div className="shrink-0 flex flex-col overflow-hidden ml-24">
-          <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
+      {/* ── OFFENSIVE ORGANIZATION ── 3 Offensive Construction Phases ── */}
+      {activeTab === "ip" && (
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          <div className="flex flex-col p-4">
+            <div className="shrink-0 mb-2 text-center">
+              <span className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
+                Offensive Organization · Construction Phases
+              </span>
+            </div>
+            <div className="flex gap-4 items-start">
+              {(["phase1Overrides", "phase2Overrides", "phase3Overrides"] as const).map((key, i) => (
+                <div key={key} className="shrink-0 w-[175px] flex flex-col">
+                  <div className="shrink-0 py-1 text-center">
+                    <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
+                      {i === 0 ? <>1<sup>st</sup></> : i === 1 ? <>2<sup>nd</sup></> : <>3<sup>rd</sup></>} Phase
+                    </span>
+                  </div>
+                  <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
+                    <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                      overrides={tatica[key] ?? {}}
+                      onUpdateOverrides={o => update({ [key]: o })} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+      )}
 
-      </div>
+      {/* ── DEFENSIVE ORGANIZATION ── 3 Defensive Construction Phases ── */}
+      {activeTab === "oop" && (
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          <div className="flex flex-col p-4">
+            <div className="shrink-0 mb-2 text-center">
+              <span className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#0066FF" }}>
+                Defensive Organization · Construction Phases
+              </span>
+            </div>
+            <div className="flex gap-4 items-start">
+              {(["oop_phase1Overrides", "oop_phase2Overrides", "oop_phase3Overrides"] as const).map((key, i) => (
+                <div key={key} className="shrink-0 w-[175px] flex flex-col">
+                  <div className="shrink-0 py-1 text-center">
+                    <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#0066FF" }}>
+                      {i === 0 ? <>1<sup>st</sup></> : i === 1 ? <>2<sup>nd</sup></> : <>3<sup>rd</sup></>} Phase
+                    </span>
+                  </div>
+                  <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
+                    <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                      overrides={tatica[key] ?? {}}
+                      onUpdateOverrides={o => update({ [key]: o })}
+                      formacaoOverride={tatica.formacao_oop ?? tatica.formacao}
+                      mentalidadeOverride={tatica.mentalidade_oop ?? tatica.mentalidade} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── STRATEGY ── */}
+      {activeTab === "strategy" && (
+        <StrategyPanel strat={strat as NonNullable<TacticaConfig["strategy"]>} onUpdate={updateStrategy} />
+      )}
 
       {/* Hidden uid usage to suppress lint warning */}
       <span className="hidden" aria-hidden>{uid}</span>
