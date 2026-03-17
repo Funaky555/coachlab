@@ -837,7 +837,6 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
   onUnassign: (jogadorId: string) => void
 }) {
   const SETOR_ORDER: Record<string, number> = { GR: 0, DEF: 1, MED: 2, AV: 3 }
-  const SETOR_LABEL: Record<string, string> = { GR: "GK", DEF: "DEF", MED: "MID", AV: "ATT" }
 
   const assignedIds = new Set(tatica.titulares.map(s => s.jogadorId).filter(Boolean))
 
@@ -857,102 +856,130 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
       (SETOR_ORDER[getPrimarySetor(b.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3)
     )
 
-  function groupBySector<T>(items: T[], getSetor: (i: T) => string): { setor: string; items: T[] }[] {
-    const groups: { setor: string; items: T[] }[] = []
-    for (const item of items) {
-      const s = getSetor(item)
-      const g = groups.find(x => x.setor === s)
-      if (g) g.items.push(item)
-      else groups.push({ setor: s, items: [item] })
-    }
-    return groups
+  const nickOf = (j: Jogador) => {
+    const a = j.alcunha?.trim()
+    return a || displayName(j)
   }
 
-  const starterGroups = groupBySector(starters, ({ jogador: j }) =>
-    getPrimarySetor(j.posicoes as Parameters<typeof getPrimarySetor>[0])
-  )
-  const benchGroups = groupBySector(bench, j =>
-    getPrimarySetor(j.posicoes as Parameters<typeof getPrimarySetor>[0])
-  )
-
-  const nickOf = (j: Jogador) => j.alcunha?.trim() || displayName(j)
+  const PlayerPin = ({
+    j, size, onDragStart,
+  }: { j: Jogador; size: number; onDragStart: (e: React.DragEvent) => void }) => {
+    const color = sectorColor(j.posicoes)
+    const nick = nickOf(j).split(" ").slice(0, 2).join(" ")
+    const fontSize = Math.round(size * 0.36)
+    return (
+      <div
+        draggable
+        onDragStart={onDragStart}
+        className="flex flex-col items-center cursor-grab active:cursor-grabbing select-none"
+        style={{ gap: 3 }}
+        title={`${nickOf(j)} · ${j.posicoes[0]}`}
+      >
+        {/* Circle */}
+        <div className="relative shrink-0" style={{ width: size, height: size }}>
+          {j.foto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={j.foto} alt={nick}
+              className="rounded-full object-cover w-full h-full"
+              style={{ border: `2px solid ${color}`, boxShadow: `0 0 8px ${color}80, 0 0 18px ${color}30` }}
+            />
+          ) : (
+            <div
+              className="rounded-full w-full h-full flex items-center justify-center font-black"
+              style={{
+                background: `radial-gradient(circle at 35% 30%, ${color}50, ${color}18)`,
+                border: `2px solid ${color}99`,
+                boxShadow: `0 0 8px ${color}60, 0 0 18px ${color}25`,
+                color,
+                fontSize,
+              }}
+            >
+              {j.numero}
+            </div>
+          )}
+          {/* Position badge */}
+          <div
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 font-black rounded-sm px-0.5"
+            style={{
+              background: color,
+              color: "#000",
+              fontSize: Math.max(5, Math.round(size * 0.14)),
+              lineHeight: "10px",
+              minWidth: 14,
+              textAlign: "center",
+              letterSpacing: "0.01em",
+            }}
+          >
+            {j.posicoes[0]}
+          </div>
+        </div>
+        {/* Nickname */}
+        <span
+          className="text-center font-semibold leading-tight truncate"
+          style={{ fontSize: Math.max(6, Math.round(size * 0.2)), color: color + "cc", maxWidth: size + 10 }}
+        >
+          {nick}
+        </span>
+      </div>
+    )
+  }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden p-1.5 gap-0">
+    <div className="flex h-full overflow-hidden" style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.18) 0%,rgba(0,0,0,0.04) 100%)" }}>
 
-      {/* ── TITULARES por setor ── */}
-      <div className="text-[7px] font-black uppercase tracking-widest text-[#00D66C]/60 shrink-0 mb-0.5">
-        Em Campo · {starters.length}
-      </div>
-      <div className="shrink-0 flex flex-col">
-        {starterGroups.map(({ setor, items }) => (
-          <div key={setor}>
-            <div className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground/40 px-0.5 mt-1 mb-0.5">
-              {SETOR_LABEL[setor] ?? setor}
-            </div>
-            {items.map(({ slot, jogador: j }) => {
-              const color = sectorColor(j.posicoes)
-              return (
-                <div key={slot.posicao} draggable
-                  onDragStart={e => { e.dataTransfer.setData("jogadorId", j.id); onUnassign(j.id) }}
-                  className="flex items-center gap-1.5 px-1 py-0.5 rounded hover:bg-background/60 cursor-grab transition-all"
-                  style={{ borderLeft: `2px solid ${color}` }}>
-                  {j.foto ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={j.foto} alt={nickOf(j)} className="w-5 h-5 rounded-full object-cover shrink-0" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0"
-                      style={{ background: color + "33", color }}>
-                      {j.numero}
-                    </div>
-                  )}
-                  <span className="text-[9px] font-semibold truncate leading-tight">{nickOf(j)}</span>
-                </div>
-              )
-            })}
-          </div>
-        ))}
-        {starters.length === 0 && (
-          <div className="text-[8px] text-muted-foreground/40 py-1 px-1">Arrastra jogadores para o campo</div>
-        )}
-      </div>
-
-      {/* ── BANCO por setor ── */}
-      <div className="border-t border-border/20 mt-1.5 pt-1 shrink-0 flex flex-col">
-        <div className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/50 mb-0.5">
-          Banco · {bench.length}
+      {/* ── XI INICIAL ── */}
+      <div className="flex-1 min-w-0 overflow-y-auto p-2 flex flex-col">
+        {/* Header */}
+        <div className="flex items-center gap-1.5 mb-2 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(0,214,108,0.22)" }}>
+          <div className="w-1 h-3 rounded-full bg-[#00D66C]" style={{ boxShadow: "0 0 6px #00D66C" }} />
+          <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">XI Inicial</span>
+          <span className="ml-auto text-[7px] font-mono text-[#00D66C]/50">{starters.length}/11</span>
         </div>
-        {benchGroups.map(({ setor, items }) => (
-          <div key={setor}>
-            <div className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground/40 px-0.5 mt-1 mb-0.5">
-              {SETOR_LABEL[setor] ?? setor}
+        {/* 2-col grid */}
+        <div className="grid grid-cols-2 gap-x-2 gap-y-3">
+          {starters.map(({ slot, jogador: j }) => (
+            <PlayerPin
+              key={slot.posicao}
+              j={j}
+              size={44}
+              onDragStart={e => { e.dataTransfer.setData("jogadorId", j.id); onUnassign(j.id) }}
+            />
+          ))}
+          {starters.length === 0 && (
+            <div className="col-span-2 text-[8px] text-muted-foreground/30 text-center py-6">
+              Arrasta jogadores para o campo
             </div>
-            {items.map(j => {
-              const color = sectorColor(j.posicoes)
-              return (
-                <div key={j.id} draggable
-                  onDragStart={e => e.dataTransfer.setData("jogadorId", j.id)}
-                  className="flex items-center gap-1.5 px-1 py-0.5 rounded hover:bg-background/60 cursor-grab transition-all"
-                  style={{ borderLeft: `2px solid ${color}` }}>
-                  {j.foto ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={j.foto} alt={nickOf(j)} className="w-4 h-4 rounded-full object-cover shrink-0" />
-                  ) : (
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0"
-                      style={{ background: color + "33", color }}>
-                      {j.numero}
-                    </div>
-                  )}
-                  <span className="text-[8px] font-medium truncate leading-tight">{nickOf(j)}</span>
-                </div>
-              )
-            })}
-          </div>
-        ))}
-        {bench.length === 0 && (
-          <div className="text-[8px] text-muted-foreground/40 py-1 px-1">Todos em campo</div>
-        )}
+          )}
+        </div>
       </div>
+
+      {/* Divider */}
+      <div className="w-px shrink-0" style={{ background: "linear-gradient(to bottom,transparent,rgba(255,255,255,0.08),transparent)" }} />
+
+      {/* ── BANCO ── */}
+      <div className="w-[80px] shrink-0 overflow-y-auto p-1.5 flex flex-col">
+        {/* Header */}
+        <div className="flex items-center gap-1 mb-2 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="w-1 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />
+          <span className="text-[7px] font-black uppercase tracking-[0.15em] text-white/40">Banco</span>
+          <span className="ml-auto text-[7px] font-mono text-white/25">{bench.length}</span>
+        </div>
+        <div className="flex flex-col gap-2.5">
+          {bench.map(j => (
+            <PlayerPin
+              key={j.id}
+              j={j}
+              size={34}
+              onDragStart={e => e.dataTransfer.setData("jogadorId", j.id)}
+            />
+          ))}
+          {bench.length === 0 && (
+            <div className="text-[7px] text-muted-foreground/30 text-center py-3">—</div>
+          )}
+        </div>
+      </div>
+
     </div>
   )
 }
@@ -1578,7 +1605,7 @@ export function TacticsTab() {
         <div className="w-20 shrink-0" />
 
         {/* ── DIREITA: Bench (pinos com foto) ── */}
-        <div className="w-[160px] shrink-0 flex flex-col overflow-hidden">
+        <div className="w-[260px] shrink-0 flex flex-col overflow-hidden">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
 
