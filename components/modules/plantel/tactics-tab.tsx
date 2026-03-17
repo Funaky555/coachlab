@@ -1567,8 +1567,8 @@ export function TacticsTab() {
       <div className="flex items-center h-[42px] border-b border-border/20 shrink-0 px-3">
         {/* Tabs centralizados */}
         <div className="flex-1 flex justify-center gap-1">
-          <button className={tabBtnClass(activeTab === "ip")}   onClick={() => setTab("ip")}>In Possession</button>
-          <button className={tabBtnClass(activeTab === "oop")}  onClick={() => setTab("oop")}>Out of Possession</button>
+          <button className={tabBtnClass(activeTab === "ip")}   onClick={() => setTab("ip")}>Offensive Organization</button>
+          <button className={tabBtnClass(activeTab === "oop")}  onClick={() => setTab("oop")}>Defensive Organization</button>
         </div>
         {/* PNG + Reset à direita */}
         <div className="flex items-center gap-1.5 shrink-0">
@@ -1653,7 +1653,7 @@ export function TacticsTab() {
         {/* ── CENTRO-DIREITA: Formation field ── */}
         <div className="w-[260px] shrink-0 flex flex-col">
           {/* Controlos acima do campo */}
-          <div className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15 flex-wrap">
+          <div className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15 flex-nowrap">
             <FormationPickerDialog
               value={tab === "ip" ? tatica.formacao : (tatica.formacao_oop ?? tatica.formacao)}
               onChange={f => tab === "ip"
@@ -1689,7 +1689,7 @@ export function TacticsTab() {
         </div>
 
         {/* ── DIREITA: XI + Bench + Not Selected ── */}
-        <div className="shrink-0 flex flex-col overflow-hidden ml-12">
+        <div className="shrink-0 flex flex-col overflow-hidden ml-16">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
         </div>
 
