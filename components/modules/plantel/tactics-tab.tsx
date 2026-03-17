@@ -1772,6 +1772,15 @@ export function TacticsTab() {
   const [tab, setTab] = useState<TabMode>("overview")
   const [arrowType] = useState<TacticArrowType>("run")
   const fieldRef = useRef<HTMLDivElement>(null)
+  const controlsBarRef = useRef<HTMLDivElement>(null)
+  const [controlsBarHeight, setControlsBarHeight] = useState(0)
+  useEffect(() => {
+    if (!controlsBarRef.current) return
+    const obs = new ResizeObserver(() => setControlsBarHeight(controlsBarRef.current?.offsetHeight ?? 0))
+    obs.observe(controlsBarRef.current)
+    setControlsBarHeight(controlsBarRef.current.offsetHeight)
+    return () => obs.disconnect()
+  }, [])
   const uid = useId()
 
   useEffect(() => {
@@ -1914,7 +1923,7 @@ export function TacticsTab() {
         <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
           {/* Coluna do campo — controls acima + campo abaixo */}
           <div className="w-[300px] shrink-0 flex flex-col h-full">
-            <div className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15">
+            <div ref={controlsBarRef} className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15">
               <FormationPickerDialog
                 value={tatica.formacao}
                 onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
@@ -1933,8 +1942,8 @@ export function TacticsTab() {
                 onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
             </div>
           </div>
-          {/* Painéis XI / Bench / Not Selected */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-[76px]">
+          {/* Painéis XI / Bench / Not Selected — alinhados com o início do campo */}
+          <div className="shrink-0 flex flex-col overflow-hidden ml-[76px]" style={{ paddingTop: controlsBarHeight }}>
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
