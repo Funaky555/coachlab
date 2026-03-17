@@ -1612,11 +1612,8 @@ export function TacticsTab() {
           </div>
         </div>
 
-        {/* Gap entre formation e bench */}
-        <div className="w-6 shrink-0" />
-
-        {/* ── DIREITA: Bench (pinos com foto) ── */}
-        <div className="w-[290px] shrink-0 flex flex-col overflow-hidden">
+        {/* ── DIREITA: Bench — ocupa até ao limite direito do ecrã ── */}
+        <div className="flex-1 min-w-[220px] max-w-[360px] flex flex-col overflow-hidden ml-2">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
 
