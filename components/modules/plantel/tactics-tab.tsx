@@ -1033,9 +1033,9 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
       {/* Divider */}
       <div className="w-px shrink-0" style={{ background: "linear-gradient(to bottom,transparent,rgba(255,80,80,0.2),transparent)" }} />
 
-      {/* ── NOT SELECTED — 2 colunas, drop zone ── */}
+      {/* ── NOT SELECTED — 3 colunas, drop zone ── */}
       <div
-        className="w-[220px] shrink-0 overflow-hidden p-1.5 flex flex-col"
+        className="w-[330px] shrink-0 overflow-hidden p-1.5 flex flex-col"
         onDrop={e => handleColDrop(e, "notSelected")}
         onDragOver={e => e.preventDefault()}
       >
@@ -1044,12 +1044,12 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           <span className="text-[7px] font-black uppercase tracking-[0.15em]" style={{ color: "rgba(255,80,80,0.7)" }}>Not Selected</span>
           <span className="ml-auto text-[7px] font-mono" style={{ color: "rgba(255,80,80,0.4)" }}>{notSelected.length}</span>
         </div>
-        <div className="grid grid-cols-2 gap-1 content-start overflow-y-auto">
+        <div className="grid grid-cols-3 gap-1 content-start overflow-y-auto">
           {notSelected.map(j => (
             <PlayerRow key={j.id} j={j} source="notSelected" onRowInclude={() => onInclude(j.id)} />
           ))}
           {notSelected.length === 0 && (
-            <div className="col-span-2 text-[7px] text-center py-3" style={{ color: "rgba(255,80,80,0.3)" }}>—</div>
+            <div className="col-span-3 text-[7px] text-center py-3" style={{ color: "rgba(255,80,80,0.3)" }}>—</div>
           )}
         </div>
       </div>
