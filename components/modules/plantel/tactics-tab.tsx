@@ -1789,35 +1789,39 @@ export function TacticsTab() {
     const svg = el.querySelector("svg")
     if (!svg) return
     try {
-      // Inline /23.png as base64 so SVG renders correctly off-DOM
-      const resp = await fetch("/23.png")
-      const imgBlob = await resp.blob()
-      const b64 = await new Promise<string>(res => {
-        const r = new FileReader()
-        r.onload = () => res(r.result as string)
-        r.readAsDataURL(imgBlob)
+      const OUT_W = 510, OUT_H = 780
+      const out = document.createElement("canvas")
+      out.width = OUT_W
+      out.height = OUT_H
+      const ctx = out.getContext("2d")!
+
+      // 1. Draw field image directly (reliable, no base64 needed)
+      await new Promise<void>((resolve, reject) => {
+        const fieldImg = new window.Image()
+        fieldImg.onload = () => { ctx.drawImage(fieldImg, 0, 0, OUT_W, OUT_H); resolve() }
+        fieldImg.onerror = reject
+        fieldImg.src = "/23.png"
       })
+
+      // 2. Draw SVG pins on top (remove <image> bg to avoid double render)
       const clone = svg.cloneNode(true) as SVGElement
-      const imgEl = clone.querySelector("image")
-      if (imgEl) imgEl.setAttribute("href", b64)
-      // Force explicit viewBox dimensions on clone
-      clone.setAttribute("width", "510")
-      clone.setAttribute("height", "780")
-      const svgStr = new XMLSerializer().serializeToString(clone)
-      const svgBlobUrl = URL.createObjectURL(new Blob([svgStr], { type: "image/svg+xml" }))
-      const img = new window.Image()
-      img.onload = () => {
-        const out = document.createElement("canvas")
-        out.width = 510
-        out.height = 780
-        out.getContext("2d")!.drawImage(img, 0, 0, 510, 780)
-        const link = document.createElement("a")
-        link.download = `tatica-${tatica.formacao}-${tab}.png`
-        link.href = out.toDataURL("image/png")
-        link.click()
-        URL.revokeObjectURL(svgBlobUrl)
-      }
-      img.src = svgBlobUrl
+      clone.setAttribute("width", String(OUT_W))
+      clone.setAttribute("height", String(OUT_H))
+      clone.querySelector("image")?.remove()
+      const svgBlobUrl = URL.createObjectURL(
+        new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml" })
+      )
+      await new Promise<void>((resolve, reject) => {
+        const svgImg = new window.Image()
+        svgImg.onload = () => { ctx.drawImage(svgImg, 0, 0, OUT_W, OUT_H); URL.revokeObjectURL(svgBlobUrl); resolve() }
+        svgImg.onerror = reject
+        svgImg.src = svgBlobUrl
+      })
+
+      const link = document.createElement("a")
+      link.download = `tatica-${tatica.formacao}-${tab}.png`
+      link.href = out.toDataURL("image/png")
+      link.click()
     } catch (e) {
       console.warn("Export failed", e)
     }
