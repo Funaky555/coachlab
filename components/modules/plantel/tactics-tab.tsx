@@ -1911,31 +1911,32 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
-          {/* Campo com controlos sobrepostos no topo */}
-          <div ref={fieldRef} className="relative w-[300px] shrink-0 h-full">
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
-              selectedArrowType={arrowType}
-              slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
-              onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
-              slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
-              onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
-            {/* Formation + Mentality — overlay no topo do campo */}
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 flex flex-row items-center gap-2 z-10 pointer-events-auto">
-              <FormationPickerDialog
-                value={tatica.formacao}
-                onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
-              />
-              <MentalityDropdown
-                value={tatica.mentalidade}
-                onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
-              />
-            </div>
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+          {/* Controls bar — acima do campo e dos menus */}
+          <div className="shrink-0 flex flex-row items-center justify-center gap-3 px-2 pt-2 pb-1.5 border-b border-border/15">
+            <FormationPickerDialog
+              value={tatica.formacao}
+              onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
+            />
+            <MentalityDropdown
+              value={tatica.mentalidade}
+              onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
+            />
           </div>
-          {/* Players panel */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-[76px]">
-            <BenchPanel jogadores={jogadores} tatica={tatica}
-              onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
+          {/* Campo + Painéis */}
+          <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
+            <div ref={fieldRef} className="w-[300px] shrink-0 h-full">
+              <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
+                selectedArrowType={arrowType}
+                slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+                onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
+                slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
+                onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+            </div>
+            <div className="shrink-0 flex flex-col overflow-hidden ml-[76px]">
+              <BenchPanel jogadores={jogadores} tatica={tatica}
+                onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
+            </div>
           </div>
         </div>
       )}
