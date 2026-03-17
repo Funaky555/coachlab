@@ -1613,7 +1613,7 @@ export function TacticsTab() {
         </div>
 
         {/* ── DIREITA: Bench — ocupa até ao limite direito do ecrã ── */}
-        <div className="flex-1 min-w-[220px] max-w-[360px] flex flex-col overflow-hidden ml-2">
+        <div className="flex-1 min-w-[220px] max-w-[360px] flex flex-col overflow-hidden ml-10">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
 
