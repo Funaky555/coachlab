@@ -926,23 +926,23 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
         style={{ gap: 2 }}
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
-        <div className="relative shrink-0" style={{ width: 30, height: 30 }}>
+        <div className="relative shrink-0" style={{ width: 42, height: 42 }}>
           {j.foto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={j.foto} alt={nick} className="rounded-full object-cover w-full h-full"
               style={{ border: tk.circleBorder, boxShadow: tk.circleGlow }} />
           ) : (
             <div className="rounded-full w-full h-full flex items-center justify-center font-black"
-              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 10 }}>
+              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 14 }}>
               {j.numero}
             </div>
           )}
           <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 font-black rounded-sm px-0.5"
-            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 5, lineHeight: "9px", minWidth: 12, textAlign: "center" }}>
+            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 6, lineHeight: "10px", minWidth: 14, textAlign: "center" }}>
             {j.posicoes[0]}
           </div>
         </div>
-        <span className="text-center font-semibold leading-tight truncate" style={{ fontSize: 7, color: tk.nameColor, maxWidth: 38 }}>
+        <span className="text-center font-semibold leading-tight truncate" style={{ fontSize: 8, color: tk.nameColor, maxWidth: 52 }}>
           {nick}
         </span>
       </div>
@@ -975,7 +975,7 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
       <div className="w-px shrink-0" style={{ background: "linear-gradient(to bottom,transparent,rgba(255,255,255,0.09),transparent)" }} />
 
       {/* ── BANCO — 2 sub-colunas ── */}
-      <div className="w-[110px] shrink-0 overflow-hidden p-1.5 flex flex-col">
+      <div className="w-[140px] shrink-0 overflow-hidden p-1.5 flex flex-col">
         <div className="flex items-center gap-1 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="w-1 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />
           <span className="text-[7px] font-black uppercase tracking-[0.15em] text-white/40">Banco</span>
@@ -1613,7 +1613,7 @@ export function TacticsTab() {
         </div>
 
         {/* ── DIREITA: Bench — ocupa até ao limite direito do ecrã ── */}
-        <div className="shrink-0 flex flex-col overflow-hidden ml-16">
+        <div className="shrink-0 flex flex-col overflow-hidden ml-24">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
 
