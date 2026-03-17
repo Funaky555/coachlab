@@ -1230,17 +1230,17 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
     <>
       {sidebar ? (
         <button onClick={() => setOpen(true)}
-          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.04] group">
-          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.22)" }}>Formation</span>
+          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.07] group">
+          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.55)" }}>Formation</span>
           <div className="flex flex-col items-center gap-[3px] my-1">
             {value.split("-").map((seg, i) => (
               <span key={i} className="text-[13px] font-black font-mono leading-none"
-                style={{ color: i === 0 ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.82)" }}>
+                style={{ color: i === 0 ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.95)" }}>
                 {seg}
               </span>
             ))}
           </div>
-          <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.18)" }} />
+          <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.45)" }} />
         </button>
       ) : (
       <button
@@ -1471,8 +1471,8 @@ function MentalityDropdown({ value, onChange, sidebar = false }: {
     <div className="relative">
       {sidebar ? (
         <button onClick={() => setOpen(p => !p)}
-          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.04]">
-          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.22)" }}>Mentality</span>
+          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.07]">
+          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.55)" }}>Mentality</span>
           <div className="w-2.5 h-2.5 rounded-full my-1" style={{ background: opt.color, boxShadow: `0 0 8px ${opt.color}99` }} />
           <span className="text-[9px] font-bold text-center leading-tight" style={{ color: opt.color }}>{opt.label}</span>
           <ChevronDown className="w-3 h-3 mt-1" style={{ color: opt.color + "88" }} />
@@ -1937,15 +1937,15 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
+        <div className="flex flex-1 min-h-0 overflow-x-auto overflow-y-hidden">
           {/* Sidebar esquerdo: Formation + Mentality */}
-          <div className="shrink-0 w-[68px] flex flex-col border-r border-border/10"
-            style={{ background: "rgba(0,0,0,0.18)" }}>
+          <div className="shrink-0 w-[72px] flex flex-col"
+            style={{ background: "rgba(6,10,18,0.96)", borderRight: "1px solid rgba(255,255,255,0.14)" }}>
             <FormationPickerDialog sidebar
               value={tatica.formacao}
               onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
             />
-            <div className="h-px mx-3" style={{ background: "rgba(255,255,255,0.05)" }} />
+            <div className="h-px mx-2" style={{ background: "rgba(255,255,255,0.1)" }} />
             <MentalityDropdown sidebar
               value={tatica.mentalidade}
               onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
@@ -1961,7 +1961,7 @@ export function TacticsTab() {
               onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
           </div>
           {/* Painéis XI / Bench / Not Selected */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-[76px]">
+          <div className="shrink-0 flex flex-col overflow-hidden ml-4">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
