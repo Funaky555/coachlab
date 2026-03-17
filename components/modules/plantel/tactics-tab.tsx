@@ -889,7 +889,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
     const numColor = isGK ? "#ffffff" : raw
     const badgeBg = isGK ? "#ffffff" : raw
     const badgeText = "#000"
-    const nameColor = isGK ? "rgba(255,255,255,0.88)" : raw + "cc"
+    const nameColor = "rgba(255,255,255,0.88)"
     return { accent, circleBg, circleBorder, circleGlow, numColor, badgeBg, badgeText, nameColor }
   }
 
@@ -937,7 +937,6 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
   }) => {
     const tk = pinTokens(j)
     const nick = nickOf(j).split(" ").slice(0, 2).join(" ")
-    const dimmed = source === "notSelected"
     return (
       <div
         draggable
@@ -946,7 +945,6 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           e.dataTransfer.setData("source", source)
         }}
         className="flex flex-col items-center gap-1 py-0.5 px-1 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5 group"
-        style={{ opacity: dimmed ? 0.5 : 1 }}
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
         <div className="relative shrink-0" style={{ width: 30, height: 30 }}>
