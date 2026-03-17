@@ -1786,9 +1786,26 @@ export function TacticsTab() {
   async function handleExport() {
     const el = fieldRef.current
     if (!el) return
+    // Export the PitchSVG canvas directly at a fixed output size
+    const src = el.querySelector("canvas") as HTMLCanvasElement | null
+    if (src) {
+      const OUT_W = 560
+      const OUT_H = Math.round(OUT_W * (src.height / src.width))
+      const out = document.createElement("canvas")
+      out.width = OUT_W
+      out.height = OUT_H
+      const ctx = out.getContext("2d")!
+      ctx.drawImage(src, 0, 0, OUT_W, OUT_H)
+      const link = document.createElement("a")
+      link.download = `tatica-${tatica.formacao}-${tab}.png`
+      link.href = out.toDataURL("image/png")
+      link.click()
+      return
+    }
+    // Fallback: html2canvas
     try {
       const { default: html2canvas } = await import("html2canvas")
-      const canvas = await html2canvas(el, { backgroundColor: null, scale: 2, useCORS: true, allowTaint: true, logging: false })
+      const canvas = await html2canvas(el, { backgroundColor: null, scale: 1, useCORS: true, allowTaint: true, logging: false })
       const link = document.createElement("a")
       link.download = `tatica-${tatica.formacao}-${tab}.png`
       link.href = canvas.toDataURL("image/png")
