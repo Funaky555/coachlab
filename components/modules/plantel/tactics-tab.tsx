@@ -895,7 +895,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
       <div
         draggable
         onDragStart={e => { e.dataTransfer.setData("jogadorId", j.id); onUnassign(j.id) }}
-        className="flex items-center gap-2 px-1 py-0.5 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5"
+        className="flex flex-col items-center gap-1 py-0.5 px-1 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5"
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
         <div className="relative shrink-0" style={{ width: 28, height: 28 }}>
@@ -914,10 +914,8 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
             {j.posicoes[0]}
           </div>
         </div>
-        <div className="flex flex-col min-w-0 flex-1">
-          <span className="text-[10px] font-bold truncate leading-tight" style={{ color: tk.nameColor }}>{nick}</span>
-          <span className="text-[8px] font-medium opacity-60" style={{ color: tk.accent }}>{j.posicoes[0]}</span>
-        </div>
+        <span className="text-[8px] font-semibold text-center leading-tight truncate w-full"
+          style={{ color: tk.nameColor }}>{nick}</span>
       </div>
     )
   }
@@ -941,7 +939,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           e.dataTransfer.setData("jogadorId", j.id)
           e.dataTransfer.setData("source", source)
         }}
-        className="flex items-center gap-2 px-1 py-0.5 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5 group"
+        className="flex flex-col items-center gap-1 py-0.5 px-1 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5 group"
         style={{ opacity: dimmed ? 0.5 : 1 }}
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
@@ -961,10 +959,8 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
             {j.posicoes[0]}
           </div>
         </div>
-        <div className="flex flex-col min-w-0 flex-1">
-          <span className="text-[10px] font-bold truncate leading-tight" style={{ color: tk.nameColor }}>{nick}</span>
-          <span className="text-[8px] font-medium opacity-60" style={{ color: tk.accent }}>{j.posicoes[0]}</span>
-        </div>
+        <span className="text-[8px] font-semibold text-center leading-tight truncate w-full"
+          style={{ color: tk.nameColor }}>{nick}</span>
         {/* Botão de ação ao hover */}
         {onRowExclude && (
           <button onClick={e => { e.stopPropagation(); onRowExclude() }}
@@ -996,7 +992,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
       <div className="w-[128px] shrink-0 overflow-hidden p-2 flex flex-col">
         <div className="flex items-center gap-1.5 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(0,214,108,0.22)" }}>
           <div className="w-1 h-3 rounded-full bg-[#00D66C]" style={{ boxShadow: "0 0 6px #00D66C" }} />
-          <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">XI Inicial</span>
+          <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">Starting XI</span>
           <span className="ml-auto text-[7px] font-mono text-[#00D66C]/50">{starters.length}/11</span>
         </div>
         <div className="flex flex-col flex-1 justify-between">
@@ -1022,7 +1018,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
       >
         <div className="flex items-center gap-1 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="w-1 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />
-          <span className="text-[7px] font-black uppercase tracking-[0.15em] text-white/40">Banco</span>
+          <span className="text-[7px] font-black uppercase tracking-[0.15em] text-white/40">Bench</span>
           <span className="ml-auto text-[7px] font-mono text-white/25">{bench.length}</span>
         </div>
         <div className="flex flex-col flex-1 justify-between">
@@ -1653,7 +1649,7 @@ export function TacticsTab() {
         {/* ── CENTRO-DIREITA: Formation field ── */}
         <div className="w-[260px] shrink-0 flex flex-col">
           {/* Controlos acima do campo */}
-          <div className="shrink-0 flex flex-row items-center gap-2 px-2 pt-2 pb-1.5 border-b border-border/15 flex-nowrap">
+          <div className="shrink-0 flex flex-row items-center justify-center gap-3 px-2 pt-2 pb-1.5 border-b border-border/15">
             <FormationPickerDialog
               value={tab === "ip" ? tatica.formacao : (tatica.formacao_oop ?? tatica.formacao)}
               onChange={f => tab === "ip"
