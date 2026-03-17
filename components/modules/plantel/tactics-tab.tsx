@@ -1647,8 +1647,8 @@ export function TacticsTab() {
           </div>
         </div>
 
-        {/* Gap entre phases e formation */}
-        <div className="w-8 shrink-0" />
+        {/* Gap entre phases e formation (~2.5cm) */}
+        <div className="w-24 shrink-0" />
 
         {/* ── CENTRO-DIREITA: Formation field ── */}
         <div className="w-[260px] shrink-0 flex flex-col">
@@ -1689,7 +1689,7 @@ export function TacticsTab() {
         </div>
 
         {/* ── DIREITA: XI + Bench + Not Selected ── */}
-        <div className="shrink-0 flex flex-col overflow-hidden ml-20">
+        <div className="shrink-0 flex flex-col overflow-hidden ml-12">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
         </div>
 
