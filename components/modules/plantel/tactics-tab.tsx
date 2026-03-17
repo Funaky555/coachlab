@@ -1786,32 +1786,40 @@ export function TacticsTab() {
   async function handleExport() {
     const el = fieldRef.current
     if (!el) return
-    // Export the PitchSVG canvas directly at a fixed output size
-    const src = el.querySelector("canvas") as HTMLCanvasElement | null
-    if (src) {
-      const OUT_W = 560
-      const OUT_H = Math.round(OUT_W * (src.height / src.width))
-      const out = document.createElement("canvas")
-      out.width = OUT_W
-      out.height = OUT_H
-      const ctx = out.getContext("2d")!
-      ctx.drawImage(src, 0, 0, OUT_W, OUT_H)
-      const link = document.createElement("a")
-      link.download = `tatica-${tatica.formacao}-${tab}.png`
-      link.href = out.toDataURL("image/png")
-      link.click()
-      return
-    }
-    // Fallback: html2canvas
+    const svg = el.querySelector("svg")
+    if (!svg) return
     try {
-      const { default: html2canvas } = await import("html2canvas")
-      const canvas = await html2canvas(el, { backgroundColor: null, scale: 1, useCORS: true, allowTaint: true, logging: false })
-      const link = document.createElement("a")
-      link.download = `tatica-${tatica.formacao}-${tab}.png`
-      link.href = canvas.toDataURL("image/png")
-      link.click()
-    } catch {
-      console.warn("html2canvas not available")
+      // Inline /23.png as base64 so SVG renders correctly off-DOM
+      const resp = await fetch("/23.png")
+      const imgBlob = await resp.blob()
+      const b64 = await new Promise<string>(res => {
+        const r = new FileReader()
+        r.onload = () => res(r.result as string)
+        r.readAsDataURL(imgBlob)
+      })
+      const clone = svg.cloneNode(true) as SVGElement
+      const imgEl = clone.querySelector("image")
+      if (imgEl) imgEl.setAttribute("href", b64)
+      // Force explicit viewBox dimensions on clone
+      clone.setAttribute("width", "510")
+      clone.setAttribute("height", "780")
+      const svgStr = new XMLSerializer().serializeToString(clone)
+      const svgBlobUrl = URL.createObjectURL(new Blob([svgStr], { type: "image/svg+xml" }))
+      const img = new window.Image()
+      img.onload = () => {
+        const out = document.createElement("canvas")
+        out.width = 510
+        out.height = 780
+        out.getContext("2d")!.drawImage(img, 0, 0, 510, 780)
+        const link = document.createElement("a")
+        link.download = `tatica-${tatica.formacao}-${tab}.png`
+        link.href = out.toDataURL("image/png")
+        link.click()
+        URL.revokeObjectURL(svgBlobUrl)
+      }
+      img.src = svgBlobUrl
+    } catch (e) {
+      console.warn("Export failed", e)
     }
   }
 
