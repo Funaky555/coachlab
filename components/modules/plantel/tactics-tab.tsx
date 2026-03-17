@@ -1033,9 +1033,9 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
       {/* Divider */}
       <div className="w-px shrink-0" style={{ background: "linear-gradient(to bottom,transparent,rgba(255,80,80,0.2),transparent)" }} />
 
-      {/* ── NOT SELECTED — 1 coluna, drop zone ── */}
+      {/* ── NOT SELECTED — 2 colunas, drop zone ── */}
       <div
-        className="w-[128px] shrink-0 overflow-hidden p-1.5 flex flex-col"
+        className="w-[220px] shrink-0 overflow-hidden p-1.5 flex flex-col"
         onDrop={e => handleColDrop(e, "notSelected")}
         onDragOver={e => e.preventDefault()}
       >
@@ -1044,12 +1044,12 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           <span className="text-[7px] font-black uppercase tracking-[0.15em]" style={{ color: "rgba(255,80,80,0.7)" }}>Not Selected</span>
           <span className="ml-auto text-[7px] font-mono" style={{ color: "rgba(255,80,80,0.4)" }}>{notSelected.length}</span>
         </div>
-        <div className="flex flex-col gap-1 overflow-y-auto">
+        <div className="grid grid-cols-2 gap-1 content-start overflow-y-auto">
           {notSelected.map(j => (
             <PlayerRow key={j.id} j={j} source="notSelected" onRowInclude={() => onInclude(j.id)} />
           ))}
           {notSelected.length === 0 && (
-            <div className="text-[7px] text-center py-3" style={{ color: "rgba(255,80,80,0.3)" }}>—</div>
+            <div className="col-span-2 text-[7px] text-center py-3" style={{ color: "rgba(255,80,80,0.3)" }}>—</div>
           )}
         </div>
       </div>
@@ -1217,36 +1217,21 @@ function FormationPickerDialog({ value, onChange }: {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex flex-col items-start gap-1 px-3 py-2 rounded-xl border transition-all relative group"
+        className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg border transition-all hover:border-white/20"
         style={{
-          background: "linear-gradient(160deg, rgba(255,255,255,0.04), rgba(0,0,0,0.3))",
-          borderColor: "rgba(255,255,255,0.09)",
-          boxShadow: "0 0 0 1px rgba(0,214,108,0.12), inset 0 1px 0 rgba(255,255,255,0.05)",
-          minWidth: 110,
+          background: "rgba(255,255,255,0.04)",
+          borderColor: "rgba(255,255,255,0.11)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+          minWidth: 130,
         }}
       >
-        {/* Hover glow */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-xl"
-          style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(0,214,108,0.08), transparent 70%)" }} />
-        <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-none"
-          style={{ color: "rgba(255,255,255,0.28)" }}>Formation</span>
-        {/* Segmentos coloridos por linha */}
-        <div className="flex items-end gap-[3px]">
-          {value.split("-").map((seg, i) => {
-            const segColors = ["rgba(200,200,200,0.55)", "#0066FF", "#00D66C", "#FF4444", "#FF2222"]
-            const col = segColors[i] ?? "#fff"
-            return (
-              <React.Fragment key={i}>
-                {i > 0 && <span style={{ color: "rgba(255,255,255,0.15)", fontSize: 9, lineHeight: 1, marginBottom: 2 }}>·</span>}
-                <span className="font-black font-mono leading-none"
-                  style={{ color: col, fontSize: i === 0 ? 11 : 16, textShadow: `0 0 8px ${col}70` }}>
-                  {seg}
-                </span>
-              </React.Fragment>
-            )
-          })}
+        <div className="flex flex-col items-start gap-0.5">
+          <span className="text-[7px] font-semibold uppercase tracking-widest leading-none"
+            style={{ color: "rgba(255,255,255,0.3)" }}>Formation</span>
+          <span className="text-[13px] font-black font-mono leading-none"
+            style={{ color: "rgba(255,255,255,0.88)" }}>{value}</span>
         </div>
-        <ChevronDown className="absolute top-2 right-2 w-2.5 h-2.5" style={{ color: "rgba(255,255,255,0.18)" }} />
+        <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
@@ -1814,8 +1799,13 @@ export function TacticsTab() {
   }
 
   function handleReset() {
-    if (!confirm("Retirar os jogadores das tactics?")) return
-    update({ titulares: [], ipSlotOverrides: {}, oopSlotOverrides: {} })
+    if (!confirm("Mover todos os jogadores para Not Selected?")) return
+    update({
+      titulares: [],
+      ipSlotOverrides: {},
+      oopSlotOverrides: {},
+      notSelected: jogadores.map(j => j.id),
+    })
   }
 
   // Non-narrowed tab reference
