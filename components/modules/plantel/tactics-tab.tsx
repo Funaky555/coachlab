@@ -856,69 +856,93 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
       (SETOR_ORDER[getPrimarySetor(b.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3)
     )
 
-  const nickOf = (j: Jogador) => {
-    const a = j.alcunha?.trim()
-    return a || displayName(j)
+  const nickOf = (j: Jogador) => j.alcunha?.trim() || displayName(j)
+
+  // Visual tokens per player — GK gets white treatment on dark bg
+  function pinTokens(j: Jogador) {
+    const raw = sectorColor(j.posicoes)
+    const isGK = raw === "#111111"
+    const accent = isGK ? "#ffffff" : raw
+    const circleBg = isGK
+      ? "radial-gradient(circle at 35% 30%, #444, #1a1a1a)"
+      : `radial-gradient(circle at 35% 30%, ${raw}50, ${raw}18)`
+    const circleBorder = isGK ? "2px solid rgba(255,255,255,0.85)" : `2px solid ${raw}99`
+    const circleGlow = isGK
+      ? "0 0 8px rgba(255,255,255,0.55), 0 0 20px rgba(255,255,255,0.18)"
+      : `0 0 8px ${raw}70, 0 0 20px ${raw}28`
+    const numColor = isGK ? "#ffffff" : raw
+    const badgeBg = isGK ? "#ffffff" : raw
+    const badgeText = "#000"
+    const nameColor = isGK ? "rgba(255,255,255,0.88)" : raw + "cc"
+    return { accent, circleBg, circleBorder, circleGlow, numColor, badgeBg, badgeText, nameColor }
   }
 
-  const PlayerPin = ({
-    j, size, onDragStart,
-  }: { j: Jogador; size: number; onDragStart: (e: React.DragEvent) => void }) => {
-    const color = sectorColor(j.posicoes)
+  // ── Starter row: horizontal (circle | name+pos) ──
+  const StarterRow = ({ slot, j }: { slot: typeof tatica.titulares[0]; j: Jogador }) => {
+    const tk = pinTokens(j)
     const nick = nickOf(j).split(" ").slice(0, 2).join(" ")
-    const fontSize = Math.round(size * 0.36)
     return (
       <div
         draggable
-        onDragStart={onDragStart}
-        className="flex flex-col items-center cursor-grab active:cursor-grabbing select-none"
-        style={{ gap: 3 }}
+        onDragStart={e => { e.dataTransfer.setData("jogadorId", j.id); onUnassign(j.id) }}
+        className="flex items-center gap-2 px-1.5 py-0.5 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5"
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
         {/* Circle */}
-        <div className="relative shrink-0" style={{ width: size, height: size }}>
+        <div className="relative shrink-0" style={{ width: 32, height: 32 }}>
           {j.foto ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={j.foto} alt={nick}
-              className="rounded-full object-cover w-full h-full"
-              style={{ border: `2px solid ${color}`, boxShadow: `0 0 8px ${color}80, 0 0 18px ${color}30` }}
-            />
+            <img src={j.foto} alt={nick} className="rounded-full object-cover w-full h-full"
+              style={{ border: tk.circleBorder, boxShadow: tk.circleGlow }} />
           ) : (
-            <div
-              className="rounded-full w-full h-full flex items-center justify-center font-black"
-              style={{
-                background: `radial-gradient(circle at 35% 30%, ${color}50, ${color}18)`,
-                border: `2px solid ${color}99`,
-                boxShadow: `0 0 8px ${color}60, 0 0 18px ${color}25`,
-                color,
-                fontSize,
-              }}
-            >
+            <div className="rounded-full w-full h-full flex items-center justify-center font-black"
+              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 11 }}>
               {j.numero}
             </div>
           )}
-          {/* Position badge */}
-          <div
-            className="absolute -bottom-1 left-1/2 -translate-x-1/2 font-black rounded-sm px-0.5"
-            style={{
-              background: color,
-              color: "#000",
-              fontSize: Math.max(5, Math.round(size * 0.14)),
-              lineHeight: "10px",
-              minWidth: 14,
-              textAlign: "center",
-              letterSpacing: "0.01em",
-            }}
-          >
+          <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 font-black rounded-sm px-0.5"
+            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 5, lineHeight: "9px", minWidth: 12, textAlign: "center" }}>
             {j.posicoes[0]}
           </div>
         </div>
-        {/* Nickname */}
-        <span
-          className="text-center font-semibold leading-tight truncate"
-          style={{ fontSize: Math.max(6, Math.round(size * 0.2)), color: color + "cc", maxWidth: size + 10 }}
-        >
+        {/* Name */}
+        <div className="flex flex-col min-w-0 flex-1">
+          <span className="text-[10px] font-bold truncate leading-tight" style={{ color: tk.nameColor }}>{nick}</span>
+          <span className="text-[8px] font-medium opacity-60" style={{ color: tk.accent }}>{j.posicoes[0]}</span>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Bench pin: vertical (circle on top, name below) ──
+  const BenchPin = ({ j }: { j: Jogador }) => {
+    const tk = pinTokens(j)
+    const nick = nickOf(j).split(" ")[0]
+    return (
+      <div
+        draggable
+        onDragStart={e => e.dataTransfer.setData("jogadorId", j.id)}
+        className="flex flex-col items-center cursor-grab active:cursor-grabbing select-none"
+        style={{ gap: 2 }}
+        title={`${nickOf(j)} · ${j.posicoes[0]}`}
+      >
+        <div className="relative shrink-0" style={{ width: 30, height: 30 }}>
+          {j.foto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={j.foto} alt={nick} className="rounded-full object-cover w-full h-full"
+              style={{ border: tk.circleBorder, boxShadow: tk.circleGlow }} />
+          ) : (
+            <div className="rounded-full w-full h-full flex items-center justify-center font-black"
+              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 10 }}>
+              {j.numero}
+            </div>
+          )}
+          <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 font-black rounded-sm px-0.5"
+            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 5, lineHeight: "9px", minWidth: 12, textAlign: "center" }}>
+            {j.posicoes[0]}
+          </div>
+        </div>
+        <span className="text-center font-semibold leading-tight truncate" style={{ fontSize: 7, color: tk.nameColor, maxWidth: 38 }}>
           {nick}
         </span>
       </div>
@@ -928,26 +952,19 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
   return (
     <div className="flex h-full overflow-hidden" style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.18) 0%,rgba(0,0,0,0.04) 100%)" }}>
 
-      {/* ── XI INICIAL ── */}
-      <div className="flex-1 min-w-0 overflow-y-auto p-2 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center gap-1.5 mb-2 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(0,214,108,0.22)" }}>
+      {/* ── XI INICIAL — coluna única, linha a linha ── */}
+      <div className="flex-1 min-w-0 overflow-hidden p-2 flex flex-col">
+        <div className="flex items-center gap-1.5 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(0,214,108,0.22)" }}>
           <div className="w-1 h-3 rounded-full bg-[#00D66C]" style={{ boxShadow: "0 0 6px #00D66C" }} />
           <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">XI Inicial</span>
           <span className="ml-auto text-[7px] font-mono text-[#00D66C]/50">{starters.length}/11</span>
         </div>
-        {/* 2-col grid */}
-        <div className="grid grid-cols-2 gap-x-2 gap-y-3">
+        <div className="flex flex-col">
           {starters.map(({ slot, jogador: j }) => (
-            <PlayerPin
-              key={slot.posicao}
-              j={j}
-              size={44}
-              onDragStart={e => { e.dataTransfer.setData("jogadorId", j.id); onUnassign(j.id) }}
-            />
+            <StarterRow key={slot.posicao} slot={slot} j={j} />
           ))}
           {starters.length === 0 && (
-            <div className="col-span-2 text-[8px] text-muted-foreground/30 text-center py-6">
+            <div className="text-[8px] text-muted-foreground/30 text-center py-6 px-2">
               Arrasta jogadores para o campo
             </div>
           )}
@@ -955,27 +972,21 @@ function BenchPanel({ jogadores, tatica, onUnassign }: {
       </div>
 
       {/* Divider */}
-      <div className="w-px shrink-0" style={{ background: "linear-gradient(to bottom,transparent,rgba(255,255,255,0.08),transparent)" }} />
+      <div className="w-px shrink-0" style={{ background: "linear-gradient(to bottom,transparent,rgba(255,255,255,0.09),transparent)" }} />
 
-      {/* ── BANCO ── */}
-      <div className="w-[80px] shrink-0 overflow-y-auto p-1.5 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center gap-1 mb-2 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      {/* ── BANCO — 2 sub-colunas ── */}
+      <div className="w-[110px] shrink-0 overflow-hidden p-1.5 flex flex-col">
+        <div className="flex items-center gap-1 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="w-1 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.3)" }} />
           <span className="text-[7px] font-black uppercase tracking-[0.15em] text-white/40">Banco</span>
           <span className="ml-auto text-[7px] font-mono text-white/25">{bench.length}</span>
         </div>
-        <div className="flex flex-col gap-2.5">
+        <div className="grid grid-cols-2 gap-x-1 gap-y-2.5">
           {bench.map(j => (
-            <PlayerPin
-              key={j.id}
-              j={j}
-              size={34}
-              onDragStart={e => e.dataTransfer.setData("jogadorId", j.id)}
-            />
+            <BenchPin key={j.id} j={j} />
           ))}
           {bench.length === 0 && (
-            <div className="text-[7px] text-muted-foreground/30 text-center py-3">—</div>
+            <div className="col-span-2 text-[7px] text-muted-foreground/30 text-center py-3">—</div>
           )}
         </div>
       </div>
@@ -1605,7 +1616,7 @@ export function TacticsTab() {
         <div className="w-20 shrink-0" />
 
         {/* ── DIREITA: Bench (pinos com foto) ── */}
-        <div className="w-[260px] shrink-0 flex flex-col overflow-hidden">
+        <div className="w-[290px] shrink-0 flex flex-col overflow-hidden">
           <BenchPanel jogadores={jogadores} tatica={tatica} onUnassign={handleUnassign} />
         </div>
 
