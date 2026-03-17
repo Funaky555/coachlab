@@ -1329,10 +1329,18 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
             <g key={slot.slotKey} transform={`translate(${slot.x},${slot.y})`} style={{ cursor: "grab" }}>
               <circle r={R} fill={isGK ? "#111111" : color + "99"} stroke={color} strokeWidth={2} />
               <text textAnchor="middle" dominantBaseline="central"
-                fill={isGK ? "white" : color} fontSize={jogador?.alcunha ? 7 * scale : 9 * scale} fontWeight="800"
+                fill="white" fontSize={jogador?.alcunha ? 10 * scale : 13 * scale} fontWeight="800"
                 style={{ pointerEvents: "none", userSelect: "none" }}>
                 {jogador ? (jogador.alcunha?.substring(0, 6) ?? String(jogador.numero)) : slot.label}
               </text>
+              {jogador && (
+                <text textAnchor="middle" dominantBaseline="hanging"
+                  y={22 * scale} fill="white" fontSize={8 * scale} fontWeight="600"
+                  style={{ pointerEvents: "none", userSelect: "none" }}
+                  stroke="rgba(0,0,0,0.7)" strokeWidth={3 * scale} paintOrder="stroke">
+                  {(jogador.alcunha || jogador.nome?.split(" ").pop() || "").substring(0, 10)}
+                </text>
+              )}
             </g>
           )
         })}
@@ -1900,20 +1908,21 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
-          {/* Formation field — centered */}
-          <div className="w-[300px] shrink-0 flex flex-col h-full">
-            <div className="shrink-0 flex flex-row items-center justify-center gap-3 px-2 pt-2 pb-1.5 border-b border-border/15">
-              <FormationPickerDialog
-                value={tatica.formacao}
-                onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
-              />
-              <MentalityDropdown
-                value={tatica.mentalidade}
-                onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
-              />
-            </div>
-            <div ref={fieldRef} className="flex-1 min-h-0">
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+          {/* Controls bar — spans full width, acima do campo e dos menus */}
+          <div className="shrink-0 flex flex-row items-center justify-center gap-3 px-2 pt-2 pb-1.5 border-b border-border/15">
+            <FormationPickerDialog
+              value={tatica.formacao}
+              onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
+            />
+            <MentalityDropdown
+              value={tatica.mentalidade}
+              onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
+            />
+          </div>
+          {/* Campo + Painéis — alinhados naturalmente no topo */}
+          <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
+            <div ref={fieldRef} className="w-[300px] shrink-0 h-full">
               <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
                 selectedArrowType={arrowType}
                 slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
@@ -1921,11 +1930,11 @@ export function TacticsTab() {
                 slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
                 onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
             </div>
-          </div>
-          {/* Players panel */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-20 pt-[42px]">
-            <BenchPanel jogadores={jogadores} tatica={tatica}
-              onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
+            {/* Players panel — começa na mesma linha do campo */}
+            <div className="shrink-0 flex flex-col overflow-hidden ml-4">
+              <BenchPanel jogadores={jogadores} tatica={tatica}
+                onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
+            </div>
           </div>
         </div>
       )}
