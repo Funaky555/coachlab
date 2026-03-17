@@ -1875,7 +1875,7 @@ export function TacticsTab() {
             </div>
           </div>
           {/* Players panel */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-20">
+          <div className="shrink-0 flex flex-col overflow-hidden ml-20 pt-[42px]">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
