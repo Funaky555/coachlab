@@ -598,7 +598,11 @@ function PitchSVG({ tatica, jogadores, onUpdate, mode, compact = false, selected
     // Also remove from other slots if already assigned
     const deduped = jogadorId ? filtered.filter(s => s.jogadorId !== jogadorId) : filtered
     const updated = jogadorId ? [...deduped, { posicao: slotKey, jogadorId }] : deduped
-    onUpdate({ titulares: updated })
+    // Remove from notSelected when assigned to the XI
+    const notSelected = jogadorId
+      ? (tatica.notSelected ?? []).filter(id => id !== jogadorId)
+      : tatica.notSelected
+    onUpdate({ titulares: updated, notSelected })
   }
 
   function handleSlotClick(slotKey: string) {
