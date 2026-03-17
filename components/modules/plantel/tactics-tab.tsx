@@ -1852,9 +1852,9 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden items-start justify-center">
+        <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
           {/* Formation field — centered */}
-          <div className="w-[300px] shrink-0 flex flex-col">
+          <div className="w-[300px] shrink-0 flex flex-col h-full">
             <div className="shrink-0 flex flex-row items-center justify-center gap-3 px-2 pt-2 pb-1.5 border-b border-border/15">
               <FormationPickerDialog
                 value={tatica.formacao}
