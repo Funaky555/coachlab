@@ -1229,7 +1229,7 @@ function FormationPickerDialog({ value, onChange }: {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 h-8 px-3 rounded-lg border transition-all text-xs font-bold hover:border-white/25"
+        className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border transition-all text-[10px] font-bold hover:border-white/25"
         style={{ borderColor: "rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.75)" }}
       >
         <span className="font-medium" style={{ color: "rgba(255,255,255,0.38)" }}>Formation</span>
@@ -1453,7 +1453,7 @@ function MentalityDropdown({ value, onChange }: {
     <div className="relative">
       <button
         onClick={() => setOpen(p => !p)}
-        className="flex items-center gap-1.5 h-8 px-3 rounded-lg border transition-all text-xs font-bold"
+        className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border transition-all text-[10px] font-bold"
         style={{ borderColor: opt.color + "66", background: opt.color + "18", color: opt.color }}
       >
         <div className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.color }} />
