@@ -275,6 +275,12 @@ function computeSlotPositions(
     const isCM_center = lbl === "CM" && count >= 3 && idxInRow === Math.floor((count - 1) / 2)
     const isST  = lbl === "ST" || lbl === "CF"
 
+    // Wingers encostados à linha lateral
+    const isPureLeftWinger  = ["WL","LW"].includes(lbl) || ["WL","LW"].includes(posKey)
+    const isPureRightWinger = ["WR","RW"].includes(lbl) || ["WR","RW"].includes(posKey)
+    if (isPureLeftWinger)  baseX = 52
+    if (isPureRightWinger) baseX = 458
+
     // X adjustments
     if (isCBR) baseX += (tatica.rcbPosition === "wide" || (tatica.rcbPosition === undefined && tatica.centralBacksOpen)) ? 28 : 0
     if (isCBL) baseX -= (tatica.lcbPosition === "wide" || (tatica.lcbPosition === undefined && tatica.centralBacksOpen)) ? 28 : 0
