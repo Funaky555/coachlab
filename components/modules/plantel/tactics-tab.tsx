@@ -23,8 +23,8 @@ const FORMATION_POSITIONS: Record<string, { posicao: string; label: string; row:
     { posicao: "GK",  label: "GK",  row: 5 },
     { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
     { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
-    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "OM",  label: "SS",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
-    { posicao: "ST",  label: "ST",  row: 1 },
+    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "CF",  label: "CF",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 },
   ],
   "1-2-5-3": [
     { posicao: "GK",  label: "GK",  row: 5 },
@@ -44,8 +44,8 @@ const FORMATION_POSITIONS: Record<string, { posicao: string; label: string; row:
     { posicao: "GK",  label: "GK",  row: 5 },
     { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CB",  label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 },
     { posicao: "WL",  label: "LM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "WR",  label: "RM",  row: 3 },
-    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "OM",  label: "SS",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
-    { posicao: "ST",  label: "ST",  row: 1 },
+    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "CF",  label: "CF",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 },
   ],
   "1-3-4-3": [
     { posicao: "GK",  label: "GK",  row: 5 },
@@ -85,7 +85,8 @@ const FORMATION_POSITIONS: Record<string, { posicao: string; label: string; row:
     { posicao: "GK",  label: "GK",  row: 5 },
     { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
     { posicao: "CML", label: "DM",  row: 3 }, { posicao: "CMR", label: "DM",  row: 3 },
-    { posicao: "WL",  label: "LW",  row: 1 }, { posicao: "CF",  label: "CF",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "WR",  label: "RW",  row: 1 },
+    { posicao: "WL",  label: "LW",  row: 2 }, { posicao: "WR",  label: "RW",  row: 2 },
+    { posicao: "CF",  label: "CF",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 },
   ],
   "1-4-3-3": [
     { posicao: "GK",  label: "GK",  row: 5 },
