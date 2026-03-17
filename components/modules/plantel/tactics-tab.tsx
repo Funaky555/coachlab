@@ -1217,33 +1217,36 @@ function FormationPickerDialog({ value, onChange }: {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all relative overflow-hidden group"
+        className="flex flex-col items-start gap-1 px-3 py-2 rounded-xl border transition-all relative group"
         style={{
-          background: "linear-gradient(135deg, rgba(0,214,108,0.08), rgba(139,92,246,0.05))",
-          borderColor: "rgba(0,214,108,0.3)",
-          boxShadow: "0 0 14px rgba(0,214,108,0.1), inset 0 1px 0 rgba(255,255,255,0.05)",
-          minWidth: 130,
+          background: "linear-gradient(160deg, rgba(255,255,255,0.04), rgba(0,0,0,0.3))",
+          borderColor: "rgba(255,255,255,0.09)",
+          boxShadow: "0 0 0 1px rgba(0,214,108,0.12), inset 0 1px 0 rgba(255,255,255,0.05)",
+          minWidth: 110,
         }}
       >
         {/* Hover glow */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-xl"
-          style={{ background: "radial-gradient(circle at 50% 50%, rgba(0,214,108,0.12), transparent 70%)" }} />
-        {/* Mini field preview */}
-        <div className="shrink-0 overflow-hidden rounded" style={{ width: 22, height: 34 }}>
-          <div style={{ transform: "scale(0.275)", transformOrigin: "top left", width: 80, height: 122 }}>
-            <FormationShape formation={value} />
-          </div>
+          style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(0,214,108,0.08), transparent 70%)" }} />
+        <span className="text-[7px] font-black uppercase tracking-[0.2em] leading-none"
+          style={{ color: "rgba(255,255,255,0.28)" }}>Formation</span>
+        {/* Segmentos coloridos por linha */}
+        <div className="flex items-end gap-[3px]">
+          {value.split("-").map((seg, i) => {
+            const segColors = ["rgba(200,200,200,0.55)", "#0066FF", "#00D66C", "#FF4444", "#FF2222"]
+            const col = segColors[i] ?? "#fff"
+            return (
+              <React.Fragment key={i}>
+                {i > 0 && <span style={{ color: "rgba(255,255,255,0.15)", fontSize: 9, lineHeight: 1, marginBottom: 2 }}>·</span>}
+                <span className="font-black font-mono leading-none"
+                  style={{ color: col, fontSize: i === 0 ? 11 : 16, textShadow: `0 0 8px ${col}70` }}>
+                  {seg}
+                </span>
+              </React.Fragment>
+            )
+          })}
         </div>
-        {/* Text */}
-        <div className="flex flex-col items-start gap-0.5 flex-1 min-w-0">
-          <span className="text-[7px] font-black uppercase tracking-[0.18em] leading-none"
-            style={{ color: "rgba(0,214,108,0.55)" }}>Formation</span>
-          <span className="text-[14px] font-black font-mono leading-none whitespace-nowrap"
-            style={{ color: "#00D66C", textShadow: "0 0 10px rgba(0,214,108,0.5)" }}>
-            {value.replace(/^1-/, "")}
-          </span>
-        </div>
-        <ChevronDown className="w-3 h-3 shrink-0" style={{ color: "rgba(0,214,108,0.5)" }} />
+        <ChevronDown className="absolute top-2 right-2 w-2.5 h-2.5" style={{ color: "rgba(255,255,255,0.18)" }} />
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
