@@ -10,7 +10,7 @@ import {
 
 // ─── Formações ────────────────────────────────────────────────────────────────
 
-const FORMATION_POSITIONS: Record<string, { posicao: string; label: string; row: number }[]> = {
+const FORMATION_POSITIONS: Record<string, { posicao: string; label: string; row: number; yOffset?: number }[]> = {
   // ── 2 DEF ──
   "1-2-3-5": [
     { posicao: "GK",  label: "GK",  row: 5 },
@@ -90,7 +90,7 @@ const FORMATION_POSITIONS: Record<string, { posicao: string; label: string; row:
   "1-4-3-3": [
     { posicao: "GK",  label: "GK",  row: 5 },
     { posicao: "LB",  label: "LB",  row: 4 }, { posicao: "CBL", label: "CB",  row: 4 }, { posicao: "CBR", label: "CB",  row: 4 }, { posicao: "RB",  label: "RB",  row: 4 },
-    { posicao: "CML", label: "CM",  row: 3 }, { posicao: "CM",  label: "CM",  row: 3 }, { posicao: "CMR", label: "CM",  row: 3 },
+    { posicao: "CML", label: "LCM", row: 3 }, { posicao: "CDM", label: "CDM", row: 3, yOffset: 40 }, { posicao: "CMR", label: "RCM", row: 3 },
     { posicao: "WL",  label: "LW",  row: 1 }, { posicao: "ST",  label: "ST",  row: 1 }, { posicao: "WR",  label: "RW",  row: 1 },
   ],
   "1-4-4-2": [
@@ -313,6 +313,9 @@ function computeSlotPositions(
       if (stMov === "low")     adjustedY += 55
       if (stMov === "side")    baseX += (idxInRow % 2 === 0) ? 60 : -60
     }
+
+    // Per-slot static Y offset (used to stagger positions within the same row)
+    adjustedY += (p as { yOffset?: number }).yOffset ?? 0
 
     const slotKey = `slot_${i}`
     const override = overrides[slotKey]
