@@ -1229,21 +1229,12 @@ function FormationPickerDialog({ value, onChange }: {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg border transition-all hover:border-white/20"
-        style={{
-          background: "rgba(255,255,255,0.04)",
-          borderColor: "rgba(255,255,255,0.11)",
-          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
-          minWidth: 130,
-        }}
+        className="flex items-center gap-1.5 h-8 px-3 rounded-lg border transition-all text-xs font-bold hover:border-white/25"
+        style={{ borderColor: "rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.75)" }}
       >
-        <div className="flex flex-col items-start gap-0.5">
-          <span className="text-[7px] font-semibold uppercase tracking-widest leading-none"
-            style={{ color: "rgba(255,255,255,0.3)" }}>Formation</span>
-          <span className="text-[13px] font-black font-mono leading-none"
-            style={{ color: "rgba(255,255,255,0.88)" }}>{value}</span>
-        </div>
-        <ChevronDown className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+        <span className="font-medium" style={{ color: "rgba(255,255,255,0.38)" }}>Formation</span>
+        <span>{value}</span>
+        <ChevronDown className="w-3 h-3 opacity-50" />
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
