@@ -1939,7 +1939,7 @@ export function TacticsTab() {
           {/* Campo + controlos acima */}
           <div className="shrink-0 flex flex-col">
             {/* Barra de controlos */}
-            <div className="h-9 shrink-0 flex items-center gap-2 px-2"
+            <div className="h-9 shrink-0 flex items-center justify-center gap-2"
               style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
               <MentalityDropdown
                 value={tatica.mentalidade}
