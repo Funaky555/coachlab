@@ -434,15 +434,15 @@ export function SquadPlanTab() {
           backgroundImage: "url('/23.png')",
           backgroundSize: "cover",
           backgroundPosition: "center center",
-          width: 620,
-          height: 820,
+          width: 560,
+          aspectRatio: "510 / 780",
         }}
       >
         {/* Overlay: desaturate the warm yellow tones + darken */}
         <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.22)" }} />
 
         {/* Pitch rows — absolute positioning per sector so they stay inside field lines */}
-        <div className="relative z-10 px-4" style={{ height: 820 }}>
+        <div className="relative z-10 px-4" style={{ height: "100%" }}>
           {sectors.map((sector, i) => (
             <div key={sector.key} className="absolute left-0 right-0 px-4"
               style={{ top: `${[22, 43, 63, 84][i]}%`, transform: "translateY(-50%)" }}>
