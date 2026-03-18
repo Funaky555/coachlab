@@ -853,6 +853,13 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
   onInclude: (jogadorId: string) => void
 }) {
   const SETOR_ORDER: Record<string, number> = { GR: 0, DEF: 1, MED: 2, AV: 3 }
+  const POS_ORDER: Record<string, number> = {
+    GK: 0,
+    RB: 0, RWB: 1, SW: 2, CBR: 3, CB: 4, CBL: 5, LB: 6, LWB: 7,
+    DM: 0, CM: 1, CMR: 2, CML: 3, OM: 4, CAM: 5, LM: 6, RM: 7,
+    WR: 0, CF: 1, ST: 2, WL: 3,
+  }
+  const posOf = (j: Jogador) => POS_ORDER[j.posicoes[0]] ?? 99
 
   const assignedIds = new Set(tatica.titulares.map(s => s.jogadorId).filter(Boolean))
   const notSelectedIds = new Set(tatica.notSelected ?? [])
@@ -864,6 +871,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
     .sort((a, b) =>
       (SETOR_ORDER[getPrimarySetor(a.jogador.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3) -
       (SETOR_ORDER[getPrimarySetor(b.jogador.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3)
+      || posOf(a.jogador) - posOf(b.jogador)
     )
 
   const bench = jogadores
@@ -871,6 +879,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
     .sort((a, b) =>
       (SETOR_ORDER[getPrimarySetor(a.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3) -
       (SETOR_ORDER[getPrimarySetor(b.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3)
+      || posOf(a) - posOf(b)
     )
 
   const notSelected = jogadores
@@ -878,6 +887,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
     .sort((a, b) =>
       (SETOR_ORDER[getPrimarySetor(a.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3) -
       (SETOR_ORDER[getPrimarySetor(b.posicoes as Parameters<typeof getPrimarySetor>[0])] ?? 3)
+      || posOf(a) - posOf(b)
     )
 
   const nickOf = (j: Jogador) => j.alcunha?.trim() || displayName(j)
@@ -1852,7 +1862,7 @@ export function TacticsTab() {
         const m = (g.getAttribute("transform") ?? "").match(/translate\(([^,]+),([^)]+)\)/)
         if (!m) return
         const href = imgEl.getAttribute("href") ?? ""
-        if (!href.startsWith("data:")) return
+        if (!href) return
         const w = parseFloat(imgEl.getAttribute("width") ?? "0")
         photos.push({ cx: parseFloat(m[1]), cy: parseFloat(m[2]), r: w / 2, href })
       })

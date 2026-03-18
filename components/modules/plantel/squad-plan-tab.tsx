@@ -231,7 +231,7 @@ export function SquadPlanTab() {
     const bgImg = new Image()
     bgImg.crossOrigin = "anonymous"
     bgImg.onload = () => {
-      // Replicar CSS: background-size: cover; background-position: center 40%
+      // Replicar CSS: background-size: cover; background-position: center center
       const iW = bgImg.naturalWidth
       const iH = bgImg.naturalHeight
       const imgAspect = iW / iH
@@ -241,9 +241,9 @@ export function SquadPlanTab() {
         srcW = iH * screenAspect
         srcX = (iW - srcW) / 2
       } else {
-        // imagem mais alta → escalar por largura, cortar verticalmente com position 40%
+        // imagem mais alta → escalar por largura, cortar verticalmente (centrar)
         srcH = iW / screenAspect
-        srcY = (iH - srcH) * 0.4
+        srcY = (iH - srcH) * 0.5
       }
       ctx.drawImage(bgImg, srcX, srcY, srcW, srcH, 0, 0, W, H)
       ctx.fillStyle = "rgba(5,18,10,0.62)"
@@ -374,7 +374,7 @@ export function SquadPlanTab() {
         link.click()
       })
     }
-    bgImg.src = "/9.png"
+    bgImg.src = "/23.png"
   }
 
   // ── Slot layout ──────────────────────────────────────────────────────────
@@ -426,21 +426,23 @@ export function SquadPlanTab() {
       </div>
 
       {/* Field with absolute overlays */}
+      <div className="flex justify-center">
       <div
         ref={fieldRef}
         className="relative rounded-2xl overflow-hidden"
         style={{
-          backgroundImage: "url('/9.png')",
+          backgroundImage: "url('/23.png')",
           backgroundSize: "cover",
-          backgroundPosition: "center 40%",
-          height: 680,
+          backgroundPosition: "center center",
+          width: 460,
+          height: 700,
         }}
       >
         {/* Overlay: desaturate the warm yellow tones + darken */}
         <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.62)" }} />
 
         {/* Pitch rows — absolute positioning per sector so they stay inside field lines */}
-        <div className="relative z-10 px-4" style={{ height: 680 }}>
+        <div className="relative z-10 px-4" style={{ height: 700 }}>
           {sectors.map((sector, i) => (
             <div key={sector.key} className="absolute left-0 right-0 px-4"
               style={{ top: `${[22, 43, 63, 84][i]}%`, transform: "translateY(-50%)" }}>
@@ -503,6 +505,7 @@ export function SquadPlanTab() {
             </div>
           ))}
         </div>
+      </div>
       </div>
 
       {/* Player selection dialog */}
