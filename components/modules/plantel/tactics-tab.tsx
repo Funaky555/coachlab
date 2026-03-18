@@ -511,7 +511,7 @@ function PlayerPin({
       )}
 
       {/* Position label (below pin) */}
-      <text textAnchor="middle" y={R + 12 * scale} fill="rgba(255,255,255,0.9)"
+      <text textAnchor="middle" y={R + 12 * scale} fill={posColor}
         fontSize={10 * scale} fontWeight="700"
         style={{ pointerEvents: "none", userSelect: "none", letterSpacing: "0.06em" }}>
         {label}
