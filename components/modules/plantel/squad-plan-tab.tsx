@@ -14,9 +14,9 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CBR: { x: 73, y: 28 },
   CBL: { x: 73, y: 72 },
   RB:  { x: 64, y: 13 },
-  RWB: { x: 50, y: 13 },
+  RWB: { x: 17, y: 13 },
   LB:  { x: 64, y: 87 },
-  LWB: { x: 50, y: 87 },
+  LWB: { x: 17, y: 87 },
   DM:  { x: 62, y: 50 },
   CM:  { x: 50, y: 50 },
   CMR: { x: 40, y: 28 },
@@ -24,9 +24,9 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CAM: { x: 30, y: 50 },
   RM:  { x: 27, y: 17 },
   LM:  { x: 27, y: 83 },
-  ST:  { x:  8, y: 50 },
-  CF:  { x: 15, y: 50 },
-  SS:  { x: 22, y: 50 },
+  ST:  { x:  3, y: 50 },
+  CF:  { x: 10, y: 50 },
+  SS:  { x: 17, y: 50 },
   WR:  { x: 12, y:  8 },
   WL:  { x: 12, y: 92 },
 }
@@ -39,11 +39,11 @@ const SECTOR_OF: Record<string, string> = {
 }
 
 const SECTOR_COLORS: Record<string, string> = {
-  GK: "#8B5CF6", DEF: "#00D66C", MID: "#0066FF", FWD: "#FF2222",
+  GK: "#ffffff", DEF: "#00D66C", MID: "#0066FF", FWD: "#FF2222",
 }
 
 const MENU_GROUPS = [
-  { sector: "GK",  color: "#8B5CF6", positions: ["GK"] },
+  { sector: "GK",  color: "#ffffff", positions: ["GK"] },
   { sector: "DEF", color: "#00D66C", positions: ["RB", "RWB", "CBR", "CB", "CBL", "LB", "LWB", "SW"] },
   { sector: "MID", color: "#0066FF", positions: ["DM", "CM", "CMR", "CML", "CAM", "RM", "LM"] },
   { sector: "FWD", color: "#FF2222", positions: ["ST", "CF", "SS", "WR", "WL"] },
@@ -464,8 +464,8 @@ export function SquadPlanTab() {
                   className="text-[8px] font-black uppercase px-1.5 py-[2px] rounded-full mb-0.5 leading-none"
                   style={{
                     background: color + "ee",
-                    color: "#fff",
-                    textShadow: "0 1px 2px rgba(0,0,0,0.9)",
+                    color: pin.pos === "GK" ? "#000" : "#fff",
+                    textShadow: pin.pos === "GK" ? "none" : "0 1px 2px rgba(0,0,0,0.9)",
                     boxShadow: `0 0 6px ${color}55`,
                   }}
                 >
