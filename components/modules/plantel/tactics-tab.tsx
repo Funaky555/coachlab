@@ -1964,7 +1964,7 @@ export function TacticsTab() {
             </div>
           </div>
           {/* Painéis XI / Bench / Not Selected — pt-9 alinha com topo do campo */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-12 pt-9">
+          <div className="shrink-0 flex flex-col overflow-hidden ml-20 pt-9">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
