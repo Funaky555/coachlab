@@ -1937,7 +1937,7 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
+        <div className="flex flex-1 min-h-0 overflow-x-auto justify-center">
           {/* Sidebar esquerdo: Formation + Mentality */}
           <div className="shrink-0 w-[80px] flex flex-col overflow-hidden"
             style={{
@@ -1965,7 +1965,7 @@ export function TacticsTab() {
               onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
           </div>
           {/* Painéis XI / Bench / Not Selected */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-4">
+          <div className="shrink-0 flex flex-col overflow-hidden ml-[80px]">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
