@@ -1245,18 +1245,18 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
       ) : (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 h-8 px-3 rounded-lg transition-all group hover:brightness-110"
+        className="flex items-center gap-2 h-8 px-3 rounded-lg transition-all group hover:bg-white/[0.08]"
         style={{
-          background: "linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(0,102,255,0.08) 100%)",
-          border: "1px solid rgba(139,92,246,0.4)",
-          boxShadow: "0 0 10px rgba(139,92,246,0.12)",
+          background: "rgba(255,255,255,0.05)",
+          border: "1px solid rgba(255,255,255,0.13)",
+          backdropFilter: "blur(8px)",
         }}
       >
         <div className="flex flex-col items-start gap-0">
-          <span className="text-[6px] font-black uppercase tracking-[0.28em] leading-none" style={{ color: "#A78BFA" }}>Formation</span>
+          <span className="text-[6px] font-black uppercase tracking-[0.28em] leading-none" style={{ color: "rgba(255,255,255,0.38)" }}>Formation</span>
           <span className="text-[12px] font-black font-mono leading-tight" style={{ color: "#fff" }}>{value}</span>
         </div>
-        <ChevronDown className="w-3 h-3 transition-transform group-hover:translate-y-0.5" style={{ color: "rgba(139,92,246,0.6)" }} />
+        <ChevronDown className="w-3 h-3 transition-transform group-hover:translate-y-0.5" style={{ color: "rgba(255,255,255,0.3)" }} />
       </button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
@@ -1486,12 +1486,18 @@ function MentalityDropdown({ value, onChange, sidebar = false }: {
       ) : (
         <button
           onClick={() => setOpen(p => !p)}
-          className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border transition-all text-[10px] font-bold"
-          style={{ borderColor: opt.color + "66", background: opt.color + "18", color: opt.color }}
+          className="flex items-center gap-2 h-8 px-3 rounded-lg transition-all group hover:bg-white/[0.08]"
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.13)",
+            backdropFilter: "blur(8px)",
+          }}
         >
-          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.color }} />
-          <span>{opt.label}</span>
-          <ChevronDown className="w-3 h-3 opacity-60" />
+          <div className="flex flex-col items-start gap-0">
+            <span className="text-[6px] font-black uppercase tracking-[0.28em] leading-none" style={{ color: "rgba(255,255,255,0.38)" }}>Mentality</span>
+            <span className="text-[12px] font-bold leading-tight" style={{ color: "#fff" }}>{opt.label}</span>
+          </div>
+          <ChevronDown className="w-3 h-3 transition-transform group-hover:translate-y-0.5" style={{ color: "rgba(255,255,255,0.3)" }} />
         </button>
       )}
       {open && (
