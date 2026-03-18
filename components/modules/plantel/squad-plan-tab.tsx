@@ -393,7 +393,7 @@ export function SquadPlanTab() {
   return (
     <div className="space-y-3">
       {/* ── Action toolbar ── */}
-      <div className="flex items-center justify-center gap-2 px-1">
+      <div className="relative flex items-center justify-center gap-2 px-1">
         <button
           onClick={autoPreencherPlantel}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
@@ -416,7 +416,7 @@ export function SquadPlanTab() {
         </div>
         <button
           onClick={exportPNG}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
+          className="absolute right-1 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
           style={{ background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
         >
           <Camera className="w-3.5 h-3.5" /> Exportar PNG
