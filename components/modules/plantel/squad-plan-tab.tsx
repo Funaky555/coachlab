@@ -438,11 +438,11 @@ export function SquadPlanTab() {
       </div>
 
       {/* Campo — /23.png rodada via canvas (landscape, sem corte) */}
-      <div className="flex justify-center mt-2">
+      <div className="px-1 mt-2">
       <div
         ref={fieldRef}
         className="relative rounded-2xl overflow-hidden w-full"
-        style={{ maxWidth: 900, aspectRatio: "780 / 510" }}
+        style={{ aspectRatio: "780 / 510" }}
       >
         <canvas ref={bgCanvasRef} className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }} />
         <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.18)" }} />
