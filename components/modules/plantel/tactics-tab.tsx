@@ -1047,7 +1047,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
 
       {/* ── NOT SELECTED — 3 colunas, drop zone ── */}
       <div
-        className="w-[330px] shrink-0 overflow-hidden p-1.5 flex flex-col"
+        className="w-[290px] shrink-0 overflow-hidden p-1.5 flex flex-col"
         onDrop={e => handleColDrop(e, "notSelected")}
         onDragOver={e => e.preventDefault()}
       >
