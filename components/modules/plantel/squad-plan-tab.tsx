@@ -102,24 +102,24 @@ export function SquadPlanTab() {
   const [selectingKey, setSelectingKey] = useState<string | null>(null)
   const fieldRef = useRef<HTMLDivElement>(null)
   const bgCanvasRef = useRef<HTMLCanvasElement>(null)
-  const [fieldW, setFieldW] = useState(0)
+  const [fieldSize, setFieldSize] = useState({ w: 0, h: 0 })
 
-  // Medir largura real do container
+  // Medir dimensões reais do container
   useEffect(() => {
     const el = fieldRef.current
     if (!el) return
-    const ro = new ResizeObserver(() => setFieldW(el.clientWidth))
+    const ro = new ResizeObserver(() => setFieldSize({ w: el.clientWidth, h: el.clientHeight }))
     ro.observe(el)
-    setFieldW(el.clientWidth)
+    setFieldSize({ w: el.clientWidth, h: el.clientHeight })
     return () => ro.disconnect()
   }, [])
 
   // Desenhar /23.png rodada -90deg no canvas — landscape completo sem corte
   useEffect(() => {
     const canvas = bgCanvasRef.current
-    if (!canvas || fieldW <= 0) return
-    const CW = fieldW
-    const CH = Math.round(CW * 510 / 780)
+    if (!canvas || fieldSize.w <= 0 || fieldSize.h <= 0) return
+    const CW = fieldSize.w
+    const CH = fieldSize.h
     canvas.width = CW
     canvas.height = CH
     const ctx = canvas.getContext("2d")
@@ -135,7 +135,7 @@ export function SquadPlanTab() {
       ctx.restore()
     }
     img.src = "/23.png"
-  }, [fieldW])
+  }, [fieldSize])
 
   useEffect(() => {
     setJogadores(getJogadores())
@@ -438,10 +438,11 @@ export function SquadPlanTab() {
       </div>
 
       {/* Campo — /23.png rodada via canvas (landscape, sem corte) */}
+      <div className="flex justify-center mt-2">
       <div
         ref={fieldRef}
         className="relative rounded-2xl overflow-hidden w-full"
-        style={{ maxWidth: 700, aspectRatio: "780 / 510", margin: "0 auto" }}
+        style={{ maxWidth: 900, aspectRatio: "780 / 510" }}
       >
         <canvas ref={bgCanvasRef} className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }} />
         <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.18)" }} />
@@ -494,6 +495,7 @@ export function SquadPlanTab() {
             </div>
           ))}
         </div>
+      </div>
       </div>
 
       {/* Player selection dialog */}
