@@ -101,6 +101,41 @@ export function SquadPlanTab() {
   const [selectOpen, setSelectOpen] = useState(false)
   const [selectingKey, setSelectingKey] = useState<string | null>(null)
   const fieldRef = useRef<HTMLDivElement>(null)
+  const bgCanvasRef = useRef<HTMLCanvasElement>(null)
+  const [fieldW, setFieldW] = useState(0)
+
+  // Medir largura real do container
+  useEffect(() => {
+    const el = fieldRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setFieldW(el.clientWidth))
+    ro.observe(el)
+    setFieldW(el.clientWidth)
+    return () => ro.disconnect()
+  }, [])
+
+  // Desenhar /23.png rodada -90deg no canvas — landscape completo sem corte
+  useEffect(() => {
+    const canvas = bgCanvasRef.current
+    if (!canvas || fieldW <= 0) return
+    const CW = fieldW
+    const CH = Math.round(CW * 510 / 780)
+    canvas.width = CW
+    canvas.height = CH
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+    const img = new Image()
+    img.onload = () => {
+      ctx.clearRect(0, 0, CW, CH)
+      ctx.save()
+      ctx.translate(CW / 2, CH / 2)
+      ctx.rotate(-Math.PI / 2)
+      // Após -90deg: draw (img natural portrait) escalada para preencher canvas landscape
+      ctx.drawImage(img, -CH / 2, -CW / 2, CH, CW)
+      ctx.restore()
+    }
+    img.src = "/23.png"
+  }, [fieldW])
 
   useEffect(() => {
     setJogadores(getJogadores())
@@ -402,72 +437,62 @@ export function SquadPlanTab() {
         </button>
       </div>
 
-      {/* Campo — /23.png na orientação natural (portrait) */}
-      <div className="flex justify-center">
-        <div ref={fieldRef} className="relative rounded-2xl overflow-hidden" style={{ width: "100%", maxWidth: 460 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/23.png" alt="campo" className="w-full h-auto block" style={{ pointerEvents: "none" }} />
-          <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.22)" }} />
+      {/* Campo — /23.png rodada via canvas (landscape, sem corte) */}
+      <div
+        ref={fieldRef}
+        className="relative rounded-2xl overflow-hidden w-full"
+        style={{ maxWidth: 700, aspectRatio: "780 / 510", margin: "0 auto" }}
+      >
+        <canvas ref={bgCanvasRef} className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.18)" }} />
 
-          {/* Setores em linhas: FWD topo → GK fundo */}
-          <div className="absolute inset-0 z-10">
-            {sectors.map((sector, i) => (
-              <div key={sector.key}
-                className="absolute left-0 right-0 flex justify-center gap-1.5 flex-wrap px-2"
-                style={{ top: `${[22, 43, 63, 84][i]}%`, transform: "translateY(-50%)" }}>
-                {sector.slots.map(slot => {
-                  const key = getSlotKey(slot.sector, slot.sectorIndex)
-                  const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
-                  const currentPos = getSlotPosition(key, slot, jogador)
-                  return (
-                    <div key={key} className="flex flex-col items-center gap-0.5" style={{ width: 44 }}>
-                      <div onClick={e => e.stopPropagation()}>
-                        <select
-                          value={currentPos}
-                          onChange={e => updateSlotPosition(key, e.target.value)}
-                          className="text-[10px] font-bold uppercase px-1 py-0 rounded-full cursor-pointer appearance-none text-center"
-                          style={{
-                            color: "#fff",
-                            background: sector.color + "cc",
-                            textShadow: "0 1px 2px rgba(0,0,0,0.8)",
-                            border: "none", outline: "none", maxWidth: 44,
-                          }}
-                        >
-                          {SECTOR_POSITIONS[sector.key]?.map(p => (
-                            <option key={p} value={p} style={{ background: "#111", color: "#fff" }}>{p}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <button
-                        onClick={() => openSlotSelect(key)}
-                        style={{ width: 40, height: 40, ...(jogador ? { borderColor: sector.color } : {}) }}
-                        className={`rounded-full overflow-hidden flex-shrink-0 border-2 transition-all hover:opacity-80 ${jogador ? "" : "border-dashed border-white/20"}`}
+        {/* Setores em colunas: FWD esq → GK dir */}
+        <div className="absolute inset-0 z-10">
+          {sectors.map((sector, i) => (
+            <div key={sector.key}
+              className="absolute top-0 bottom-0 flex flex-col items-center justify-center gap-0.5"
+              style={{ left: `${[15, 38, 62, 84][i]}%`, transform: "translateX(-50%)" }}>
+              {sector.slots.map(slot => {
+                const key = getSlotKey(slot.sector, slot.sectorIndex)
+                const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
+                const currentPos = getSlotPosition(key, slot, jogador)
+                return (
+                  <div key={key} className="flex flex-col items-center gap-0.5" style={{ width: 44 }}>
+                    <div onClick={e => e.stopPropagation()}>
+                      <select
+                        value={currentPos}
+                        onChange={e => updateSlotPosition(key, e.target.value)}
+                        className="text-[10px] font-bold uppercase px-1 py-0 rounded-full cursor-pointer appearance-none text-center"
+                        style={{ color: "#fff", background: sector.color + "cc", textShadow: "0 1px 2px rgba(0,0,0,0.8)", border: "none", outline: "none", maxWidth: 44 }}
                       >
-                        {jogador ? (
-                          jogador.foto ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={jogador.foto} alt={jogador.nome} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full bg-black/75 flex items-center justify-center text-sm font-bold text-white">
-                              {jogador.numero}
-                            </div>
-                          )
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-white/20 text-sm">+</span>
-                          </div>
-                        )}
-                      </button>
-                      <div className="text-[10px] font-bold text-white truncate w-full text-center leading-tight"
-                        style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)" }}>
-                        {jogador ? displayName(jogador) : <span className="text-white/20">—</span>}
-                      </div>
+                        {SECTOR_POSITIONS[sector.key]?.map(p => (
+                          <option key={p} value={p} style={{ background: "#111", color: "#fff" }}>{p}</option>
+                        ))}
+                      </select>
                     </div>
-                  )
-                })}
-              </div>
-            ))}
-          </div>
+                    <button
+                      onClick={() => openSlotSelect(key)}
+                      style={{ width: 40, height: 40, ...(jogador ? { borderColor: sector.color } : {}) }}
+                      className={`rounded-full overflow-hidden flex-shrink-0 border-2 transition-all hover:opacity-80 ${jogador ? "" : "border-dashed border-white/20"}`}
+                    >
+                      {jogador ? (
+                        jogador.foto
+                          // eslint-disable-next-line @next/next/no-img-element
+                          ? <img src={jogador.foto} alt={jogador.nome} className="w-full h-full object-cover" />
+                          : <div className="w-full h-full bg-black/75 flex items-center justify-center text-sm font-bold text-white">{jogador.numero}</div>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center"><span className="text-white/20 text-sm">+</span></div>
+                      )}
+                    </button>
+                    <div className="text-[10px] font-bold text-white truncate w-full text-center leading-tight"
+                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)" }}>
+                      {jogador ? displayName(jogador) : <span className="text-white/20">—</span>}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ))}
         </div>
       </div>
 
