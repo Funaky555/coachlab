@@ -1350,10 +1350,10 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
               </text>
               {jogador && (
                 <text textAnchor="middle" dominantBaseline="hanging"
-                  y={30 * scale} fill="white" fontSize={17 * scale} fontWeight="700"
+                  y={33 * scale} fill="white" fontSize={26 * scale} fontWeight="800"
                   fontFamily="Inter, system-ui, sans-serif"
                   style={{ pointerEvents: "none", userSelect: "none" }}
-                  stroke="rgba(0,0,0,0.8)" strokeWidth={4 * scale} paintOrder="stroke">
+                  stroke="rgba(0,0,0,0.85)" strokeWidth={5 * scale} paintOrder="stroke">
                   {(jogador.alcunha || jogador.nome?.split(" ").pop() || "").substring(0, 10)}
                 </text>
               )}
