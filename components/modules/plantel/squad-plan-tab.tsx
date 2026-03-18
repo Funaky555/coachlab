@@ -14,19 +14,19 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CBR: { x: 73, y: 28 },
   CBL: { x: 73, y: 72 },
   RB:  { x: 64, y: 13 },
-  RWB: { x: 64, y: 20 },
+  RWB: { x: 50, y: 13 },
   LB:  { x: 64, y: 87 },
-  LWB: { x: 64, y: 80 },
-  DM:  { x: 58, y: 50 },
+  LWB: { x: 50, y: 87 },
+  DM:  { x: 62, y: 50 },
   CM:  { x: 50, y: 50 },
   CMR: { x: 40, y: 28 },
   CML: { x: 40, y: 72 },
   CAM: { x: 27, y: 50 },
   RM:  { x: 27, y: 17 },
   LM:  { x: 27, y: 83 },
-  ST:  { x: 12, y: 50 },
-  WR:  { x: 12, y: 25 },
-  WL:  { x: 12, y: 75 },
+  ST:  { x:  8, y: 50 },
+  WR:  { x: 12, y:  8 },
+  WL:  { x: 12, y: 92 },
 }
 
 const SECTOR_OF: Record<string, string> = {
@@ -194,7 +194,7 @@ export function SquadPlanTab() {
         for (let i = 0; i < count; i++) {
           const yOff = (i - (count - 1) / 2) * 9
           const cx = coords.x / 100 * W
-          const cy = (coords.y + yOff) / 100 * H
+          const cy = (getBaseY(pos) + yOff) / 100 * H
           const key = `${pos}_${i}`
           const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
 
@@ -292,6 +292,13 @@ export function SquadPlanTab() {
     bgImg.src = "/23.png"
   }
 
+  // CBR/CBL deslocam para o centro quando não há CB
+  function getBaseY(pos: string): number {
+    if (pos === "CBR" && (positionCounts["CB"] ?? 0) === 0) return 38
+    if (pos === "CBL" && (positionCounts["CB"] ?? 0) === 0) return 62
+    return POSITION_COORDS[pos]?.y ?? 50
+  }
+
   // ── Active pins ───────────────────────────────────────────────────────────
   const activePins = Object.entries(positionCounts).flatMap(([pos, count]) => {
     const coords = POSITION_COORDS[pos]
@@ -300,7 +307,7 @@ export function SquadPlanTab() {
       key: `${pos}_${i}`,
       pos,
       x: coords.x,
-      y: coords.y + (i - (count - 1) / 2) * 9,
+      y: getBaseY(pos) + (i - (count - 1) / 2) * 9,
     }))
   })
 
