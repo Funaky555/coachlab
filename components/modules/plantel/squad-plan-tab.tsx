@@ -196,9 +196,9 @@ export function SquadPlanTab() {
         for (let i = 0; i < count; i++) {
           let px = coords.x, py: number
           if (pos === "WR") {
-            py = 16 - (count - 1 - i) * 5
+            py = 16 - (count - 1 - i) * 8
           } else if (pos === "WL") {
-            py = 84 + (count - 1 - i) * 5
+            py = 84 + (count - 1 - i) * 8
           } else if (["CB","CBR","CBL"].includes(pos)) {
             px = coords.x + (i - (count - 1) / 2) * 5
             py = getBaseY(pos)
@@ -279,9 +279,9 @@ export function SquadPlanTab() {
           for (let i = 0; i < count; i++) {
             let px2 = coords.x, py2: number
             if (pos === "WR") {
-              py2 = 16 - (count - 1 - i) * 5
+              py2 = 16 - (count - 1 - i) * 8
             } else if (pos === "WL") {
-              py2 = 84 + (count - 1 - i) * 5
+              py2 = 84 + (count - 1 - i) * 8
             } else if (["CB","CBR","CBL"].includes(pos)) {
               px2 = coords.x + (i - (count - 1) / 2) * 5
               py2 = getBaseY(pos)
@@ -329,13 +329,13 @@ export function SquadPlanTab() {
     if (pos === "WR") {
       return Array.from({ length: count }, (_, i) => ({
         key: `WR_${i}`, pos, x: coords.x,
-        y: 16 - (count - 1 - i) * 5,
+        y: 16 - (count - 1 - i) * 8,
       }))
     }
     if (pos === "WL") {
       return Array.from({ length: count }, (_, i) => ({
         key: `WL_${i}`, pos, x: coords.x,
-        y: 84 + (count - 1 - i) * 5,
+        y: 84 + (count - 1 - i) * 8,
       }))
     }
     if (CB_LINE.includes(pos)) {
