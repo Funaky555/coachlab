@@ -1350,7 +1350,7 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
               </text>
               {jogador && (
                 <text textAnchor="middle" dominantBaseline="hanging"
-                  y={28 * scale} fill="white" fontSize={13 * scale} fontWeight="700"
+                  y={30 * scale} fill="white" fontSize={17 * scale} fontWeight="700"
                   fontFamily="Inter, system-ui, sans-serif"
                   style={{ pointerEvents: "none", userSelect: "none" }}
                   stroke="rgba(0,0,0,0.8)" strokeWidth={4 * scale} paintOrder="stroke">
