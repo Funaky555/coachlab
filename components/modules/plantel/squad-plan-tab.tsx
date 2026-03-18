@@ -432,8 +432,7 @@ export function SquadPlanTab() {
         className="relative rounded-2xl overflow-hidden"
         style={{
           backgroundImage: "url('/23.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center center",
+          backgroundSize: "100% 100%",
           width: 560,
           aspectRatio: "510 / 780",
         }}
