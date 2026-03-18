@@ -1245,8 +1245,7 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
       ) : (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all hover:bg-white/[0.12] active:scale-95"
-        style={{ background: "rgba(255,255,255,0.08)", border: "1.5px dashed rgba(255,255,255,0.22)" }}
+        className="flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all hover:bg-white/[0.06] active:scale-95"
       >
         <span className="text-[13px] font-black font-mono tracking-wider" style={{ color: "#fff" }}>{value}</span>
         <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.4)" }} />
@@ -1479,8 +1478,7 @@ function MentalityDropdown({ value, onChange, sidebar = false }: {
       ) : (
         <button
           onClick={() => setOpen(p => !p)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all hover:bg-white/[0.12] active:scale-95"
-          style={{ background: "rgba(255,255,255,0.08)", border: "1.5px dashed rgba(255,255,255,0.22)" }}
+          className="flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all hover:bg-white/[0.06] active:scale-95"
         >
           <div className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.color, boxShadow: `0 0 6px ${opt.color}` }} />
           <span className="text-[13px] font-bold tracking-wide" style={{ color: "#fff" }}>{opt.label}</span>
