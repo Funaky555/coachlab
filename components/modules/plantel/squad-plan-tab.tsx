@@ -10,9 +10,9 @@ import { type Jogador, getJogadores, getSquadPlan, saveSquadPlan, type SquadPlan
 const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   GK:  { x: 97, y: 50 },
   SW:  { x: 87, y: 50 },
-  CB:  { x: 81, y: 50 },
-  CBR: { x: 81, y: 28 },
-  CBL: { x: 81, y: 72 },
+  CB:  { x: 78, y: 50 },
+  CBR: { x: 78, y: 28 },
+  CBL: { x: 78, y: 72 },
   RB:  { x: 68, y: 13 },
   RWB: { x: 60, y: 13 },
   LB:  { x: 68, y: 87 },
