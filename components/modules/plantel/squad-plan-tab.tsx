@@ -101,6 +101,7 @@ export function SquadPlanTab() {
   const [selectOpen, setSelectOpen] = useState(false)
   const [selectingKey, setSelectingKey] = useState<string | null>(null)
   const fieldRef = useRef<HTMLDivElement>(null)
+  const bgCanvasRef = useRef<HTMLCanvasElement>(null)
   const [fieldW, setFieldW] = useState(0)
 
   useEffect(() => {
@@ -110,6 +111,27 @@ export function SquadPlanTab() {
     if (fieldRef.current) ro.observe(fieldRef.current)
     return () => ro.disconnect()
   }, [])
+
+  // Desenhar /23.png rodada -90deg no canvas de fundo
+  useEffect(() => {
+    const canvas = bgCanvasRef.current
+    if (!canvas || !fieldW) return
+    const W = fieldW
+    const H = Math.round(W * 510 / 780)
+    canvas.width = W
+    canvas.height = H
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+    const img = new Image()
+    img.onload = () => {
+      ctx.save()
+      ctx.translate(W / 2, H / 2)
+      ctx.rotate(-Math.PI / 2)
+      ctx.drawImage(img, -H / 2, -W / 2, H, W)
+      ctx.restore()
+    }
+    img.src = "/23.png"
+  }, [fieldW])
 
   useEffect(() => {
     setJogadores(getJogadores())
@@ -424,26 +446,12 @@ export function SquadPlanTab() {
         className="relative rounded-2xl overflow-hidden w-full"
         style={{ aspectRatio: "780 / 510" }}
       >
-        {/* /23.png rodado -90deg → landscape */}
-        {fieldW > 0 && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src="/23.png"
-            alt=""
-            aria-hidden
-            style={{
-              position: "absolute",
-              height: `${fieldW}px`,
-              width: `${Math.round(fieldW * 510 / 780)}px`,
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%) rotate(-90deg)",
-              maxWidth: "none",
-              maxHeight: "none",
-              pointerEvents: "none",
-            }}
-          />
-        )}
+        {/* /23.png rodada -90deg via canvas — sem corte nem distorção */}
+        <canvas
+          ref={bgCanvasRef}
+          className="absolute inset-0 w-full h-full"
+          style={{ pointerEvents: "none" }}
+        />
         {/* Overlay */}
         <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.20)" }} />
 
