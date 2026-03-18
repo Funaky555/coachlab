@@ -393,7 +393,7 @@ export function SquadPlanTab() {
   return (
     <div className="space-y-3">
       {/* ── Action toolbar ── */}
-      <div className="flex items-center gap-2 px-1">
+      <div className="flex items-center justify-center gap-2 px-1">
         <button
           onClick={autoPreencherPlantel}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
@@ -414,7 +414,6 @@ export function SquadPlanTab() {
           <CountRow label="MID" value={counts.mid} min={1} max={10} color="#0066FF" onChange={v => updateCounts("mid", v)} />
           <CountRow label="FWD" value={counts.fwd} min={1} max={10} color="#FF6B35" onChange={v => updateCounts("fwd", v)} />
         </div>
-        <div className="flex-1" />
         <button
           onClick={exportPNG}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
