@@ -21,11 +21,12 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CM:  { x: 50, y: 50 },
   CMR: { x: 40, y: 28 },
   CML: { x: 40, y: 72 },
-  CAM: { x: 27, y: 50 },
+  CAM: { x: 30, y: 50 },
   RM:  { x: 27, y: 17 },
   LM:  { x: 27, y: 83 },
   ST:  { x:  8, y: 50 },
-  CF:  { x: 18, y: 50 },
+  CF:  { x: 15, y: 50 },
+  SS:  { x: 22, y: 50 },
   WR:  { x: 12, y:  8 },
   WL:  { x: 12, y: 92 },
 }
@@ -34,7 +35,7 @@ const SECTOR_OF: Record<string, string> = {
   GK: "GK",
   SW: "DEF", RB: "DEF", RWB: "DEF", CBR: "DEF", CB: "DEF", CBL: "DEF", LB: "DEF", LWB: "DEF",
   DM: "MID", CM: "MID", CMR: "MID", CML: "MID", CAM: "MID", RM: "MID", LM: "MID",
-  ST: "FWD", CF: "FWD", WR: "FWD", WL: "FWD",
+  ST: "FWD", CF: "FWD", SS: "FWD", WR: "FWD", WL: "FWD",
 }
 
 const SECTOR_COLORS: Record<string, string> = {
@@ -45,7 +46,7 @@ const MENU_GROUPS = [
   { sector: "GK",  color: "#8B5CF6", positions: ["GK"] },
   { sector: "DEF", color: "#00D66C", positions: ["RB", "RWB", "CBR", "CB", "CBL", "LB", "LWB", "SW"] },
   { sector: "MID", color: "#0066FF", positions: ["DM", "CM", "CMR", "CML", "CAM", "RM", "LM"] },
-  { sector: "FWD", color: "#FF2222", positions: ["ST", "CF", "WR", "WL"] },
+  { sector: "FWD", color: "#FF2222", positions: ["ST", "CF", "SS", "WR", "WL"] },
 ]
 
 const DEFAULT_POSITION_COUNTS: Record<string, number> = {
@@ -344,7 +345,7 @@ export function SquadPlanTab() {
 
         {/* ── Position Sidebar ── */}
         <div
-          className="w-40 shrink-0 rounded-2xl overflow-y-auto overflow-x-hidden"
+          className="w-40 shrink-0 rounded-2xl overflow-hidden"
           style={{
             height: FIELD_H,
             background: "linear-gradient(180deg, rgba(5,18,10,0.95) 0%, rgba(3,12,7,0.98) 100%)",
@@ -357,7 +358,7 @@ export function SquadPlanTab() {
             <div key={group.sector}>
               {/* Group header */}
               <div
-                className="flex items-center gap-2 px-3 py-2 sticky top-0 z-10"
+                className="flex items-center gap-2 px-3 py-1.5 sticky top-0 z-10"
                 style={{
                   background: `linear-gradient(90deg, ${group.color}18 0%, transparent 100%)`,
                   borderBottom: `1px solid ${group.color}25`,
@@ -383,7 +384,7 @@ export function SquadPlanTab() {
                 return (
                   <div
                     key={pos}
-                    className="flex items-center gap-1 px-2.5 py-[5px] transition-all duration-150"
+                    className="flex items-center gap-1 px-2.5 py-[3px] transition-all duration-150"
                     style={{
                       opacity: active ? 1 : 0.4,
                       background: active ? `${group.color}08` : "transparent",
@@ -450,6 +451,7 @@ export function SquadPlanTab() {
           {activePins.map(pin => {
             const jogador = assignments[pin.key] ? jogadores.find(j => j.id === assignments[pin.key]) : null
             const color = SECTOR_COLORS[SECTOR_OF[pin.pos] ?? "GK"] ?? "#fff"
+            const borderColor = pin.pos === "GK" ? "#000000" : color
             return (
               <div
                 key={pin.key}
@@ -474,8 +476,8 @@ export function SquadPlanTab() {
                   className="rounded-full border-2 overflow-hidden transition-all duration-150 group-hover:scale-110"
                   style={{
                     width: 34, height: 34,
-                    borderColor: color,
-                    boxShadow: `0 0 10px ${color}55, 0 2px 8px rgba(0,0,0,0.6)`,
+                    borderColor: borderColor,
+                    boxShadow: `0 0 10px ${borderColor}55, 0 2px 8px rgba(0,0,0,0.6)`,
                     background: "rgba(0,0,0,0.8)",
                   }}
                 >
