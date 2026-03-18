@@ -1248,7 +1248,13 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
         className="flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all hover:bg-white/[0.12] active:scale-95"
         style={{ background: "rgba(255,255,255,0.08)", border: "1.5px dashed rgba(255,255,255,0.22)" }}
       >
-        <span className="text-[13px] font-black font-mono" style={{ color: "#fff" }}>{value}</span>
+        <div className="flex flex-col items-start gap-0.5">
+          <span className="font-mono text-[7px] leading-none">
+            <span style={{ color: "rgba(255,255,255,0.25)" }}>//</span>
+            <span style={{ background: "linear-gradient(90deg,#FF6B35,#FF2222)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}> FORM</span>
+          </span>
+          <span className="text-[13px] font-black font-mono leading-none" style={{ color: "#fff" }}>{value}</span>
+        </div>
         <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.4)" }} />
       </button>
       )}
@@ -1482,7 +1488,13 @@ function MentalityDropdown({ value, onChange, sidebar = false }: {
           className="flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all hover:bg-white/[0.12] active:scale-95"
           style={{ background: "rgba(255,255,255,0.08)", border: "1.5px dashed rgba(255,255,255,0.22)" }}
         >
-          <span className="text-[13px] font-bold" style={{ color: "#fff" }}>{opt.label}</span>
+          <div className="flex flex-col items-start gap-0.5">
+            <span className="font-mono text-[7px] leading-none">
+              <span style={{ color: "rgba(255,255,255,0.25)" }}>//</span>
+              <span style={{ color: opt.color }}> MENT</span>
+            </span>
+            <span className="text-[13px] font-bold leading-none" style={{ color: "#fff" }}>{opt.label}</span>
+          </div>
           <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.4)" }} />
         </button>
       )}
