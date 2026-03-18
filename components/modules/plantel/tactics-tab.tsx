@@ -1230,17 +1230,17 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
     <>
       {sidebar ? (
         <button onClick={() => setOpen(true)}
-          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.04] group">
-          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.22)" }}>Formation</span>
+          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.06] group">
+          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.5)" }}>Formation</span>
           <div className="flex flex-col items-center gap-[3px] my-1">
             {value.split("-").map((seg, i) => (
               <span key={i} className="text-[13px] font-black font-mono leading-none"
-                style={{ color: i === 0 ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.82)" }}>
+                style={{ color: i === 0 ? "rgba(255,255,255,0.4)" : "#ffffff" }}>
                 {seg}
               </span>
             ))}
           </div>
-          <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.18)" }} />
+          <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.4)" }} />
         </button>
       ) : (
       <button
@@ -1471,8 +1471,8 @@ function MentalityDropdown({ value, onChange, sidebar = false }: {
     <div className="relative">
       {sidebar ? (
         <button onClick={() => setOpen(p => !p)}
-          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.04]">
-          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.22)" }}>Mentality</span>
+          className="flex flex-col items-center gap-1.5 py-4 px-1 w-full transition-all hover:bg-white/[0.06]">
+          <span className="text-[7px] font-black uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.5)" }}>Mentality</span>
           <div className="w-2.5 h-2.5 rounded-full my-1" style={{ background: opt.color, boxShadow: `0 0 8px ${opt.color}99` }} />
           <span className="text-[9px] font-bold text-center leading-tight" style={{ color: opt.color }}>{opt.label}</span>
           <ChevronDown className="w-3 h-3 mt-1" style={{ color: opt.color + "88" }} />
@@ -1939,13 +1939,17 @@ export function TacticsTab() {
       {activeTab === "overview" && (
         <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
           {/* Sidebar esquerdo: Formation + Mentality */}
-          <div className="shrink-0 w-[68px] flex flex-col border-r border-border/10"
-            style={{ background: "rgba(0,0,0,0.18)" }}>
+          <div className="shrink-0 w-[80px] flex flex-col overflow-hidden"
+            style={{
+              background: "linear-gradient(180deg, rgba(5,9,16,0.98) 0%, rgba(3,7,13,0.97) 100%)",
+              borderRight: "1px solid rgba(255,255,255,0.1)",
+            }}>
+            <div style={{ height: 2, background: "linear-gradient(90deg, #00D66C 0%, #0066FF 100%)", flexShrink: 0 }} />
             <FormationPickerDialog sidebar
               value={tatica.formacao}
               onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
             />
-            <div className="h-px mx-3" style={{ background: "rgba(255,255,255,0.05)" }} />
+            <div className="h-px mx-2" style={{ background: "rgba(255,255,255,0.08)" }} />
             <MentalityDropdown sidebar
               value={tatica.mentalidade}
               onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
@@ -1961,7 +1965,7 @@ export function TacticsTab() {
               onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
           </div>
           {/* Painéis XI / Bench / Not Selected */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-[76px]">
+          <div className="shrink-0 flex flex-col overflow-hidden ml-4">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
