@@ -1835,7 +1835,7 @@ export function TacticsTab() {
       out.height = OUT_H
       const ctx = out.getContext("2d")!
 
-      // 1. Draw field image directly (reliable, no base64 needed)
+      // 1. Draw field image directly
       await new Promise<void>((resolve, reject) => {
         const fieldImg = new window.Image()
         fieldImg.onload = () => { ctx.drawImage(fieldImg, 0, 0, OUT_W, OUT_H); resolve() }
@@ -1843,11 +1843,25 @@ export function TacticsTab() {
         fieldImg.src = "/23.png"
       })
 
-      // 2. Draw SVG pins on top (remove <image> bg to avoid double render)
+      // 2. Collect all player photo positions BEFORE cloning
+      interface PhotoEntry { cx: number; cy: number; r: number; href: string }
+      const photos: PhotoEntry[] = []
+      svg.querySelectorAll("image[href]").forEach(imgEl => {
+        const g = imgEl.parentElement
+        if (!g) return
+        const m = (g.getAttribute("transform") ?? "").match(/translate\(([^,]+),([^)]+)\)/)
+        if (!m) return
+        const href = imgEl.getAttribute("href") ?? ""
+        if (!href.startsWith("data:")) return
+        const w = parseFloat(imgEl.getAttribute("width") ?? "0")
+        photos.push({ cx: parseFloat(m[1]), cy: parseFloat(m[2]), r: w / 2, href })
+      })
+
+      // 3. Draw SVG pins (without photos — drawn directly below)
       const clone = svg.cloneNode(true) as SVGElement
       clone.setAttribute("width", String(OUT_W))
       clone.setAttribute("height", String(OUT_H))
-      clone.querySelector("image")?.remove()
+      clone.querySelectorAll("image[href]").forEach(el => el.remove())
       const svgBlobUrl = URL.createObjectURL(
         new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml" })
       )
@@ -1857,6 +1871,24 @@ export function TacticsTab() {
         svgImg.onerror = reject
         svgImg.src = svgBlobUrl
       })
+
+      // 4. Draw each player photo directly onto canvas (reliable, bypasses SVG blob limitations)
+      await Promise.all(photos.map(({ cx, cy, r, href }) =>
+        new Promise<void>(resolve => {
+          const img = new window.Image()
+          img.onload = () => {
+            ctx.save()
+            ctx.beginPath()
+            ctx.arc(cx, cy, r, 0, Math.PI * 2)
+            ctx.clip()
+            ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2)
+            ctx.restore()
+            resolve()
+          }
+          img.onerror = () => resolve()
+          img.src = href
+        })
+      ))
 
       const link = document.createElement("a")
       link.download = `tatica-${tatica.formacao}-${tab}.png`
