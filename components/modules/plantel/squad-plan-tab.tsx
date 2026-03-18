@@ -8,7 +8,7 @@ import { type Jogador, getJogadores, getSquadPlan, saveSquadPlan, type SquadPlan
 // ── Fixed position coordinates on landscape field (% x, % y) ───────────────
 // Left = attack (FWD), Right = defense (GK)
 const POSITION_COORDS: Record<string, { x: number; y: number }> = {
-  GK:  { x: 90, y: 50 },
+  GK:  { x: 94, y: 50 },
   SW:  { x: 83, y: 50 },
   CB:  { x: 73, y: 50 },
   CBR: { x: 73, y: 28 },
@@ -25,6 +25,7 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   RM:  { x: 27, y: 17 },
   LM:  { x: 27, y: 83 },
   ST:  { x:  8, y: 50 },
+  CF:  { x: 18, y: 50 },
   WR:  { x: 12, y:  8 },
   WL:  { x: 12, y: 92 },
 }
@@ -33,7 +34,7 @@ const SECTOR_OF: Record<string, string> = {
   GK: "GK",
   SW: "DEF", RB: "DEF", RWB: "DEF", CBR: "DEF", CB: "DEF", CBL: "DEF", LB: "DEF", LWB: "DEF",
   DM: "MID", CM: "MID", CMR: "MID", CML: "MID", CAM: "MID", RM: "MID", LM: "MID",
-  ST: "FWD", WR: "FWD", WL: "FWD",
+  ST: "FWD", CF: "FWD", WR: "FWD", WL: "FWD",
 }
 
 const SECTOR_COLORS: Record<string, string> = {
@@ -44,7 +45,7 @@ const MENU_GROUPS = [
   { sector: "GK",  color: "#8B5CF6", positions: ["GK"] },
   { sector: "DEF", color: "#00D66C", positions: ["RB", "RWB", "CBR", "CB", "CBL", "LB", "LWB", "SW"] },
   { sector: "MID", color: "#0066FF", positions: ["DM", "CM", "CMR", "CML", "CAM", "RM", "LM"] },
-  { sector: "FWD", color: "#FF2222", positions: ["ST", "WR", "WL"] },
+  { sector: "FWD", color: "#FF2222", positions: ["ST", "CF", "WR", "WL"] },
 ]
 
 const DEFAULT_POSITION_COUNTS: Record<string, number> = {
