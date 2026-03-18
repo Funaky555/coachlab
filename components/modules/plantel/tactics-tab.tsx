@@ -1000,7 +1000,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
     <div className="flex h-full overflow-hidden" style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.18) 0%,rgba(0,0,0,0.04) 100%)" }}>
 
       {/* ── XI INICIAL — coluna única, preenche altura ── */}
-      <div className="w-[128px] shrink-0 overflow-hidden p-2 flex flex-col ml-8">
+      <div className="w-[128px] shrink-0 overflow-hidden p-2 flex flex-col">
         <div className="flex items-center gap-1.5 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(0,214,108,0.22)" }}>
           <div className="w-1 h-3 rounded-full bg-[#00D66C]" style={{ boxShadow: "0 0 6px #00D66C" }} />
           <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">Starting XI</span>
@@ -1937,12 +1937,13 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-x-auto justify-center">
+        <div className="flex flex-1 min-h-0 overflow-x-auto">
+          <div className="flex m-auto min-w-fit items-stretch">
           {/* Campo + controlos acima */}
           <div className="shrink-0 flex flex-col">
             {/* Barra de controlos */}
             <div className="h-9 shrink-0 flex items-center gap-2 px-2"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(5,9,16,0.6)" }}>
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
               <MentalityDropdown
                 value={tatica.mentalidade}
                 onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
@@ -1966,6 +1967,7 @@ export function TacticsTab() {
           <div className="shrink-0 flex flex-col overflow-hidden ml-4 pt-9">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
+          </div>
           </div>
         </div>
       )}
