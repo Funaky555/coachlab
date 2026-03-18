@@ -5,106 +5,64 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Minus, Plus, Camera, UserX, Zap } from "lucide-react"
 import { type Jogador, getJogadores, getSquadPlan, saveSquadPlan, type SquadPlanSlot, displayName } from "@/lib/storage/plantel"
 
-const DEFAULT_COUNTS = { gk: 3, def: 8, mid: 6, fwd: 6 }
-
-// ── Position labels by sector + count ──────────────────────────────────────
-function buildPositionLabels(sector: string, count: number): string[] {
-  if (sector === "gk") return Array(count).fill("GK")
-  if (sector === "def") {
-    if (count === 1) return ["CB"]
-    if (count === 2) return ["LB", "RB"]
-    if (count === 3) return ["LB", "CB", "RB"]
-    if (count === 4) return ["LB", "CBL", "CBR", "RB"]
-    if (count === 5) return ["LB", "CBL", "CB", "CBR", "RB"]
-    if (count === 6) return ["LB", "LB", "CBL", "CBR", "RB", "RB"]
-    if (count === 7) return ["LB", "LB", "CBL", "CB", "CBR", "RB", "RB"]
-    if (count === 8) return ["LB", "LB", "CBL", "CBL", "CBR", "CBR", "RB", "RB"]
-    return ["LB", "LB", "CBL", "CBL", "CB", "CBR", "CBR", "RB", "RB", ...Array(count - 9).fill("CB")]
-  }
-  if (sector === "mid") {
-    if (count === 1) return ["CM"]
-    if (count === 2) return ["CM", "CM"]
-    if (count === 3) return ["CML", "CM", "CMR"]
-    if (count === 4) return ["CML", "CM", "CM", "CMR"]
-    if (count === 5) return ["CML", "CML", "CM", "CMR", "CMR"]
-    if (count === 6) return ["CML", "CML", "CM", "CM", "CMR", "CMR"]
-    if (count === 7) return ["CML", "CML", "CM", "CM", "CM", "CMR", "CMR"]
-    return ["CML", "CML", ...Array(count - 4).fill("CM"), "CMR", "CMR"]
-  }
-  if (sector === "fwd") {
-    if (count === 1) return ["ST"]
-    if (count === 2) return ["ST", "ST"]
-    if (count === 3) return ["WL", "ST", "WR"]
-    if (count === 4) return ["WL", "ST", "ST", "WR"]
-    if (count === 5) return ["WL", "WL", "ST", "WR", "WR"]
-    if (count === 6) return ["WL", "WL", "ST", "ST", "WR", "WR"]
-    return ["WL", "WL", ...Array(count - 4).fill("ST"), "WR", "WR"]
-  }
-  return []
+// ── Fixed position coordinates on landscape field (% x, % y) ───────────────
+// Left = attack (FWD), Right = defense (GK)
+const POSITION_COORDS: Record<string, { x: number; y: number }> = {
+  GK:  { x: 90, y: 50 },
+  SW:  { x: 83, y: 50 },
+  CB:  { x: 73, y: 50 },
+  CBR: { x: 73, y: 28 },
+  CBL: { x: 73, y: 72 },
+  RB:  { x: 64, y: 13 },
+  RWB: { x: 64, y: 20 },
+  LB:  { x: 64, y: 87 },
+  LWB: { x: 64, y: 80 },
+  DM:  { x: 58, y: 50 },
+  CM:  { x: 50, y: 50 },
+  CMR: { x: 40, y: 28 },
+  CML: { x: 40, y: 72 },
+  CAM: { x: 27, y: 50 },
+  RM:  { x: 27, y: 17 },
+  LM:  { x: 27, y: 83 },
+  ST:  { x: 12, y: 50 },
+  WR:  { x: 12, y: 25 },
+  WL:  { x: 12, y: 75 },
 }
 
-type SlotMeta = { sector: string; label: string; sectorIndex: number }
-
-function buildSlotMeta(counts: typeof DEFAULT_COUNTS): SlotMeta[] {
-  const result: SlotMeta[] = []
-  const sectors: [string, string][] = [["gk", "GK"], ["def", "DEF"], ["mid", "MID"], ["fwd", "FWD"]]
-  for (const [key, sectorLabel] of sectors) {
-    const count = counts[key as keyof typeof counts]
-    buildPositionLabels(key, count).forEach((label, i) =>
-      result.push({ sector: sectorLabel, label, sectorIndex: i })
-    )
-  }
-  return result
-}
-
-function getSlotKey(sector: string, sectorIndex: number) {
-  return `${sector}_${sectorIndex}`
-}
-
-// ── Compact counter control (for overlay) ──────────────────────────────────
-function CountRow({ label, value, min, max, color, onChange }: {
-  label: string; value: number; min: number; max: number; color: string; onChange: (v: number) => void
-}) {
-  return (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg backdrop-blur-sm"
-      style={{ background: "rgba(0,0,0,0.55)", border: `1px solid ${color}33` }}>
-      <span className="text-xs font-bold uppercase tracking-wide" style={{ color }}>{label}</span>
-      <button onClick={() => onChange(Math.max(min, value - 1))}
-        className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center hover:border-white/50 transition-all text-white/70 hover:text-white">
-        <Minus className="w-2.5 h-2.5" />
-      </button>
-      <span className="text-sm font-bold tabular-nums text-white w-4 text-center">{value}</span>
-      <button onClick={() => onChange(Math.min(max, value + 1))}
-        className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center hover:border-white/50 transition-all text-white/70 hover:text-white">
-        <Plus className="w-2.5 h-2.5" />
-      </button>
-    </div>
-  )
+const SECTOR_OF: Record<string, string> = {
+  GK: "GK",
+  SW: "DEF", RB: "DEF", RWB: "DEF", CBR: "DEF", CB: "DEF", CBL: "DEF", LB: "DEF", LWB: "DEF",
+  DM: "MID", CM: "MID", CMR: "MID", CML: "MID", CAM: "MID", RM: "MID", LM: "MID",
+  ST: "FWD", WR: "FWD", WL: "FWD",
 }
 
 const SECTOR_COLORS: Record<string, string> = {
-  FWD: "#FF2222", MID: "#0066FF", DEF: "#00D66C", GK: "#000000"
+  GK: "#8B5CF6", DEF: "#00D66C", MID: "#0066FF", FWD: "#FF2222",
 }
 
-const SECTOR_POSITIONS: Record<string, string[]> = {
-  GK:  ["GK"],
-  DEF: ["LB", "CB", "LCB", "RCB", "CBL", "CBR", "SW", "RB", "LWB", "RWB"],
-  MID: ["DM", "CDM", "LDM", "RDM", "CM", "LCM", "RCM", "CML", "CMR", "AM", "CAM", "LAM", "RAM", "LM", "RM"],
-  FWD: ["LW", "RW", "WL", "WR", "WF", "IF", "F9", "CF", "ST", "SS"],
+const MENU_GROUPS = [
+  { sector: "GK",  color: "#8B5CF6", positions: ["GK"] },
+  { sector: "DEF", color: "#00D66C", positions: ["RB", "RWB", "CBR", "CB", "CBL", "LB", "LWB", "SW"] },
+  { sector: "MID", color: "#0066FF", positions: ["DM", "CM", "CMR", "CML", "CAM", "RM", "LM"] },
+  { sector: "FWD", color: "#FF2222", positions: ["ST", "WR", "WL"] },
+]
+
+const DEFAULT_POSITION_COUNTS: Record<string, number> = {
+  GK: 1, CB: 2, RB: 1, LB: 1, CM: 2, CAM: 1, ST: 1,
 }
+
+const FIELD_H = "calc(100vh - 230px)"
 
 export function SquadPlanTab() {
   const [jogadores, setJogadores] = useState<Jogador[]>([])
-  const [counts, setCounts] = useState(DEFAULT_COUNTS)
+  const [positionCounts, setPositionCounts] = useState<Record<string, number>>(DEFAULT_POSITION_COUNTS)
   const [assignments, setAssignments] = useState<Record<string, string | undefined>>({})
-  const [slotPositions, setSlotPositions] = useState<Record<string, string>>({})
   const [selectOpen, setSelectOpen] = useState(false)
   const [selectingKey, setSelectingKey] = useState<string | null>(null)
   const fieldRef = useRef<HTMLDivElement>(null)
   const bgCanvasRef = useRef<HTMLCanvasElement>(null)
   const [fieldSize, setFieldSize] = useState({ w: 0, h: 0 })
 
-  // Medir dimensões reais do container
   useEffect(() => {
     const el = fieldRef.current
     if (!el) return
@@ -114,12 +72,10 @@ export function SquadPlanTab() {
     return () => ro.disconnect()
   }, [])
 
-  // Desenhar /23.png rodada -90deg no canvas — landscape completo sem corte
   useEffect(() => {
     const canvas = bgCanvasRef.current
     if (!canvas || fieldSize.w <= 0 || fieldSize.h <= 0) return
-    const CW = fieldSize.w
-    const CH = fieldSize.h
+    const CW = fieldSize.w, CH = fieldSize.h
     canvas.width = CW
     canvas.height = CH
     const ctx = canvas.getContext("2d")
@@ -130,7 +86,6 @@ export function SquadPlanTab() {
       ctx.save()
       ctx.translate(CW / 2, CH / 2)
       ctx.rotate(-Math.PI / 2)
-      // Após -90deg: draw (img natural portrait) escalada para preencher canvas landscape
       ctx.drawImage(img, -CH / 2, -CW / 2, CH, CW)
       ctx.restore()
     }
@@ -140,37 +95,39 @@ export function SquadPlanTab() {
   useEffect(() => {
     setJogadores(getJogadores())
     const plan = getSquadPlan()
-    setCounts(plan.counts ?? DEFAULT_COUNTS)
-    setSlotPositions(plan.slotPositions ?? {})
+    try {
+      const stored = localStorage.getItem("coachlab_position_counts")
+      if (stored) setPositionCounts(JSON.parse(stored) as Record<string, number>)
+    } catch { /* ignore */ }
     const map: Record<string, string | undefined> = {}
     plan.slots.forEach(s => { map[`${s.posicao}_${s.slot}`] = s.jogadorId })
     setAssignments(map)
   }, [])
 
-  function persist(
-    newAssignments: Record<string, string | undefined>,
-    newCounts: typeof counts,
-    newSlotPositions: Record<string, string>
-  ) {
+  function persist(newAssignments: Record<string, string | undefined>, newCounts: Record<string, number>) {
     const slots: SquadPlanSlot[] = Object.entries(newAssignments)
       .filter(([, v]) => !!v)
       .map(([key, jogadorId]) => {
-        const [posicao, slotStr] = key.split("_")
-        return { posicao, slot: Number(slotStr), jogadorId }
+        const parts = key.split("_")
+        const slot = Number(parts.pop())
+        const posicao = parts.join("_")
+        return { posicao, slot, jogadorId }
       })
-    saveSquadPlan({ formacao: "custom", slots, counts: newCounts, slotPositions: newSlotPositions })
+    saveSquadPlan({ formacao: "custom", slots })
+    localStorage.setItem("coachlab_position_counts", JSON.stringify(newCounts))
   }
 
-  function updateCounts(field: keyof typeof counts, value: number) {
-    const nc = { ...counts, [field]: value }
-    setCounts(nc)
-    // Clear cached slot positions for this sector so new defaults show correctly
-    const sectorKey = field === "gk" ? "GK" : field === "def" ? "DEF" : field === "mid" ? "MID" : "FWD"
-    const newSlotPositions = Object.fromEntries(
-      Object.entries(slotPositions).filter(([k]) => !k.startsWith(sectorKey + "_"))
-    )
-    setSlotPositions(newSlotPositions)
-    persist(assignments, nc, newSlotPositions)
+  function updatePositionCount(pos: string, delta: number) {
+    const current = positionCounts[pos] ?? 0
+    const next = Math.max(0, Math.min(5, current + delta))
+    const newCounts = { ...positionCounts, [pos]: next }
+    const newAssignments = { ...assignments }
+    if (next < current) {
+      for (let i = next; i < current; i++) delete newAssignments[`${pos}_${i}`]
+    }
+    setPositionCounts(newCounts)
+    setAssignments(newAssignments)
+    persist(newAssignments, newCounts)
   }
 
   function openSlotSelect(key: string) { setSelectingKey(key); setSelectOpen(true) }
@@ -179,201 +136,153 @@ export function SquadPlanTab() {
     if (!selectingKey) return
     const updated = { ...assignments, [selectingKey]: jogadorId }
     setAssignments(updated)
-
-    // Auto-fill position from player's natural position in Squad; clear when slot emptied
-    let newSlotPositions = slotPositions
-    if (jogadorId) {
-      const jogador = jogadores.find(j => j.id === jogadorId)
-      if (jogador?.posicoes[0]) {
-        newSlotPositions = { ...slotPositions, [selectingKey]: jogador.posicoes[0] }
-        setSlotPositions(newSlotPositions)
-      }
-    } else {
-      // Remove position override so the slot reverts to default label
-      const { [selectingKey]: _, ...rest } = slotPositions
-      newSlotPositions = rest
-      setSlotPositions(newSlotPositions)
-    }
-
-    persist(updated, counts, newSlotPositions)
+    persist(updated, positionCounts)
     setSelectOpen(false)
     setSelectingKey(null)
   }
 
-  function updateSlotPosition(key: string, pos: string) {
-    const newSlotPositions = { ...slotPositions, [key]: pos }
-    setSlotPositions(newSlotPositions)
-    persist(assignments, counts, newSlotPositions)
-  }
-
-  function getSlotPosition(key: string, slot: SlotMeta, jogador: Jogador | null | undefined): string {
-    if (slotPositions[key]) return slotPositions[key]
-    if (jogador?.posicoes[0]) return jogador.posicoes[0]
-    return slot.label
-  }
-
-  // ── Action buttons ───────────────────────────────────────────────────────
   function resetJogadores() {
-    setAssignments({})
-    persist({}, counts, slotPositions)
+    const empty: Record<string, string | undefined> = {}
+    setAssignments(empty)
+    persist(empty, positionCounts)
   }
 
   function autoPreencherPlantel() {
-    const slots = buildSlotMeta(counts)
     const newAssignments = { ...assignments }
     const usedIds = new Set(Object.values(newAssignments).filter(Boolean) as string[])
-    for (const slot of slots) {
-      const key = getSlotKey(slot.sector, slot.sectorIndex)
-      if (newAssignments[key]) continue
-      const expectedPos = slotPositions[key] ?? slot.label
-      const match = jogadores.find(j => !usedIds.has(j.id) && (j.posicoes as string[]).includes(expectedPos))
-      if (match) {
-        newAssignments[key] = match.id
-        usedIds.add(match.id)
+    for (const [pos, count] of Object.entries(positionCounts)) {
+      for (let i = 0; i < count; i++) {
+        const key = `${pos}_${i}`
+        if (newAssignments[key]) continue
+        const match = jogadores.find(j => !usedIds.has(j.id) && (j.posicoes as string[]).includes(pos))
+        if (match) { newAssignments[key] = match.id; usedIds.add(match.id) }
       }
     }
     setAssignments(newAssignments)
-    persist(newAssignments, counts, slotPositions)
+    persist(newAssignments, positionCounts)
   }
 
-
-  // ── Export PNG ───────────────────────────────────────────────────────────
+  // ── Export PNG ────────────────────────────────────────────────────────────
   function exportPNG() {
-    // Canvas portrait — proporção natural do /23.png (510:780)
-    const W = 2040
-    const H = Math.round(W * 780 / 510)  // = 3107
+    const W = 3120, H = 2040  // landscape 780×510 × 4
     const canvas = document.createElement("canvas")
-    canvas.width = W
-    canvas.height = H
+    canvas.width = W; canvas.height = H
     const ctxOrNull = canvas.getContext("2d")
     if (!ctxOrNull) return
     const ctx = ctxOrNull
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = "high"
-
     const bgImg = new Image()
     bgImg.crossOrigin = "anonymous"
     bgImg.onload = () => {
-      // Desenhar /23.png directamente (portrait, sem rotação)
-      ctx.drawImage(bgImg, 0, 0, W, H)
+      ctx.save()
+      ctx.translate(W / 2, H / 2)
+      ctx.rotate(-Math.PI / 2)
+      ctx.drawImage(bgImg, -H / 2, -W / 2, H, W)
+      ctx.restore()
       ctx.fillStyle = "rgba(5,18,10,0.22)"
       ctx.fillRect(0, 0, W, H)
 
-      const allSlots = buildSlotMeta(counts)
-      const DISPLAY_ORDER = ["FWD", "MID", "DEF", "GK"]
-      const sectorSlots: Record<string, SlotMeta[]> = { FWD: [], MID: [], DEF: [], GK: [] }
-      allSlots.forEach(s => sectorSlots[s.sector]?.push(s))
-
-      // Setores em linhas: Y percentages (FWD topo → GK fundo)
-      const ROW_PERCENTS = [22, 43, 63, 84]
-      const CIRCLE_R = 36, GAP = 12, CARD_W = CIRCLE_R * 2 + 20
-
-      function drawText(text: string, x: number, y: number, font: string, color: string, shadowColor = "rgba(0,0,0,0.9)") {
-        ctx.font = font
-        ctx.fillStyle = shadowColor
-        ctx.textAlign = "center"
-        ctx.fillText(text, x + 2, y + 2)
-        ctx.fillStyle = color
-        ctx.fillText(text, x, y)
-      }
-
+      const CIRCLE_R = 44
       const pending: Promise<void>[] = []
 
-      DISPLAY_ORDER.forEach((sector, rowIdx) => {
-        const slots = sectorSlots[sector]
-        const y = ROW_PERCENTS[rowIdx] / 100 * H
-        const totalW = slots.length * (CARD_W + GAP)
-        const startX = (W - totalW) / 2 + CARD_W / 2
-        const color = SECTOR_COLORS[sector] ?? "#fff"
+      for (const [pos, count] of Object.entries(positionCounts)) {
+        const coords = POSITION_COORDS[pos]
+        if (!coords || count === 0) continue
+        const color = SECTOR_COLORS[SECTOR_OF[pos] ?? "GK"] ?? "#fff"
 
-        slots.forEach((slot, colIdx) => {
-          const x = startX + colIdx * (CARD_W + GAP)
-          const key = getSlotKey(slot.sector, slot.sectorIndex)
-          const jogadorId = assignments[key]
-          const jogador = jogadorId ? jogadores.find(j => j.id === jogadorId) : null
+        for (let i = 0; i < count; i++) {
+          const yOff = (i - (count - 1) / 2) * 9
+          const cx = coords.x / 100 * W
+          const cy = (coords.y + yOff) / 100 * H
+          const key = `${pos}_${i}`
+          const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
 
-          const posLabel = slotPositions[key] ?? (jogador?.posicoes[0] ?? slot.label)
-          const pillY = y - CIRCLE_R - 18
-          const pillW = 80
+          // Position pill
+          const pillW = 90
           ctx.beginPath()
-          ctx.roundRect(x - pillW / 2, pillY - 20, pillW, 26, 13)
+          ctx.roundRect(cx - pillW / 2, cy - CIRCLE_R - 28, pillW, 26, 13)
           ctx.fillStyle = color + "dd"
           ctx.fill()
-          ctx.font = "bold 14px Arial"
+          ctx.font = "bold 18px Arial"
           ctx.fillStyle = "#fff"
           ctx.textAlign = "center"
           ctx.textBaseline = "middle"
-          ctx.fillText(posLabel, x, pillY - 7)
+          ctx.fillText(pos, cx, cy - CIRCLE_R - 15)
           ctx.textBaseline = "alphabetic"
 
+          // Circle
+          ctx.beginPath()
+          ctx.arc(cx, cy, CIRCLE_R, 0, Math.PI * 2)
+          ctx.fillStyle = "rgba(0,0,0,0.75)"
+          ctx.fill()
+          ctx.strokeStyle = color
+          ctx.lineWidth = 5
+          ctx.stroke()
+
+          if (jogador?.foto) {
+            const p = new Promise<void>(resolve => {
+              const photoImg = new Image()
+              photoImg.onload = () => {
+                ctx.save()
+                ctx.beginPath()
+                ctx.arc(cx, cy, CIRCLE_R - 3, 0, Math.PI * 2)
+                ctx.clip()
+                const r = CIRCLE_R - 3
+                ctx.drawImage(photoImg, cx - r, cy - r, r * 2, r * 2)
+                ctx.restore()
+                resolve()
+              }
+              photoImg.onerror = () => resolve()
+              photoImg.src = jogador.foto!
+            })
+            pending.push(p)
+          } else if (jogador) {
+            ctx.font = "bold 48px Arial"
+            ctx.fillStyle = "#fff"
+            ctx.textAlign = "center"
+            ctx.fillText(String(jogador.numero), cx, cy + 17)
+          }
+
           if (jogador) {
-            ctx.beginPath()
-            ctx.arc(x, y, CIRCLE_R, 0, Math.PI * 2)
-            ctx.fillStyle = "rgba(0,0,0,0.75)"
-            ctx.fill()
-            ctx.strokeStyle = color
-            ctx.lineWidth = 4
-            ctx.stroke()
-
-            if (jogador.foto) {
-              const p = new Promise<void>(resolve => {
-                const photoImg = new Image()
-                photoImg.onload = () => {
-                  ctx.save()
-                  ctx.beginPath()
-                  ctx.arc(x, y, CIRCLE_R - 3, 0, Math.PI * 2)
-                  ctx.clip()
-                  const r = CIRCLE_R - 3
-                  ctx.drawImage(photoImg, x - r, y - r, r * 2, r * 2)
-                  ctx.restore()
-                  resolve()
-                }
-                photoImg.onerror = () => resolve()
-                photoImg.src = jogador.foto!
-              })
-              pending.push(p)
-            } else {
-              drawText(String(jogador.numero), x, y + 14, "bold 40px Arial", "#fff")
-            }
-
-            const lastName = displayName(jogador)
+            const name = displayName(jogador)
             ctx.font = "bold 18px Arial"
-            const nameW = ctx.measureText(lastName).width + 24
+            const nw = ctx.measureText(name).width + 24
             ctx.beginPath()
-            ctx.roundRect(x - nameW / 2, y + CIRCLE_R + 4, nameW, 28, 14)
+            ctx.roundRect(cx - nw / 2, cy + CIRCLE_R + 4, nw, 28, 14)
             ctx.fillStyle = "rgba(0,0,0,0.65)"
             ctx.fill()
-            drawText(lastName, x, y + CIRCLE_R + 23, "bold 18px Arial", "#fff")
+            ctx.fillStyle = "#fff"
+            ctx.textAlign = "center"
+            ctx.fillText(name, cx, cy + CIRCLE_R + 22)
           }
-        })
-      })
+        }
+      }
 
       Promise.all(pending).then(() => {
-        DISPLAY_ORDER.forEach((sector, rowIdx) => {
-          const slots = sectorSlots[sector]
-          const y = ROW_PERCENTS[rowIdx] / 100 * H
-          const totalW = slots.length * (CARD_W + GAP)
-          const startX = (W - totalW) / 2 + CARD_W / 2
-
-          slots.forEach((slot, colIdx) => {
-            const x = startX + colIdx * (CARD_W + GAP)
-            const key = getSlotKey(slot.sector, slot.sectorIndex)
-            const jogadorId = assignments[key]
-            const jogador = jogadorId ? jogadores.find(j => j.id === jogadorId) : null
-            if (!jogador) return
-            const lastName = displayName(jogador)
+        // Re-draw names on top of photos
+        for (const [pos, count] of Object.entries(positionCounts)) {
+          const coords = POSITION_COORDS[pos]
+          if (!coords || count === 0) continue
+          for (let i = 0; i < count; i++) {
+            const yOff = (i - (count - 1) / 2) * 9
+            const cx = coords.x / 100 * W
+            const cy = (coords.y + yOff) / 100 * H
+            const key = `${pos}_${i}`
+            const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
+            if (!jogador) continue
+            const name = displayName(jogador)
             ctx.font = "bold 18px Arial"
-            const nameW = ctx.measureText(lastName).width + 24
+            const nw = ctx.measureText(name).width + 24
             ctx.beginPath()
-            ctx.roundRect(x - nameW / 2, y + CIRCLE_R + 4, nameW, 28, 14)
+            ctx.roundRect(cx - nw / 2, cy + CIRCLE_R + 4, nw, 28, 14)
             ctx.fillStyle = "rgba(0,0,0,0.65)"
             ctx.fill()
-            ctx.fillStyle = "#ffffff"
+            ctx.fillStyle = "#fff"
             ctx.textAlign = "center"
-            ctx.fillText(lastName, x, y + CIRCLE_R + 23)
-          })
-        })
-
+            ctx.fillText(name, cx, cy + CIRCLE_R + 22)
+          }
+        }
         const link = document.createElement("a")
         link.download = "team-plan.png"
         link.href = canvas.toDataURL("image/png", 1.0)
@@ -383,17 +292,22 @@ export function SquadPlanTab() {
     bgImg.src = "/23.png"
   }
 
-  // ── Slot layout ──────────────────────────────────────────────────────────
-  const allSlots = buildSlotMeta(counts)
-  const sectors = ["FWD", "MID", "DEF", "GK"].map(key => ({
-    key, color: SECTOR_COLORS[key],
-    slots: allSlots.filter(s => s.sector === key),
-  }))
+  // ── Active pins ───────────────────────────────────────────────────────────
+  const activePins = Object.entries(positionCounts).flatMap(([pos, count]) => {
+    const coords = POSITION_COORDS[pos]
+    if (!coords || count === 0) return []
+    return Array.from({ length: count }, (_, i) => ({
+      key: `${pos}_${i}`,
+      pos,
+      x: coords.x,
+      y: coords.y + (i - (count - 1) / 2) * 9,
+    }))
+  })
 
   return (
-    <div className="space-y-3">
-      {/* ── Action toolbar ── */}
-      <div className="relative flex items-center justify-center gap-2 px-1">
+    <div className="flex flex-col gap-2">
+      {/* ── Toolbar ── */}
+      <div className="relative flex items-center justify-center gap-2 px-1 shrink-0">
         <button
           onClick={autoPreencherPlantel}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
@@ -408,12 +322,6 @@ export function SquadPlanTab() {
         >
           <UserX className="w-3.5 h-3.5" /> Reset Jogadores
         </button>
-        <div className="flex items-center gap-1 ml-2">
-          <CountRow label="GK"  value={counts.gk}  min={1} max={5}  color="#8B5CF6" onChange={v => updateCounts("gk",  v)} />
-          <CountRow label="DEF" value={counts.def} min={1} max={10} color="#00D66C" onChange={v => updateCounts("def", v)} />
-          <CountRow label="MID" value={counts.mid} min={1} max={10} color="#0066FF" onChange={v => updateCounts("mid", v)} />
-          <CountRow label="FWD" value={counts.fwd} min={1} max={10} color="#FF6B35" onChange={v => updateCounts("fwd", v)} />
-        </div>
         <button
           onClick={exportPNG}
           className="absolute right-1 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
@@ -423,82 +331,191 @@ export function SquadPlanTab() {
         </button>
       </div>
 
-      {/* Campo — /23.png rodada via canvas (landscape, sem corte) */}
-      <div className="px-2 mt-2">
-      <div
-        ref={fieldRef}
-        className="relative rounded-2xl overflow-hidden mx-auto"
-        style={{ height: "calc(100vh - 230px)", width: "auto", aspectRatio: "780 / 510", maxWidth: "100%" }}
-      >
-        <canvas ref={bgCanvasRef} className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }} />
-        <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.18)" }} />
+      {/* ── Field + Sidebar ── */}
+      <div className="flex gap-2 px-2 items-start">
 
-        {/* Setores em colunas: FWD esq → GK dir */}
-        <div className="absolute inset-0 z-10">
-          {sectors.map((sector, i) => (
-            <div key={sector.key}
-              className="absolute top-0 bottom-0 flex flex-col items-center justify-center gap-0.5"
-              style={{ left: `${[15, 38, 62, 84][i]}%`, transform: "translateX(-50%)" }}>
-              {sector.slots.map(slot => {
-                const key = getSlotKey(slot.sector, slot.sectorIndex)
-                const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
-                const currentPos = getSlotPosition(key, slot, jogador)
+        {/* ── Position Sidebar ── */}
+        <div
+          className="w-40 shrink-0 rounded-2xl overflow-y-auto overflow-x-hidden"
+          style={{
+            height: FIELD_H,
+            background: "linear-gradient(180deg, rgba(5,18,10,0.95) 0%, rgba(3,12,7,0.98) 100%)",
+            border: "1px solid rgba(0,214,108,0.18)",
+            backdropFilter: "blur(16px)",
+            boxShadow: "0 0 24px rgba(0,214,108,0.06), inset 0 1px 0 rgba(255,255,255,0.04)",
+          }}
+        >
+          {MENU_GROUPS.map(group => (
+            <div key={group.sector}>
+              {/* Group header */}
+              <div
+                className="flex items-center gap-2 px-3 py-2 sticky top-0 z-10"
+                style={{
+                  background: `linear-gradient(90deg, ${group.color}18 0%, transparent 100%)`,
+                  borderBottom: `1px solid ${group.color}25`,
+                  borderTop: "1px solid rgba(255,255,255,0.03)",
+                }}
+              >
+                <div
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ background: group.color, boxShadow: `0 0 8px ${group.color}cc` }}
+                />
+                <span
+                  className="text-[11px] font-black uppercase tracking-[0.15em]"
+                  style={{ color: group.color, textShadow: `0 0 12px ${group.color}66` }}
+                >
+                  {group.sector}
+                </span>
+              </div>
+
+              {/* Position rows */}
+              {group.positions.map(pos => {
+                const count = positionCounts[pos] ?? 0
+                const active = count > 0
                 return (
-                  <div key={key} className="flex flex-col items-center gap-0.5" style={{ width: 44 }}>
-                    <div onClick={e => e.stopPropagation()}>
-                      <select
-                        value={currentPos}
-                        onChange={e => updateSlotPosition(key, e.target.value)}
-                        className="text-[10px] font-bold uppercase px-1 py-0 rounded-full cursor-pointer appearance-none text-center"
-                        style={{ color: "#fff", background: sector.color + "cc", textShadow: "0 1px 2px rgba(0,0,0,0.8)", border: "none", outline: "none", maxWidth: 44 }}
-                      >
-                        {SECTOR_POSITIONS[sector.key]?.map(p => (
-                          <option key={p} value={p} style={{ background: "#111", color: "#fff" }}>{p}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <button
-                      onClick={() => openSlotSelect(key)}
-                      style={{ width: 40, height: 40, ...(jogador ? { borderColor: sector.color } : {}) }}
-                      className={`rounded-full overflow-hidden flex-shrink-0 border-2 transition-all hover:opacity-80 ${jogador ? "" : "border-dashed border-white/20"}`}
+                  <div
+                    key={pos}
+                    className="flex items-center gap-1 px-2.5 py-[5px] transition-all duration-150"
+                    style={{
+                      opacity: active ? 1 : 0.4,
+                      background: active ? `${group.color}08` : "transparent",
+                    }}
+                  >
+                    <div
+                      className="w-1.5 h-1.5 rounded-full shrink-0 transition-all"
+                      style={{
+                        background: active ? group.color : "transparent",
+                        border: `1px solid ${active ? group.color : group.color + "44"}`,
+                        boxShadow: active ? `0 0 5px ${group.color}88` : "none",
+                      }}
+                    />
+                    <span
+                      className="text-[11px] font-bold uppercase flex-1 tracking-wide leading-none"
+                      style={{ color: active ? "#fff" : "#777" }}
                     >
-                      {jogador ? (
-                        jogador.foto
-                          // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={jogador.foto} alt={jogador.nome} className="w-full h-full object-cover" />
-                          : <div className="w-full h-full bg-black/75 flex items-center justify-center text-sm font-bold text-white">{jogador.numero}</div>
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center"><span className="text-white/20 text-sm">+</span></div>
-                      )}
+                      {pos}
+                    </span>
+                    <button
+                      onClick={() => updatePositionCount(pos, -1)}
+                      className="w-[18px] h-[18px] rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                      style={{
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.12)",
+                      }}
+                    >
+                      <Minus className="w-2 h-2 text-white/60" />
                     </button>
-                    <div className="text-[10px] font-bold text-white truncate w-full text-center leading-tight"
-                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)" }}>
-                      {jogador ? displayName(jogador) : <span className="text-white/20">—</span>}
-                    </div>
+                    <span
+                      className="text-[11px] font-black tabular-nums w-4 text-center"
+                      style={{ color: active ? group.color : "#444" }}
+                    >
+                      {count}
+                    </span>
+                    <button
+                      onClick={() => updatePositionCount(pos, 1)}
+                      className="w-[18px] h-[18px] rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                      style={{
+                        background: active ? `${group.color}22` : "rgba(255,255,255,0.06)",
+                        border: `1px solid ${active ? group.color + "55" : "rgba(255,255,255,0.12)"}`,
+                        boxShadow: active ? `0 0 6px ${group.color}44` : "none",
+                      }}
+                    >
+                      <Plus className="w-2 h-2" style={{ color: active ? group.color : "#555" }} />
+                    </button>
                   </div>
                 )
               })}
             </div>
           ))}
         </div>
-      </div>
+
+        {/* ── Field canvas ── */}
+        <div
+          ref={fieldRef}
+          className="relative rounded-2xl overflow-hidden shrink-0"
+          style={{ height: FIELD_H, width: "auto", aspectRatio: "780 / 510", maxWidth: "calc(100% - 168px)" }}
+        >
+          <canvas ref={bgCanvasRef} className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }} />
+          <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.18)" }} />
+
+          {/* Player pins */}
+          {activePins.map(pin => {
+            const jogador = assignments[pin.key] ? jogadores.find(j => j.id === assignments[pin.key]) : null
+            const color = SECTOR_COLORS[SECTOR_OF[pin.pos] ?? "GK"] ?? "#fff"
+            return (
+              <div
+                key={pin.key}
+                className="absolute z-10 flex flex-col items-center cursor-pointer group select-none"
+                style={{ left: `${pin.x}%`, top: `${pin.y}%`, transform: "translate(-50%, -50%)" }}
+                onClick={() => openSlotSelect(pin.key)}
+              >
+                {/* Position badge */}
+                <div
+                  className="text-[8px] font-black uppercase px-1.5 py-[2px] rounded-full mb-0.5 leading-none"
+                  style={{
+                    background: color + "ee",
+                    color: "#fff",
+                    textShadow: "0 1px 2px rgba(0,0,0,0.9)",
+                    boxShadow: `0 0 6px ${color}55`,
+                  }}
+                >
+                  {pin.pos}
+                </div>
+                {/* Avatar circle */}
+                <div
+                  className="rounded-full border-2 overflow-hidden transition-all duration-150 group-hover:scale-110"
+                  style={{
+                    width: 34, height: 34,
+                    borderColor: color,
+                    boxShadow: `0 0 10px ${color}55, 0 2px 8px rgba(0,0,0,0.6)`,
+                    background: "rgba(0,0,0,0.8)",
+                  }}
+                >
+                  {jogador ? (
+                    jogador.foto
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={jogador.foto} alt={jogador.nome} className="w-full h-full object-cover" />
+                      : <div className="w-full h-full flex items-center justify-center text-[11px] font-black text-white">{jogador.numero}</div>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-white/25 text-lg leading-none">+</span>
+                    </div>
+                  )}
+                </div>
+                {/* Name */}
+                {jogador && (
+                  <div
+                    className="text-[8px] font-bold text-white mt-0.5 max-w-[50px] truncate text-center leading-tight"
+                    style={{ textShadow: "0 1px 4px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,0.8)" }}
+                  >
+                    {displayName(jogador)}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
       </div>
 
-      {/* Player selection dialog */}
+      {/* ── Player selection dialog ── */}
       <Dialog open={selectOpen} onOpenChange={open => { if (!open) { setSelectOpen(false); setSelectingKey(null) } }}>
         <DialogContent className="max-w-sm max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Select Player</DialogTitle>
+            <DialogTitle>Selecionar Jogador</DialogTitle>
           </DialogHeader>
           <div className="space-y-1 py-2">
-            <button className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-muted/60 text-sm text-muted-foreground"
-              onClick={() => assignPlayer(undefined)}>
-              Clear slot
+            <button
+              className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-muted/60 text-sm text-muted-foreground"
+              onClick={() => assignPlayer(undefined)}
+            >
+              Limpar slot
             </button>
             {jogadores.map(j => (
-              <button key={j.id}
+              <button
+                key={j.id}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-muted/60 transition-colors"
-                onClick={() => assignPlayer(j.id)}>
+                onClick={() => assignPlayer(j.id)}
+              >
                 {j.foto ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={j.foto} alt={j.nome} className="w-8 h-8 rounded-full object-cover border border-border" />
