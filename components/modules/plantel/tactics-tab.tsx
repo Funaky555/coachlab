@@ -1047,7 +1047,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
 
       {/* ── NOT SELECTED — 3 colunas, drop zone ── */}
       <div
-        className="w-[290px] shrink-0 overflow-hidden p-1.5 flex flex-col"
+        className="w-[255px] shrink-0 overflow-hidden p-1.5 flex flex-col"
         onDrop={e => handleColDrop(e, "notSelected")}
         onDragOver={e => e.preventDefault()}
       >
@@ -1339,23 +1339,23 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
           const isGK = slot.row === 5
           const titular = tatica.titulares.find(s => s.posicao === slot.slotKey)
           const jogador = titular?.jogadorId ? jogadores.find(j => j.id === titular.jogadorId) ?? null : null
-          const R = 20 * scale
+          const R = 24 * scale
           return (
             <g key={slot.slotKey} transform={`translate(${slot.x},${slot.y})`} style={{ cursor: "grab" }}>
               <circle r={R} fill={isGK ? "#111111" : color + "99"} stroke={color} strokeWidth={2} />
               <text textAnchor="middle" dominantBaseline="central"
-                fill="white" fontSize={jogador?.alcunha ? 13 * scale : 14 * scale} fontWeight="900"
+                fill="white" fontSize={jogador?.alcunha ? 17 * scale : 18 * scale} fontWeight="900"
                 fontFamily="Inter, system-ui, sans-serif"
                 style={{ pointerEvents: "none", userSelect: "none" }}
-                stroke="rgba(0,0,0,0.5)" strokeWidth={1.5 * scale} paintOrder="stroke">
+                stroke="rgba(0,0,0,0.5)" strokeWidth={2 * scale} paintOrder="stroke">
                 {jogador ? (jogador.alcunha?.substring(0, 6) ?? String(jogador.numero)) : slot.label}
               </text>
               {jogador && (
                 <text textAnchor="middle" dominantBaseline="hanging"
-                  y={23 * scale} fill="white" fontSize={9 * scale} fontWeight="700"
+                  y={28 * scale} fill="white" fontSize={13 * scale} fontWeight="700"
                   fontFamily="Inter, system-ui, sans-serif"
                   style={{ pointerEvents: "none", userSelect: "none" }}
-                  stroke="rgba(0,0,0,0.8)" strokeWidth={3.5 * scale} paintOrder="stroke">
+                  stroke="rgba(0,0,0,0.8)" strokeWidth={4 * scale} paintOrder="stroke">
                   {(jogador.alcunha || jogador.nome?.split(" ").pop() || "").substring(0, 10)}
                 </text>
               )}
