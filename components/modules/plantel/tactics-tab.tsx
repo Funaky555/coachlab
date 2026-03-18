@@ -1153,7 +1153,7 @@ function HorizontalBenchPanel({ jogadores, tatica, onUnassign }: {
 const MENTALITY_OPTIONS: { value: TacticaConfig["mentalidade"]; label: string; color: string; short: string }[] = [
   { value: "very_offensive",  label: "Very Offensive",  color: "#FF2222", short: "V.OFF" },
   { value: "offensive",       label: "Offensive",        color: "#FF8C00", short: "OFF"   },
-  { value: "balanced",        label: "Balanced",         color: "#00D66C", short: "BAL"   },
+  { value: "balanced",        label: "Balanced",         color: "#00BFFF", short: "BAL"   },
   { value: "defensive",       label: "Defensive",        color: "#0066FF", short: "DEF"   },
   { value: "very_defensive",  label: "Very Defensive",   color: "#CC00FF", short: "V.DEF" },
 ]
@@ -1247,16 +1247,16 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
         onClick={() => setOpen(true)}
         className="flex items-center gap-2 h-8 px-3 rounded-lg transition-all group hover:brightness-110"
         style={{
-          background: "linear-gradient(135deg, rgba(0,214,108,0.13) 0%, rgba(0,102,255,0.08) 100%)",
-          border: "1px solid rgba(0,214,108,0.35)",
-          boxShadow: "0 0 10px rgba(0,214,108,0.1)",
+          background: "linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(0,102,255,0.08) 100%)",
+          border: "1px solid rgba(139,92,246,0.4)",
+          boxShadow: "0 0 10px rgba(139,92,246,0.12)",
         }}
       >
         <div className="flex flex-col items-start gap-0">
-          <span className="text-[6px] font-black uppercase tracking-[0.28em] leading-none" style={{ color: "#00D66C" }}>Formation</span>
+          <span className="text-[6px] font-black uppercase tracking-[0.28em] leading-none" style={{ color: "#A78BFA" }}>Formation</span>
           <span className="text-[12px] font-black font-mono leading-tight" style={{ color: "#fff" }}>{value}</span>
         </div>
-        <ChevronDown className="w-3 h-3 transition-transform group-hover:translate-y-0.5" style={{ color: "rgba(0,214,108,0.55)" }} />
+        <ChevronDown className="w-3 h-3 transition-transform group-hover:translate-y-0.5" style={{ color: "rgba(139,92,246,0.6)" }} />
       </button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
