@@ -1056,7 +1056,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           <span className="text-[7px] font-black uppercase tracking-[0.15em]" style={{ color: "rgba(255,80,80,0.7)" }}>Not Selected</span>
           <span className="ml-auto text-[7px] font-mono" style={{ color: "rgba(255,80,80,0.4)" }}>{notSelected.length}</span>
         </div>
-        <div className="grid grid-cols-3 gap-1 content-start overflow-y-auto">
+        <div className="grid grid-cols-3 gap-0.5 content-start overflow-y-auto">
           {notSelected.map(j => (
             <PlayerRow key={j.id} j={j} source="notSelected" onRowInclude={() => onInclude(j.id)} />
           ))}
@@ -1938,34 +1938,32 @@ export function TacticsTab() {
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
         <div className="flex flex-1 min-h-0 overflow-x-auto justify-center">
-          {/* Sidebar esquerdo: Formation + Mentality */}
-          <div className="shrink-0 w-[80px] flex flex-col overflow-hidden"
-            style={{
-              background: "linear-gradient(180deg, rgba(5,9,16,0.98) 0%, rgba(3,7,13,0.97) 100%)",
-              borderRight: "1px solid rgba(255,255,255,0.1)",
-            }}>
-            <div style={{ height: 2, background: "linear-gradient(90deg, #00D66C 0%, #0066FF 100%)", flexShrink: 0 }} />
-            <FormationPickerDialog sidebar
-              value={tatica.formacao}
-              onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
-            />
-            <div className="h-px mx-2" style={{ background: "rgba(255,255,255,0.08)" }} />
-            <MentalityDropdown sidebar
-              value={tatica.mentalidade}
-              onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
-            />
+          {/* Campo + controlos acima */}
+          <div className="shrink-0 flex flex-col">
+            {/* Barra de controlos */}
+            <div className="h-9 shrink-0 flex items-center gap-2 px-2"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(5,9,16,0.6)" }}>
+              <FormationPickerDialog
+                value={tatica.formacao}
+                onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
+              />
+              <MentalityDropdown
+                value={tatica.mentalidade}
+                onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
+              />
+            </div>
+            {/* Campo */}
+            <div ref={fieldRef} className="w-[280px] flex-1">
+              <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
+                selectedArrowType={arrowType}
+                slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
+                onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
+                slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
+                onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
+            </div>
           </div>
-          {/* Campo */}
-          <div ref={fieldRef} className="w-[300px] shrink-0 h-full">
-            <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
-              selectedArrowType={arrowType}
-              slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
-              onUpdateOverrides={overrides => update({ ipSlotOverrides: overrides })}
-              slotLabelOverridesForMode={tatica.ipSlotLabelOverrides ?? {}}
-              onUpdateLabelOverrides={o => update({ ipSlotLabelOverrides: o })} />
-          </div>
-          {/* Painéis XI / Bench / Not Selected */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-[80px]">
+          {/* Painéis XI / Bench / Not Selected — pt-9 alinha com topo do campo */}
+          <div className="shrink-0 flex flex-col overflow-hidden ml-4 pt-9">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
