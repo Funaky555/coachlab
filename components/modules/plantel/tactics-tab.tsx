@@ -1940,7 +1940,7 @@ export function TacticsTab() {
           <div className="shrink-0 flex flex-col">
             {/* Barra de controlos */}
             <div className="h-9 shrink-0 flex items-center justify-center gap-1"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.12)" }}>
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
               <MentalityDropdown
                 value={tatica.mentalidade}
                 onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
