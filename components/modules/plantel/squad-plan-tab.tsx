@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Minus, Plus, Camera, UserX, Zap, RotateCcw } from "lucide-react"
+import { Minus, Plus, Camera, UserX, Zap } from "lucide-react"
 import { type Jogador, getJogadores, getSquadPlan, saveSquadPlan, type SquadPlanSlot, displayName } from "@/lib/storage/plantel"
 
 const DEFAULT_COUNTS = { gk: 3, def: 8, mid: 6, fwd: 6 }
@@ -236,12 +236,6 @@ export function SquadPlanTab() {
     persist(newAssignments, counts, slotPositions)
   }
 
-  function limparTudo() {
-    setAssignments({})
-    setCounts(DEFAULT_COUNTS)
-    setSlotPositions({})
-    persist({}, DEFAULT_COUNTS, {})
-  }
 
   // ── Export PNG ───────────────────────────────────────────────────────────
   function exportPNG() {
@@ -399,45 +393,35 @@ export function SquadPlanTab() {
   return (
     <div className="space-y-3">
       {/* ── Action toolbar ── */}
-      <div className="flex flex-col items-center gap-2">
-        {/* Linha 1: botões de ação */}
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          <button
-            onClick={autoPreencherPlantel}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
-            style={{ background: "#00D66C", color: "#000", boxShadow: "0 0 12px rgba(0,214,108,0.4)" }}
-          >
-            <Zap className="w-3.5 h-3.5" /> Auto Preencher
-          </button>
-          <button
-            onClick={resetJogadores}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
-            style={{ background: "#FF4444", color: "#fff", boxShadow: "0 0 12px rgba(255,68,68,0.35)" }}
-          >
-            <UserX className="w-3.5 h-3.5" /> Reset Jogadores
-          </button>
-          <button
-            onClick={limparTudo}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
-            style={{ background: "#FF6B35", color: "#fff", boxShadow: "0 0 12px rgba(255,107,53,0.35)" }}
-          >
-            <RotateCcw className="w-3.5 h-3.5" /> Limpar Tudo
-          </button>
-          <button
-            onClick={exportPNG}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
-            style={{ background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
-          >
-            <Camera className="w-3.5 h-3.5" /> Exportar PNG
-          </button>
-        </div>
-        {/* Linha 2: contadores de setor */}
-        <div className="flex items-center justify-center gap-1">
+      <div className="flex items-center gap-2 px-1">
+        <button
+          onClick={autoPreencherPlantel}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
+          style={{ background: "#00D66C", color: "#000", boxShadow: "0 0 12px rgba(0,214,108,0.4)" }}
+        >
+          <Zap className="w-3.5 h-3.5" /> Auto Preencher
+        </button>
+        <button
+          onClick={resetJogadores}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
+          style={{ background: "#FF4444", color: "#fff", boxShadow: "0 0 12px rgba(255,68,68,0.35)" }}
+        >
+          <UserX className="w-3.5 h-3.5" /> Reset Jogadores
+        </button>
+        <div className="flex items-center gap-1 ml-2">
           <CountRow label="GK"  value={counts.gk}  min={1} max={5}  color="#8B5CF6" onChange={v => updateCounts("gk",  v)} />
           <CountRow label="DEF" value={counts.def} min={1} max={10} color="#00D66C" onChange={v => updateCounts("def", v)} />
           <CountRow label="MID" value={counts.mid} min={1} max={10} color="#0066FF" onChange={v => updateCounts("mid", v)} />
           <CountRow label="FWD" value={counts.fwd} min={1} max={10} color="#FF6B35" onChange={v => updateCounts("fwd", v)} />
         </div>
+        <div className="flex-1" />
+        <button
+          onClick={exportPNG}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-90 active:scale-95"
+          style={{ background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
+        >
+          <Camera className="w-3.5 h-3.5" /> Exportar PNG
+        </button>
       </div>
 
       {/* Campo — /23.png rodada via canvas (landscape, sem corte) */}
