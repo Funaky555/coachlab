@@ -1245,18 +1245,15 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
       ) : (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 h-8 px-3 rounded-lg transition-all group hover:bg-white/[0.08]"
-        style={{
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.13)",
-          backdropFilter: "blur(8px)",
-        }}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all hover:scale-[1.04] active:scale-95"
+        style={{ background: "rgba(255,255,255,0.95)", boxShadow: "0 2px 14px rgba(0,0,0,0.45)" }}
       >
+        <span style={{ fontSize: 15 }}>⚽</span>
         <div className="flex flex-col items-start gap-0">
-          <span className="text-[6px] font-black uppercase tracking-[0.28em] leading-none" style={{ color: "rgba(255,255,255,0.38)" }}>Formation</span>
-          <span className="text-[12px] font-black font-mono leading-tight" style={{ color: "#fff" }}>{value}</span>
+          <span className="text-[6px] font-black uppercase tracking-[0.25em] leading-none" style={{ color: "rgba(0,0,0,0.4)" }}>Formation</span>
+          <span className="text-[13px] font-black font-mono leading-tight" style={{ color: "#000" }}>{value}</span>
         </div>
-        <ChevronDown className="w-3 h-3 transition-transform group-hover:translate-y-0.5" style={{ color: "rgba(255,255,255,0.3)" }} />
+        <ChevronDown className="w-3 h-3" style={{ color: "rgba(0,0,0,0.35)" }} />
       </button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
@@ -1486,18 +1483,15 @@ function MentalityDropdown({ value, onChange, sidebar = false }: {
       ) : (
         <button
           onClick={() => setOpen(p => !p)}
-          className="flex items-center gap-2 h-8 px-3 rounded-lg transition-all group hover:bg-white/[0.08]"
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.13)",
-            backdropFilter: "blur(8px)",
-          }}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all hover:scale-[1.04] active:scale-95"
+          style={{ background: "rgba(255,255,255,0.95)", boxShadow: "0 2px 14px rgba(0,0,0,0.45)" }}
         >
+          <div className="w-3 h-3 rounded-full shrink-0" style={{ background: opt.color, boxShadow: `0 0 6px ${opt.color}` }} />
           <div className="flex flex-col items-start gap-0">
-            <span className="text-[6px] font-black uppercase tracking-[0.28em] leading-none" style={{ color: "rgba(255,255,255,0.38)" }}>Mentality</span>
-            <span className="text-[12px] font-bold leading-tight" style={{ color: "#fff" }}>{opt.label}</span>
+            <span className="text-[6px] font-black uppercase tracking-[0.25em] leading-none" style={{ color: "rgba(0,0,0,0.4)" }}>Mentality</span>
+            <span className="text-[13px] font-bold leading-tight" style={{ color: "#000" }}>{opt.label}</span>
           </div>
-          <ChevronDown className="w-3 h-3 transition-transform group-hover:translate-y-0.5" style={{ color: "rgba(255,255,255,0.3)" }} />
+          <ChevronDown className="w-3 h-3" style={{ color: "rgba(0,0,0,0.35)" }} />
         </button>
       )}
       {open && (
