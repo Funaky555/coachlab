@@ -101,37 +101,6 @@ export function SquadPlanTab() {
   const [selectOpen, setSelectOpen] = useState(false)
   const [selectingKey, setSelectingKey] = useState<string | null>(null)
   const fieldRef = useRef<HTMLDivElement>(null)
-  const bgCanvasRef = useRef<HTMLCanvasElement>(null)
-  const [fieldW, setFieldW] = useState(0)
-
-  useEffect(() => {
-    const update = () => { if (fieldRef.current) setFieldW(fieldRef.current.clientWidth) }
-    update()
-    const ro = new ResizeObserver(update)
-    if (fieldRef.current) ro.observe(fieldRef.current)
-    return () => ro.disconnect()
-  }, [])
-
-  // Desenhar /23.png rodada -90deg no canvas de fundo
-  useEffect(() => {
-    const canvas = bgCanvasRef.current
-    if (!canvas || !fieldW) return
-    const W = fieldW
-    const H = Math.round(W * 510 / 780)
-    canvas.width = W
-    canvas.height = H
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-    const img = new Image()
-    img.onload = () => {
-      ctx.save()
-      ctx.translate(W / 2, H / 2)
-      ctx.rotate(-Math.PI / 2)
-      ctx.drawImage(img, -H / 2, -W / 2, H, W)
-      ctx.restore()
-    }
-    img.src = "/23.png"
-  }, [fieldW])
 
   useEffect(() => {
     setJogadores(getJogadores())
@@ -241,9 +210,9 @@ export function SquadPlanTab() {
 
   // ── Export PNG ───────────────────────────────────────────────────────────
   function exportPNG() {
-    // Canvas com proporção exacta do campo rotado (780:510)
-    const W = 2340
-    const H = Math.round(W * 510 / 780)  // = 1530
+    // Canvas portrait — proporção natural do /23.png (510:780)
+    const W = 2040
+    const H = Math.round(W * 780 / 510)  // = 3107
     const canvas = document.createElement("canvas")
     canvas.width = W
     canvas.height = H
@@ -256,13 +225,9 @@ export function SquadPlanTab() {
     const bgImg = new Image()
     bgImg.crossOrigin = "anonymous"
     bgImg.onload = () => {
-      // Desenhar /23.png rodado +90deg (portrait → landscape)
-      ctx.save()
-      ctx.translate(W / 2, H / 2)
-      ctx.rotate(Math.PI / 2)
-      ctx.drawImage(bgImg, -H / 2, -W / 2, H, W)
-      ctx.restore()
-      ctx.fillStyle = "rgba(5,18,10,0.20)"
+      // Desenhar /23.png directamente (portrait, sem rotação)
+      ctx.drawImage(bgImg, 0, 0, W, H)
+      ctx.fillStyle = "rgba(5,18,10,0.22)"
       ctx.fillRect(0, 0, W, H)
 
       const allSlots = buildSlotMeta(counts)
@@ -270,9 +235,9 @@ export function SquadPlanTab() {
       const sectorSlots: Record<string, SlotMeta[]> = { FWD: [], MID: [], DEF: [], GK: [] }
       allSlots.forEach(s => sectorSlots[s.sector]?.push(s))
 
-      // Setores em colunas: X percentages (FWD esq → GK dir)
-      const COL_PERCENTS = [15, 38, 62, 84]
-      const CIRCLE_R = 36, GAP = 12, CARD_H = CIRCLE_R * 2 + 40
+      // Setores em linhas: Y percentages (FWD topo → GK fundo)
+      const ROW_PERCENTS = [22, 43, 63, 84]
+      const CIRCLE_R = 36, GAP = 12, CARD_W = CIRCLE_R * 2 + 20
 
       function drawText(text: string, x: number, y: number, font: string, color: string, shadowColor = "rgba(0,0,0,0.9)") {
         ctx.font = font
@@ -285,20 +250,19 @@ export function SquadPlanTab() {
 
       const pending: Promise<void>[] = []
 
-      DISPLAY_ORDER.forEach((sector, colIdx) => {
+      DISPLAY_ORDER.forEach((sector, rowIdx) => {
         const slots = sectorSlots[sector]
-        const x = COL_PERCENTS[colIdx] / 100 * W
-        const totalH = slots.length * (CARD_H + GAP)
-        const startY = (H - totalH) / 2 + CARD_H / 2
+        const y = ROW_PERCENTS[rowIdx] / 100 * H
+        const totalW = slots.length * (CARD_W + GAP)
+        const startX = (W - totalW) / 2 + CARD_W / 2
         const color = SECTOR_COLORS[sector] ?? "#fff"
 
-        slots.forEach((slot, rowIdx) => {
-          const y = startY + rowIdx * (CARD_H + GAP)
+        slots.forEach((slot, colIdx) => {
+          const x = startX + colIdx * (CARD_W + GAP)
           const key = getSlotKey(slot.sector, slot.sectorIndex)
           const jogadorId = assignments[key]
           const jogador = jogadorId ? jogadores.find(j => j.id === jogadorId) : null
 
-          // Position pill
           const posLabel = slotPositions[key] ?? (jogador?.posicoes[0] ?? slot.label)
           const pillY = y - CIRCLE_R - 18
           const pillW = 80
@@ -343,7 +307,6 @@ export function SquadPlanTab() {
               drawText(String(jogador.numero), x, y + 14, "bold 40px Arial", "#fff")
             }
 
-            // Name pill
             const lastName = displayName(jogador)
             ctx.font = "bold 18px Arial"
             const nameW = ctx.measureText(lastName).width + 24
@@ -356,16 +319,15 @@ export function SquadPlanTab() {
         })
       })
 
-      // After photos load, redraw name pills on top
       Promise.all(pending).then(() => {
-        DISPLAY_ORDER.forEach((sector, colIdx) => {
+        DISPLAY_ORDER.forEach((sector, rowIdx) => {
           const slots = sectorSlots[sector]
-          const x = COL_PERCENTS[colIdx] / 100 * W
-          const totalH = slots.length * (CARD_H + GAP)
-          const startY = (H - totalH) / 2 + CARD_H / 2
+          const y = ROW_PERCENTS[rowIdx] / 100 * H
+          const totalW = slots.length * (CARD_W + GAP)
+          const startX = (W - totalW) / 2 + CARD_W / 2
 
-          slots.forEach((slot, rowIdx) => {
-            const y = startY + rowIdx * (CARD_H + GAP)
+          slots.forEach((slot, colIdx) => {
+            const x = startX + colIdx * (CARD_W + GAP)
             const key = getSlotKey(slot.sector, slot.sectorIndex)
             const jogadorId = assignments[key]
             const jogador = jogadorId ? jogadores.find(j => j.id === jogadorId) : null
@@ -440,82 +402,72 @@ export function SquadPlanTab() {
         </button>
       </div>
 
-      {/* Field with absolute overlays — landscape */}
-      <div
-        ref={fieldRef}
-        className="relative rounded-2xl overflow-hidden w-full"
-        style={{ aspectRatio: "780 / 510" }}
-      >
-        {/* /23.png rodada -90deg via canvas — sem corte nem distorção */}
-        <canvas
-          ref={bgCanvasRef}
-          className="absolute inset-0 w-full h-full"
-          style={{ pointerEvents: "none" }}
-        />
-        {/* Overlay */}
-        <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.20)" }} />
+      {/* Campo — /23.png na orientação natural (portrait) */}
+      <div className="flex justify-center">
+        <div ref={fieldRef} className="relative rounded-2xl overflow-hidden" style={{ width: "100%", maxWidth: 460 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/23.png" alt="campo" className="w-full h-auto block" style={{ pointerEvents: "none" }} />
+          <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.22)" }} />
 
-        {/* Setores em colunas: FWD esq → GK dir */}
-        <div className="absolute inset-0 z-10">
-          {sectors.map((sector, i) => (
-            <div key={sector.key}
-              className="absolute top-0 bottom-0 flex flex-col items-center justify-center gap-1"
-              style={{ left: `${[15, 38, 62, 84][i]}%`, transform: "translateX(-50%)" }}>
-              {sector.slots.map(slot => {
-                const key = getSlotKey(slot.sector, slot.sectorIndex)
-                const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
-                const currentPos = getSlotPosition(key, slot, jogador)
-                return (
-                  <div key={key} className="flex flex-col items-center gap-0.5" style={{ width: 44 }}>
-                    {/* Position pill */}
-                    <div onClick={e => e.stopPropagation()}>
-                      <select
-                        value={currentPos}
-                        onChange={e => updateSlotPosition(key, e.target.value)}
-                        className="text-[10px] font-bold uppercase px-1 py-0 rounded-full cursor-pointer appearance-none text-center"
-                        style={{
-                          color: "#fff",
-                          background: sector.color + "cc",
-                          textShadow: "0 1px 2px rgba(0,0,0,0.8)",
-                          border: "none",
-                          outline: "none",
-                          maxWidth: 44,
-                        }}
+          {/* Setores em linhas: FWD topo → GK fundo */}
+          <div className="absolute inset-0 z-10">
+            {sectors.map((sector, i) => (
+              <div key={sector.key}
+                className="absolute left-0 right-0 flex justify-center gap-1.5 flex-wrap px-2"
+                style={{ top: `${[22, 43, 63, 84][i]}%`, transform: "translateY(-50%)" }}>
+                {sector.slots.map(slot => {
+                  const key = getSlotKey(slot.sector, slot.sectorIndex)
+                  const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
+                  const currentPos = getSlotPosition(key, slot, jogador)
+                  return (
+                    <div key={key} className="flex flex-col items-center gap-0.5" style={{ width: 44 }}>
+                      <div onClick={e => e.stopPropagation()}>
+                        <select
+                          value={currentPos}
+                          onChange={e => updateSlotPosition(key, e.target.value)}
+                          className="text-[10px] font-bold uppercase px-1 py-0 rounded-full cursor-pointer appearance-none text-center"
+                          style={{
+                            color: "#fff",
+                            background: sector.color + "cc",
+                            textShadow: "0 1px 2px rgba(0,0,0,0.8)",
+                            border: "none", outline: "none", maxWidth: 44,
+                          }}
+                        >
+                          {SECTOR_POSITIONS[sector.key]?.map(p => (
+                            <option key={p} value={p} style={{ background: "#111", color: "#fff" }}>{p}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        onClick={() => openSlotSelect(key)}
+                        style={{ width: 40, height: 40, ...(jogador ? { borderColor: sector.color } : {}) }}
+                        className={`rounded-full overflow-hidden flex-shrink-0 border-2 transition-all hover:opacity-80 ${jogador ? "" : "border-dashed border-white/20"}`}
                       >
-                        {SECTOR_POSITIONS[sector.key]?.map(p => (
-                          <option key={p} value={p} style={{ background: "#111", color: "#fff" }}>{p}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <button
-                      onClick={() => openSlotSelect(key)}
-                      style={{ width: 40, height: 40, ...(jogador ? { borderColor: sector.color } : {}) }}
-                      className={`rounded-full overflow-hidden flex-shrink-0 border-2 transition-all hover:opacity-80 ${jogador ? "" : "border-dashed border-white/20"}`}
-                    >
-                      {jogador ? (
-                        jogador.foto ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={jogador.foto} alt={jogador.nome} className="w-full h-full object-cover" />
+                        {jogador ? (
+                          jogador.foto ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={jogador.foto} alt={jogador.nome} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-black/75 flex items-center justify-center text-sm font-bold text-white">
+                              {jogador.numero}
+                            </div>
+                          )
                         ) : (
-                          <div className="w-full h-full bg-black/75 flex items-center justify-center text-sm font-bold text-white">
-                            {jogador.numero}
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-white/20 text-sm">+</span>
                           </div>
-                        )
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-white/20 text-sm">+</span>
-                        </div>
-                      )}
-                    </button>
-                    <div className="text-[10px] font-bold text-white truncate w-full text-center leading-tight"
-                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)" }}>
-                      {jogador ? displayName(jogador) : <span className="text-white/20">—</span>}
+                        )}
+                      </button>
+                      <div className="text-[10px] font-bold text-white truncate w-full text-center leading-tight"
+                        style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)" }}>
+                        {jogador ? displayName(jogador) : <span className="text-white/20">—</span>}
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-          ))}
+                  )
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
