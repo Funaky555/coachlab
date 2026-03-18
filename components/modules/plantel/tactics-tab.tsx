@@ -519,8 +519,9 @@ function PlayerPin({
 
       {/* Player name */}
       {jogador && (
-        <text textAnchor="middle" y={R + 23 * scale} fill="rgba(255,255,255,0.75)"
-          fontSize={9 * scale} fontWeight="500"
+        <text textAnchor="middle" y={R + 27 * scale} fill="rgba(255,255,255,0.9)"
+          fontSize={14 * scale} fontWeight="700"
+          stroke="rgba(0,0,0,0.7)" strokeWidth={3 * scale} paintOrder="stroke"
           style={{ pointerEvents: "none", userSelect: "none" }}>
           {displayName(jogador).split(" ").slice(-1)[0].substring(0, 9)}
         </text>
