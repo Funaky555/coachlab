@@ -448,7 +448,7 @@ export function PlantelModule() {
         </TabsList>
 
         {/* ── TEAM PLAN TAB ── */}
-        <TabsContent value="team-plan">
+        <TabsContent value="team-plan" className="md:flex-1 md:overflow-y-auto md:min-h-0">
           <SquadPlanTab />
         </TabsContent>
 
