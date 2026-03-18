@@ -8,8 +8,8 @@ import { type Jogador, getJogadores, getSquadPlan, saveSquadPlan, type SquadPlan
 // ── Fixed position coordinates on landscape field (% x, % y) ───────────────
 // Left = attack (FWD), Right = defense (GK)
 const POSITION_COORDS: Record<string, { x: number; y: number }> = {
-  GK:  { x: 94, y: 50 },
-  SW:  { x: 87, y: 50 },
+  GK:  { x: 97, y: 50 },
+  SW:  { x: 91, y: 50 },
   CB:  { x: 77, y: 50 },
   CBR: { x: 77, y: 28 },
   CBL: { x: 77, y: 72 },
@@ -22,8 +22,8 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CMR: { x: 40, y: 28 },
   CML: { x: 40, y: 72 },
   CAM: { x: 30, y: 50 },
-  RM:  { x: 27, y: 17 },
-  LM:  { x: 27, y: 83 },
+  RM:  { x: 31, y: 17 },
+  LM:  { x: 31, y: 83 },
   ST:  { x:  3, y: 50 },
   CF:  { x: 10, y: 50 },
   SS:  { x: 17, y: 50 },
