@@ -1245,12 +1245,18 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
       ) : (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border transition-all text-[10px] font-bold hover:border-white/25"
-        style={{ borderColor: "rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.75)" }}
+        className="flex items-center gap-2 h-8 px-3 rounded-lg transition-all group hover:brightness-110"
+        style={{
+          background: "linear-gradient(135deg, rgba(0,214,108,0.13) 0%, rgba(0,102,255,0.08) 100%)",
+          border: "1px solid rgba(0,214,108,0.35)",
+          boxShadow: "0 0 10px rgba(0,214,108,0.1)",
+        }}
       >
-        <span className="font-medium" style={{ color: "rgba(255,255,255,0.38)" }}>Formation</span>
-        <span>{value}</span>
-        <ChevronDown className="w-3 h-3 opacity-50" />
+        <div className="flex flex-col items-start gap-0">
+          <span className="text-[6px] font-black uppercase tracking-[0.28em] leading-none" style={{ color: "#00D66C" }}>Formation</span>
+          <span className="text-[12px] font-black font-mono leading-tight" style={{ color: "#fff" }}>{value}</span>
+        </div>
+        <ChevronDown className="w-3 h-3 transition-transform group-hover:translate-y-0.5" style={{ color: "rgba(0,214,108,0.55)" }} />
       </button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
