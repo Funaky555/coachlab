@@ -219,15 +219,9 @@ export function SquadPlanTab() {
 
   // ── Export PNG ───────────────────────────────────────────────────────────
   function exportPNG() {
-    // Capturar dimensões reais do campo para replicar ratio + crop CSS exactamente
-    const fieldEl = fieldRef.current
-    const screenW = fieldEl?.clientWidth ?? 1200
-    const screenH = fieldEl?.clientHeight ?? 680
-    const screenAspect = screenW / screenH
-
-    // Canvas com mesmo ratio que o ecrã → sem distorção
-    const W = 2880
-    const H = Math.round(W / screenAspect)
+    // Canvas com proporção exacta do campo rotado (780:510)
+    const W = 2340
+    const H = Math.round(W * 510 / 780)  // = 1530
     const canvas = document.createElement("canvas")
     canvas.width = W
     canvas.height = H
@@ -428,7 +422,7 @@ export function SquadPlanTab() {
       <div
         ref={fieldRef}
         className="relative rounded-2xl overflow-hidden w-full"
-        style={{ height: 500 }}
+        style={{ aspectRatio: "780 / 510" }}
       >
         {/* /23.png rodado -90deg → landscape */}
         {fieldW > 0 && (
