@@ -256,7 +256,7 @@ export function SquadPlanTab() {
 
       // Vertically centered: equal top/bottom margin accounting for pill above (50px) and name below (38px)
       const ROW_PERCENTS = [22.0, 43.0, 63.0, 84.0]
-      const CARD_W = 160, CIRCLE_R = 72, GAP = 24
+      const CARD_W = 80, CIRCLE_R = 36, GAP = 12
 
       function drawText(text: string, x: number, y: number, font: string, color: string, shadowColor = "rgba(0,0,0,0.9)") {
         ctx.font = font
@@ -434,38 +434,38 @@ export function SquadPlanTab() {
           backgroundImage: "url('/23.png')",
           backgroundSize: "cover",
           backgroundPosition: "center center",
-          width: 460,
-          height: 700,
+          width: 620,
+          height: 820,
         }}
       >
         {/* Overlay: desaturate the warm yellow tones + darken */}
-        <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.62)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.22)" }} />
 
         {/* Pitch rows — absolute positioning per sector so they stay inside field lines */}
-        <div className="relative z-10 px-4" style={{ height: 700 }}>
+        <div className="relative z-10 px-4" style={{ height: 820 }}>
           {sectors.map((sector, i) => (
             <div key={sector.key} className="absolute left-0 right-0 px-4"
               style={{ top: `${[22, 43, 63, 84][i]}%`, transform: "translateY(-50%)" }}>
-              <div className="flex justify-center gap-3 flex-wrap">
+              <div className="flex justify-center gap-1.5 flex-wrap">
                 {sector.slots.map(slot => {
                   const key = getSlotKey(slot.sector, slot.sectorIndex)
                   const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
                   const currentPos = getSlotPosition(key, slot, jogador)
                   return (
-                    <div key={key} className="flex flex-col items-center gap-1" style={{ width: 80 }}>
+                    <div key={key} className="flex flex-col items-center gap-0.5" style={{ width: 44 }}>
                       {/* Position pill — editable select, stops click propagation */}
                       <div onClick={e => e.stopPropagation()}>
                         <select
                           value={currentPos}
                           onChange={e => updateSlotPosition(key, e.target.value)}
-                          className="text-[12px] font-bold uppercase px-1.5 py-0.5 rounded-full cursor-pointer appearance-none text-center"
+                          className="text-[10px] font-bold uppercase px-1 py-0 rounded-full cursor-pointer appearance-none text-center"
                           style={{
                             color: "#fff",
                             background: sector.color + "cc",
                             textShadow: "0 1px 2px rgba(0,0,0,0.8)",
                             border: "none",
                             outline: "none",
-                            maxWidth: 64,
+                            maxWidth: 44,
                           }}
                         >
                           {SECTOR_POSITIONS[sector.key]?.map(p => (
@@ -475,7 +475,7 @@ export function SquadPlanTab() {
                       </div>
                       <button
                         onClick={() => openSlotSelect(key)}
-                        style={{ width: 80, height: 80, ...(jogador ? { borderColor: sector.color } : {}) }}
+                        style={{ width: 40, height: 40, ...(jogador ? { borderColor: sector.color } : {}) }}
                         className={`rounded-full overflow-hidden flex-shrink-0 border-2 transition-all hover:opacity-80 ${jogador ? "" : "border-dashed border-white/20"}`}
                       >
                         {jogador ? (
@@ -484,17 +484,17 @@ export function SquadPlanTab() {
                             <img src={jogador.foto} alt={jogador.nome}
                               className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full bg-black/75 flex items-center justify-center text-lg font-bold text-white">
+                            <div className="w-full h-full bg-black/75 flex items-center justify-center text-sm font-bold text-white">
                               {jogador.numero}
                             </div>
                           )
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-white/20 text-xl">+</span>
+                            <span className="text-white/20 text-sm">+</span>
                           </div>
                         )}
                       </button>
-                      <div className="text-[12px] font-bold text-white truncate w-full text-center leading-tight"
+                      <div className="text-[10px] font-bold text-white truncate w-full text-center leading-tight"
                         style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9)" }}>
                         {jogador ? displayName(jogador) : <span className="text-white/20">—</span>}
                       </div>
