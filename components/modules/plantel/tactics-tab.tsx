@@ -1247,8 +1247,8 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
         onClick={() => setOpen(true)}
         className="flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all hover:bg-white/[0.06] active:scale-95"
       >
-        <span className="text-[13px] font-black font-mono tracking-wider" style={{ color: "#fff" }}>{value}</span>
-        <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.4)" }} />
+        <span className="text-[13px] font-black font-mono tracking-widest" style={{ color: "#fff", textShadow: "0 0 10px rgba(255,255,255,0.4)" }}>{value}</span>
+        <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.35)" }} />
       </button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
@@ -1480,9 +1480,9 @@ function MentalityDropdown({ value, onChange, sidebar = false }: {
           onClick={() => setOpen(p => !p)}
           className="flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all hover:bg-white/[0.06] active:scale-95"
         >
-          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.color, boxShadow: `0 0 6px ${opt.color}` }} />
-          <span className="text-[13px] font-bold tracking-wide" style={{ color: "#fff" }}>{opt.label}</span>
-          <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.4)" }} />
+          <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: opt.color, boxShadow: `0 0 10px ${opt.color}, 0 0 20px ${opt.color}55` }} />
+          <span className="text-[13px] font-bold tracking-wide" style={{ color: "#fff", textShadow: `0 0 10px ${opt.color}66` }}>{opt.label}</span>
+          <ChevronDown className="w-3 h-3" style={{ color: "rgba(255,255,255,0.35)" }} />
         </button>
       )}
       {open && (
@@ -1939,12 +1939,13 @@ export function TacticsTab() {
           {/* Campo + controlos acima */}
           <div className="shrink-0 flex flex-col">
             {/* Barra de controlos */}
-            <div className="h-9 shrink-0 flex items-center justify-center gap-2"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="h-9 shrink-0 flex items-center justify-center gap-1"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.12)" }}>
               <MentalityDropdown
                 value={tatica.mentalidade}
                 onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
               />
+              <span className="text-[10px] font-thin select-none" style={{ color: "rgba(255,255,255,0.15)" }}>|</span>
               <FormationPickerDialog
                 value={tatica.formacao}
                 onChange={f => update({ formacao: f, ipSlotOverrides: {} })}
