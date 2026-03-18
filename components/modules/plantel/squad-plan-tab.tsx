@@ -27,8 +27,8 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   ST:  { x:  3, y: 50 },
   CF:  { x: 10, y: 50 },
   SS:  { x: 17, y: 50 },
-  WR:  { x: 20, y: 12 },
-  WL:  { x: 20, y: 88 },
+  WR:  { x: 20, y: 16 },
+  WL:  { x: 20, y: 84 },
 }
 
 const SECTOR_OF: Record<string, string> = {
@@ -194,9 +194,19 @@ export function SquadPlanTab() {
         const color = SECTOR_COLORS[SECTOR_OF[pos] ?? "GK"] ?? "#fff"
 
         for (let i = 0; i < count; i++) {
-          const yOff = (i - (count - 1) / 2) * 9
-          const cx = coords.x / 100 * W
-          const cy = (getBaseY(pos) + yOff) / 100 * H
+          let px = coords.x, py: number
+          if (pos === "WR") {
+            py = 16 - (count - 1 - i) * 5
+          } else if (pos === "WL") {
+            py = 84 + (count - 1 - i) * 5
+          } else if (["CB","CBR","CBL"].includes(pos)) {
+            px = coords.x + (i - (count - 1) / 2) * 5
+            py = getBaseY(pos)
+          } else {
+            py = getBaseY(pos) + (i - (count - 1) / 2) * 9
+          }
+          const cx = px / 100 * W
+          const cy = py / 100 * H
           const key = `${pos}_${i}`
           const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
 
@@ -267,9 +277,19 @@ export function SquadPlanTab() {
           const coords = POSITION_COORDS[pos]
           if (!coords || count === 0) continue
           for (let i = 0; i < count; i++) {
-            const yOff = (i - (count - 1) / 2) * 9
-            const cx = coords.x / 100 * W
-            const cy = (coords.y + yOff) / 100 * H
+            let px2 = coords.x, py2: number
+            if (pos === "WR") {
+              py2 = 16 - (count - 1 - i) * 5
+            } else if (pos === "WL") {
+              py2 = 84 + (count - 1 - i) * 5
+            } else if (["CB","CBR","CBL"].includes(pos)) {
+              px2 = coords.x + (i - (count - 1) / 2) * 5
+              py2 = getBaseY(pos)
+            } else {
+              py2 = getBaseY(pos) + (i - (count - 1) / 2) * 9
+            }
+            const cx = px2 / 100 * W
+            const cy = py2 / 100 * H
             const key = `${pos}_${i}`
             const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
             if (!jogador) continue
@@ -302,9 +322,30 @@ export function SquadPlanTab() {
   }
 
   // ── Active pins ───────────────────────────────────────────────────────────
+  const CB_LINE = ["CB", "CBR", "CBL"]
   const activePins = Object.entries(positionCounts).flatMap(([pos, count]) => {
     const coords = POSITION_COORDS[pos]
     if (!coords || count === 0) return []
+    if (pos === "WR") {
+      return Array.from({ length: count }, (_, i) => ({
+        key: `WR_${i}`, pos, x: coords.x,
+        y: 16 - (count - 1 - i) * 5,
+      }))
+    }
+    if (pos === "WL") {
+      return Array.from({ length: count }, (_, i) => ({
+        key: `WL_${i}`, pos, x: coords.x,
+        y: 84 + (count - 1 - i) * 5,
+      }))
+    }
+    if (CB_LINE.includes(pos)) {
+      const baseY = getBaseY(pos)
+      return Array.from({ length: count }, (_, i) => ({
+        key: `${pos}_${i}`, pos,
+        x: coords.x + (i - (count - 1) / 2) * 5,
+        y: baseY,
+      }))
+    }
     return Array.from({ length: count }, (_, i) => ({
       key: `${pos}_${i}`,
       pos,
