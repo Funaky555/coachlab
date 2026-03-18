@@ -9,10 +9,10 @@ import { type Jogador, getJogadores, getSquadPlan, saveSquadPlan, type SquadPlan
 // Left = attack (FWD), Right = defense (GK)
 const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   GK:  { x: 97, y: 50 },
-  SW:  { x: 91, y: 50 },
-  CB:  { x: 77, y: 50 },
-  CBR: { x: 77, y: 28 },
-  CBL: { x: 77, y: 72 },
+  SW:  { x: 87, y: 50 },
+  CB:  { x: 81, y: 50 },
+  CBR: { x: 81, y: 28 },
+  CBL: { x: 81, y: 72 },
   RB:  { x: 68, y: 13 },
   RWB: { x: 60, y: 13 },
   LB:  { x: 68, y: 87 },
@@ -27,8 +27,8 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   ST:  { x:  3, y: 50 },
   CF:  { x: 10, y: 50 },
   SS:  { x: 17, y: 50 },
-  WR:  { x: 12, y:  8 },
-  WL:  { x: 12, y: 92 },
+  WR:  { x: 20, y: 12 },
+  WL:  { x: 20, y: 88 },
 }
 
 const SECTOR_OF: Record<string, string> = {
