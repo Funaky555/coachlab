@@ -441,8 +441,8 @@ export function SquadPlanTab() {
       <div className="px-2 mt-2">
       <div
         ref={fieldRef}
-        className="relative rounded-2xl overflow-hidden w-full"
-        style={{ aspectRatio: "780 / 510" }}
+        className="relative rounded-2xl overflow-hidden mx-auto"
+        style={{ height: "calc(100vh - 230px)", width: "auto", aspectRatio: "780 / 510", maxWidth: "100%" }}
       >
         <canvas ref={bgCanvasRef} className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }} />
         <div className="absolute inset-0" style={{ background: "rgba(5,18,10,0.18)" }} />
