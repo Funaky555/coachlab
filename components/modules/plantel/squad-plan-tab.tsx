@@ -14,14 +14,14 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CBR: { x: 78, y: 28 },
   CBL: { x: 78, y: 72 },
   RB:  { x: 68, y: 13 },
-  RWB: { x: 48, y: 13 },
+  RWB: { x: 53, y: 13 },
   LB:  { x: 68, y: 87 },
-  LWB: { x: 48, y: 87 },
+  LWB: { x: 53, y: 87 },
   DM:  { x: 63, y: 50 },
   CM:  { x: 50, y: 50 },
   CMR: { x: 40, y: 28 },
   CML: { x: 40, y: 72 },
-  CAM: { x: 34, y: 50 },
+  CAM: { x: 25, y: 50 },
   RM:  { x: 31, y: 17 },
   LM:  { x: 31, y: 83 },
   ST:  { x:  3, y: 50 },
@@ -206,7 +206,7 @@ export function SquadPlanTab() {
           } else if (CENTER_AXIS.includes(pos)) {
             py = 50 + (i - (count - 1) / 2) * 10
           } else if (["CB","CBR","CBL"].includes(pos)) {
-            px = coords.x + (i - (count - 1) / 2) * 10
+            px = coords.x + (i - (count - 1) / 2) * 5
             py = getBaseY(pos)
           } else {
             py = getBaseY(pos) + (i - (count - 1) / 2) * 10
@@ -295,7 +295,7 @@ export function SquadPlanTab() {
             } else if (CENTER_AXIS.includes(pos)) {
               py2 = 50 + (i - (count - 1) / 2) * 10
             } else if (["CB","CBR","CBL"].includes(pos)) {
-              px2 = coords.x + (i - (count - 1) / 2) * 10
+              px2 = coords.x + (i - (count - 1) / 2) * 5
               py2 = getBaseY(pos)
             } else {
               py2 = getBaseY(pos) + (i - (count - 1) / 2) * 10
@@ -374,7 +374,7 @@ export function SquadPlanTab() {
       const baseY = getBaseY(pos)
       return Array.from({ length: count }, (_, i) => ({
         key: `${pos}_${i}`, pos,
-        x: coords.x + (i - (count - 1) / 2) * 10,
+        x: coords.x + (i - (count - 1) / 2) * 5,
         y: baseY,
       }))
     }
