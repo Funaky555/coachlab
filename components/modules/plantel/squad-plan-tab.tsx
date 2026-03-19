@@ -204,12 +204,12 @@ export function SquadPlanTab() {
           } else if (pos === "LWB") {
             py = 95 - i * 8
           } else if (CENTER_AXIS.includes(pos)) {
-            py = 50 + (i - (count - 1) / 2) * 7
+            py = 50 + (i - (count - 1) / 2) * 10
           } else if (["CB","CBR","CBL"].includes(pos)) {
-            px = coords.x + (i - (count - 1) / 2) * 7
+            px = coords.x + (i - (count - 1) / 2) * 10
             py = getBaseY(pos)
           } else {
-            py = getBaseY(pos) + (i - (count - 1) / 2) * 7
+            py = getBaseY(pos) + (i - (count - 1) / 2) * 10
           }
           const cx = px / 100 * W
           const cy = py / 100 * H
@@ -293,12 +293,12 @@ export function SquadPlanTab() {
             } else if (pos === "LWB") {
               py2 = 95 - i * 8
             } else if (CENTER_AXIS.includes(pos)) {
-              py2 = 50 + (i - (count - 1) / 2) * 7
+              py2 = 50 + (i - (count - 1) / 2) * 10
             } else if (["CB","CBR","CBL"].includes(pos)) {
-              px2 = coords.x + (i - (count - 1) / 2) * 7
+              px2 = coords.x + (i - (count - 1) / 2) * 10
               py2 = getBaseY(pos)
             } else {
-              py2 = getBaseY(pos) + (i - (count - 1) / 2) * 7
+              py2 = getBaseY(pos) + (i - (count - 1) / 2) * 10
             }
             const cx = px2 / 100 * W
             const cy = py2 / 100 * H
@@ -342,39 +342,39 @@ export function SquadPlanTab() {
     if (pos === "WR") {
       return Array.from({ length: count }, (_, i) => ({
         key: `WR_${i}`, pos, x: coords.x,
-        y: 5 + i * 7,
+        y: 5 + i * 10,
       }))
     }
     if (pos === "WL") {
       return Array.from({ length: count }, (_, i) => ({
         key: `WL_${i}`, pos, x: coords.x,
-        y: 95 - i * 7,
+        y: 95 - i * 10,
       }))
     }
     if (pos === "RWB") {
       return Array.from({ length: count }, (_, i) => ({
         key: `RWB_${i}`, pos, x: coords.x,
-        y: 5 + i * 7,
+        y: 5 + i * 10,
       }))
     }
     if (pos === "LWB") {
       return Array.from({ length: count }, (_, i) => ({
         key: `LWB_${i}`, pos, x: coords.x,
-        y: 95 - i * 7,
+        y: 95 - i * 10,
       }))
     }
     if (CENTER_AXIS.includes(pos)) {
       return Array.from({ length: count }, (_, i) => ({
         key: `${pos}_${i}`, pos,
         x: coords.x,
-        y: 50 + (i - (count - 1) / 2) * 7,
+        y: 50 + (i - (count - 1) / 2) * 10,
       }))
     }
     if (CB_LINE.includes(pos)) {
       const baseY = getBaseY(pos)
       return Array.from({ length: count }, (_, i) => ({
         key: `${pos}_${i}`, pos,
-        x: coords.x + (i - (count - 1) / 2) * 7,
+        x: coords.x + (i - (count - 1) / 2) * 10,
         y: baseY,
       }))
     }
@@ -382,7 +382,7 @@ export function SquadPlanTab() {
       key: `${pos}_${i}`,
       pos,
       x: coords.x,
-      y: getBaseY(pos) + (i - (count - 1) / 2) * 7,
+      y: getBaseY(pos) + (i - (count - 1) / 2) * 10,
     }))
   })
 
