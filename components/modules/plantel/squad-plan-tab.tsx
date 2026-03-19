@@ -185,40 +185,14 @@ export function SquadPlanTab() {
       ctx.fillStyle = "rgba(5,18,10,0.22)"
       ctx.fillRect(0, 0, W, H)
 
-      const exportTotalPins = Object.values(positionCounts).reduce((a, b) => a + b, 0)
-      const CIRCLE_R = Math.round(Math.max(26, Math.min(50, 50 - (exportTotalPins - 1) * 1.26)))
+      const CIRCLE_R = Math.round(Math.max(26, Math.min(50, 50 - (activePins.length - 1) * 1.26)))
       const pending: Promise<void>[] = []
 
-      for (const [pos, count] of Object.entries(positionCounts)) {
-        const coords = POSITION_COORDS[pos]
-        if (!coords || count === 0) continue
-        const color = SECTOR_COLORS[SECTOR_OF[pos] ?? "GK"] ?? "#fff"
-
-        for (let i = 0; i < count; i++) {
-          let px = coords.x, py: number
-          if (pos === "WR") {
-            py = 5 + i * 8
-          } else if (pos === "WL") {
-            py = 95 - i * 8
-          } else if (pos === "RWB") {
-            py = 5 + i * 8
-          } else if (pos === "LWB") {
-            py = 95 - i * 8
-          } else if (pos === "RB") {
-            py = 6 + i * 10
-          } else if (pos === "LB") {
-            py = 95 - i * 10
-          } else if (CENTER_AXIS.includes(pos)) {
-            py = 50 + (i - (count - 1) / 2) * 10
-          } else if (["CB","CBR","CBL"].includes(pos)) {
-            px = coords.x + (i - (count - 1) / 2) * 5
-            py = getBaseY(pos)
-          } else {
-            py = getBaseY(pos) + (i - (count - 1) / 2) * 10
-          }
+      for (const pin of activePins as { pos: string; x: number; y: number; key: string }[]) {
+        const { pos, x: px, y: py, key } = pin
+          const color = SECTOR_COLORS[SECTOR_OF[pos] ?? "GK"] ?? "#fff"
           const cx = px / 100 * W
           const cy = py / 100 * H
-          const key = `${pos}_${i}`
           const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
 
           // Position pill
@@ -279,39 +253,14 @@ export function SquadPlanTab() {
             ctx.textAlign = "center"
             ctx.fillText(name, cx, cy + CIRCLE_R + 22)
           }
-        }
       }
 
       Promise.all(pending).then(() => {
         // Re-draw names on top of photos
-        for (const [pos, count] of Object.entries(positionCounts)) {
-          const coords = POSITION_COORDS[pos]
-          if (!coords || count === 0) continue
-          for (let i = 0; i < count; i++) {
-            let px2 = coords.x, py2: number
-            if (pos === "WR") {
-              py2 = 5 + i * 8
-            } else if (pos === "WL") {
-              py2 = 95 - i * 8
-            } else if (pos === "RWB") {
-              py2 = 5 + i * 8
-            } else if (pos === "LWB") {
-              py2 = 95 - i * 8
-            } else if (pos === "RB") {
-              py2 = 6 + i * 10
-            } else if (pos === "LB") {
-              py2 = 95 - i * 10
-            } else if (CENTER_AXIS.includes(pos)) {
-              py2 = 50 + (i - (count - 1) / 2) * 10
-            } else if (["CB","CBR","CBL"].includes(pos)) {
-              px2 = coords.x + (i - (count - 1) / 2) * 5
-              py2 = getBaseY(pos)
-            } else {
-              py2 = getBaseY(pos) + (i - (count - 1) / 2) * 10
-            }
+        for (const pin of activePins as { pos: string; x: number; y: number; key: string }[]) {
+            const { pos, x: px2, y: py2, key } = pin
             const cx = px2 / 100 * W
             const cy = py2 / 100 * H
-            const key = `${pos}_${i}`
             const jogador = assignments[key] ? jogadores.find(j => j.id === assignments[key]) : null
             if (!jogador) continue
             const name = displayName(jogador)
@@ -324,7 +273,6 @@ export function SquadPlanTab() {
             ctx.fillStyle = "#fff"
             ctx.textAlign = "center"
             ctx.fillText(name, cx, cy + CIRCLE_R + 22)
-          }
         }
         const link = document.createElement("a")
         link.download = "team-plan.png"
