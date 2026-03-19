@@ -203,6 +203,9 @@ export function SquadPlanTab() {
             py = 5 + i * 8
           } else if (pos === "LWB") {
             py = 95 - i * 8
+          } else if (CENTER_AXIS.includes(pos)) {
+            px = coords.x + (i - (count - 1) / 2) * 3
+            py = 50
           } else if (["CB","CBR","CBL"].includes(pos)) {
             px = coords.x + (i - (count - 1) / 2) * 5
             py = getBaseY(pos)
@@ -290,6 +293,9 @@ export function SquadPlanTab() {
               py2 = 5 + i * 8
             } else if (pos === "LWB") {
               py2 = 95 - i * 8
+            } else if (CENTER_AXIS.includes(pos)) {
+              px2 = coords.x + (i - (count - 1) / 2) * 3
+              py2 = 50
             } else if (["CB","CBR","CBL"].includes(pos)) {
               px2 = coords.x + (i - (count - 1) / 2) * 5
               py2 = getBaseY(pos)
@@ -331,6 +337,7 @@ export function SquadPlanTab() {
 
   // ── Active pins ───────────────────────────────────────────────────────────
   const CB_LINE = ["CB", "CBR", "CBL"]
+  const CENTER_AXIS = ["GK", "SW", "DM", "CM", "CAM", "CF", "SS", "ST"]
   const activePins = Object.entries(positionCounts).flatMap(([pos, count]) => {
     const coords = POSITION_COORDS[pos]
     if (!coords || count === 0) return []
@@ -356,6 +363,13 @@ export function SquadPlanTab() {
       return Array.from({ length: count }, (_, i) => ({
         key: `LWB_${i}`, pos, x: coords.x,
         y: 95 - i * 8,
+      }))
+    }
+    if (CENTER_AXIS.includes(pos)) {
+      return Array.from({ length: count }, (_, i) => ({
+        key: `${pos}_${i}`, pos,
+        x: coords.x + (i - (count - 1) / 2) * 3,
+        y: 50,
       }))
     }
     if (CB_LINE.includes(pos)) {
