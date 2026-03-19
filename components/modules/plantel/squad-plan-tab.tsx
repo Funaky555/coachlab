@@ -395,7 +395,7 @@ export function SquadPlanTab() {
       </div>
 
       {/* ── Field + Sidebar ── */}
-      <div className="flex gap-2 px-2 items-center">
+      <div className="flex gap-2 px-2 items-center justify-center">
 
         {/* ── Position Sidebar ── */}
         <div

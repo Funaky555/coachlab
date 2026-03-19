@@ -1978,10 +1978,10 @@ export function TacticsTab() {
       {activeTab === "overview" && (
         <div className="flex flex-1 min-h-0 overflow-x-auto justify-center items-stretch gap-28 px-4">
           {/* Campo + controlos acima */}
-          <div className="shrink-0 flex flex-col">
+          <div className="shrink-0 relative" style={{ aspectRatio: "510/780" }}>
             {/* Barra de controlos */}
-            <div className="h-9 shrink-0 flex items-center justify-center gap-1"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="absolute top-0 left-0 right-0 h-9 z-10 flex items-center justify-center gap-1"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)" }}>
               <MentalityDropdown
                 value={tatica.mentalidade}
                 onChange={v => update({ mentalidade: v, ipSlotOverrides: {} })}
@@ -1993,7 +1993,7 @@ export function TacticsTab() {
               />
             </div>
             {/* Campo */}
-            <div ref={fieldRef} className="flex-1 min-h-0 self-start" style={{ aspectRatio: "510/780" }}>
+            <div ref={fieldRef} className="absolute inset-0">
               <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
                 selectedArrowType={arrowType}
                 slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
