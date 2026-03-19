@@ -1976,7 +1976,7 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-x-auto justify-center items-stretch gap-4 px-4">
+        <div className="flex flex-1 min-h-0 overflow-x-auto justify-center items-stretch gap-12 px-4">
           {/* Campo + controlos acima */}
           <div className="shrink-0 flex flex-col">
             {/* Barra de controlos */}
