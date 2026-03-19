@@ -13,9 +13,9 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CB:  { x: 78, y: 50 },
   CBR: { x: 78, y: 28 },
   CBL: { x: 78, y: 72 },
-  RB:  { x: 63, y: 4 },
+  RB:  { x: 63, y: 5 },
   RWB: { x: 53, y: 13 },
-  LB:  { x: 63, y: 96 },
+  LB:  { x: 63, y: 95 },
   LWB: { x: 53, y: 87 },
   DM:  { x: 63, y: 50 },
   CM:  { x: 50, y: 50 },
@@ -374,13 +374,13 @@ export function SquadPlanTab() {
     if (pos === "RB") {
       return Array.from({ length: count }, (_, i) => ({
         key: `RB_${i}`, pos, x: coords.x,
-        y: 4 + i * 10,
+        y: 5 + i * 10,
       }))
     }
     if (pos === "LB") {
       return Array.from({ length: count }, (_, i) => ({
         key: `LB_${i}`, pos, x: coords.x,
-        y: 96 - i * 10,
+        y: 95 - i * 10,
       }))
     }
     if (CENTER_AXIS.includes(pos)) {
