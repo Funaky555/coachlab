@@ -1016,7 +1016,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">Starting XI</span>
           <span className="ml-auto text-[7px] font-mono text-[#00D66C]/50">{starters.length}/11</span>
         </div>
-        <div className="flex flex-col gap-1 overflow-y-auto">
+        <div className="flex flex-col gap-2 overflow-y-auto">
           {starters.map(({ slot, jogador: j }) => (
             <StarterRow key={slot.posicao} slot={slot} j={j} />
           ))}
@@ -1042,7 +1042,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           <span className="text-[7px] font-black uppercase tracking-[0.15em] text-white/40">Bench</span>
           <span className="ml-auto text-[7px] font-mono text-white/25">{bench.length}</span>
         </div>
-        <div className="flex flex-col gap-1 overflow-y-auto">
+        <div className="flex flex-col gap-2 overflow-y-auto">
           {bench.map(j => (
             <PlayerRow key={j.id} j={j} source="bench" onRowExclude={() => onExclude(j.id)} />
           ))}
@@ -1066,7 +1066,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
           <span className="text-[7px] font-black uppercase tracking-[0.15em]" style={{ color: "rgba(255,80,80,0.7)" }}>Not Selected</span>
           <span className="ml-auto text-[7px] font-mono" style={{ color: "rgba(255,80,80,0.4)" }}>{notSelected.length}</span>
         </div>
-        <div className="grid grid-cols-3 gap-0.5 content-start overflow-y-auto">
+        <div className="grid grid-cols-3 gap-1 content-start overflow-y-auto">
           {notSelected.map(j => (
             <PlayerRow key={j.id} j={j} source="notSelected" onRowInclude={() => onInclude(j.id)} />
           ))}
@@ -1976,7 +1976,7 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-x-auto justify-center items-stretch gap-12 px-4">
+        <div className="flex flex-1 min-h-0 overflow-x-auto justify-center items-stretch gap-28 px-4">
           {/* Campo + controlos acima */}
           <div className="shrink-0 flex flex-col">
             {/* Barra de controlos */}
@@ -1993,7 +1993,7 @@ export function TacticsTab() {
               />
             </div>
             {/* Campo */}
-            <div ref={fieldRef} className="flex-1 min-h-0" style={{ aspectRatio: "510/780" }}>
+            <div ref={fieldRef} className="flex-1 min-h-0 self-start" style={{ aspectRatio: "510/780" }}>
               <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
                 selectedArrowType={arrowType}
                 slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
@@ -2003,7 +2003,7 @@ export function TacticsTab() {
             </div>
           </div>
           {/* Painéis XI / Bench / Not Selected — pt-9 alinha com topo do campo */}
-          <div className="flex flex-col min-h-0 pt-9">
+          <div className="flex flex-col min-h-0 pt-9 h-full">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
