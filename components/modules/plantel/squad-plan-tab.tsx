@@ -14,9 +14,9 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CBR: { x: 78, y: 28 },
   CBL: { x: 78, y: 72 },
   RB:  { x: 68, y: 13 },
-  RWB: { x: 60, y: 13 },
+  RWB: { x: 48, y: 13 },
   LB:  { x: 68, y: 87 },
-  LWB: { x: 60, y: 87 },
+  LWB: { x: 48, y: 87 },
   DM:  { x: 66, y: 50 },
   CM:  { x: 50, y: 50 },
   CMR: { x: 40, y: 28 },
@@ -196,9 +196,13 @@ export function SquadPlanTab() {
         for (let i = 0; i < count; i++) {
           let px = coords.x, py: number
           if (pos === "WR") {
-            py = 22 - (count - 1 - i) * 8
+            py = 5 + i * 8
           } else if (pos === "WL") {
-            py = 78 + (count - 1 - i) * 8
+            py = 95 - i * 8
+          } else if (pos === "RWB") {
+            py = 5 + i * 8
+          } else if (pos === "LWB") {
+            py = 95 - i * 8
           } else if (["CB","CBR","CBL"].includes(pos)) {
             px = coords.x + (i - (count - 1) / 2) * 5
             py = getBaseY(pos)
@@ -279,9 +283,13 @@ export function SquadPlanTab() {
           for (let i = 0; i < count; i++) {
             let px2 = coords.x, py2: number
             if (pos === "WR") {
-              py2 = 22 - (count - 1 - i) * 8
+              py2 = 5 + i * 8
             } else if (pos === "WL") {
-              py2 = 78 + (count - 1 - i) * 8
+              py2 = 95 - i * 8
+            } else if (pos === "RWB") {
+              py2 = 5 + i * 8
+            } else if (pos === "LWB") {
+              py2 = 95 - i * 8
             } else if (["CB","CBR","CBL"].includes(pos)) {
               px2 = coords.x + (i - (count - 1) / 2) * 5
               py2 = getBaseY(pos)
@@ -329,13 +337,25 @@ export function SquadPlanTab() {
     if (pos === "WR") {
       return Array.from({ length: count }, (_, i) => ({
         key: `WR_${i}`, pos, x: coords.x,
-        y: 22 - (count - 1 - i) * 8,
+        y: 5 + i * 8,
       }))
     }
     if (pos === "WL") {
       return Array.from({ length: count }, (_, i) => ({
         key: `WL_${i}`, pos, x: coords.x,
-        y: 78 + (count - 1 - i) * 8,
+        y: 95 - i * 8,
+      }))
+    }
+    if (pos === "RWB") {
+      return Array.from({ length: count }, (_, i) => ({
+        key: `RWB_${i}`, pos, x: coords.x,
+        y: 5 + i * 8,
+      }))
+    }
+    if (pos === "LWB") {
+      return Array.from({ length: count }, (_, i) => ({
+        key: `LWB_${i}`, pos, x: coords.x,
+        y: 95 - i * 8,
       }))
     }
     if (CB_LINE.includes(pos)) {
