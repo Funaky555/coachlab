@@ -1976,8 +1976,7 @@ export function TacticsTab() {
 
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
-        <div className="flex flex-1 min-h-0 overflow-x-auto">
-          <div className="flex flex-1 min-h-0 items-stretch">
+        <div className="flex flex-1 min-h-0 overflow-x-auto justify-center items-stretch gap-4 px-4">
           {/* Campo + controlos acima */}
           <div className="shrink-0 flex flex-col">
             {/* Barra de controlos */}
@@ -2004,10 +2003,9 @@ export function TacticsTab() {
             </div>
           </div>
           {/* Painéis XI / Bench / Not Selected — pt-9 alinha com topo do campo */}
-          <div className="flex flex-col min-h-0 ml-4 pt-9">
+          <div className="flex flex-col min-h-0 pt-9">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
-          </div>
           </div>
         </div>
       )}
