@@ -13,7 +13,7 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CB:  { x: 78, y: 50 },
   CBR: { x: 78, y: 28 },
   CBL: { x: 78, y: 72 },
-  RB:  { x: 63, y: 5 },
+  RB:  { x: 63, y: 6 },
   RWB: { x: 53, y: 13 },
   LB:  { x: 63, y: 95 },
   LWB: { x: 53, y: 87 },
@@ -350,7 +350,7 @@ export function SquadPlanTab() {
     if (pos === "WR") {
       return Array.from({ length: count }, (_, i) => ({
         key: `WR_${i}`, pos, x: coords.x,
-        y: 5 + i * 10,
+        y: 6 + i * 10,
       }))
     }
     if (pos === "WL") {
@@ -362,7 +362,7 @@ export function SquadPlanTab() {
     if (pos === "RWB") {
       return Array.from({ length: count }, (_, i) => ({
         key: `RWB_${i}`, pos, x: coords.x,
-        y: 5 + i * 10,
+        y: 6 + i * 10,
       }))
     }
     if (pos === "LWB") {
@@ -374,7 +374,7 @@ export function SquadPlanTab() {
     if (pos === "RB") {
       return Array.from({ length: count }, (_, i) => ({
         key: `RB_${i}`, pos, x: coords.x,
-        y: 5 + i * 10,
+        y: 6 + i * 10,
       }))
     }
     if (pos === "LB") {
