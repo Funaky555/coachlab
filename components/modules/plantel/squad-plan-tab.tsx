@@ -185,7 +185,8 @@ export function SquadPlanTab() {
       ctx.fillStyle = "rgba(5,18,10,0.22)"
       ctx.fillRect(0, 0, W, H)
 
-      const CIRCLE_R = 44
+      const exportTotalPins = Object.values(positionCounts).reduce((a, b) => a + b, 0)
+      const CIRCLE_R = Math.round(Math.max(26, Math.min(50, 50 - (exportTotalPins - 1) * 1.26)))
       const pending: Promise<void>[] = []
 
       for (const [pos, count] of Object.entries(positionCounts)) {
@@ -406,6 +407,9 @@ export function SquadPlanTab() {
     }))
   })
 
+  const totalPins = activePins.length
+  const SCREEN_PIN_SIZE = Math.round(Math.max(22, Math.min(42, 42 - (totalPins - 1) * 1.05)))
+
   const assignedIds = new Set(
     Object.entries(assignments)
       .filter(([k, v]) => v !== undefined && k !== selectingKey)
@@ -574,7 +578,7 @@ export function SquadPlanTab() {
                 <div
                   className="rounded-full border-2 overflow-hidden transition-all duration-150 group-hover:scale-110"
                   style={{
-                    width: 34, height: 34,
+                    width: SCREEN_PIN_SIZE, height: SCREEN_PIN_SIZE,
                     borderColor: borderColor,
                     boxShadow: `0 0 10px ${borderColor}55, 0 2px 8px rgba(0,0,0,0.6)`,
                     background: "rgba(0,0,0,0.8)",
