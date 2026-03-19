@@ -204,8 +204,7 @@ export function SquadPlanTab() {
           } else if (pos === "LWB") {
             py = 95 - i * 8
           } else if (CENTER_AXIS.includes(pos)) {
-            px = coords.x + (i - (count - 1) / 2) * 5
-            py = 50
+            py = 50 + (i - (count - 1) / 2) * 12
           } else if (["CB","CBR","CBL"].includes(pos)) {
             px = coords.x + (i - (count - 1) / 2) * 5
             py = getBaseY(pos)
@@ -294,8 +293,7 @@ export function SquadPlanTab() {
             } else if (pos === "LWB") {
               py2 = 95 - i * 8
             } else if (CENTER_AXIS.includes(pos)) {
-              px2 = coords.x + (i - (count - 1) / 2) * 5
-              py2 = 50
+              py2 = 50 + (i - (count - 1) / 2) * 12
             } else if (["CB","CBR","CBL"].includes(pos)) {
               px2 = coords.x + (i - (count - 1) / 2) * 5
               py2 = getBaseY(pos)
@@ -368,8 +366,8 @@ export function SquadPlanTab() {
     if (CENTER_AXIS.includes(pos)) {
       return Array.from({ length: count }, (_, i) => ({
         key: `${pos}_${i}`, pos,
-        x: coords.x + (i - (count - 1) / 2) * 5,
-        y: 50,
+        x: coords.x,
+        y: 50 + (i - (count - 1) / 2) * 12,
       }))
     }
     if (CB_LINE.includes(pos)) {
