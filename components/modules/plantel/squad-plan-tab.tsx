@@ -9,7 +9,7 @@ import { type Jogador, getJogadores, getSquadPlan, saveSquadPlan, type SquadPlan
 // Left = attack (FWD), Right = defense (GK)
 const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   GK:  { x: 97, y: 50 },
-  SW:  { x: 87, y: 50 },
+  SW:  { x: 90, y: 50 },
   CB:  { x: 78, y: 50 },
   CBR: { x: 78, y: 28 },
   CBL: { x: 78, y: 72 },
@@ -21,12 +21,12 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   CM:  { x: 50, y: 50 },
   CMR: { x: 40, y: 28 },
   CML: { x: 40, y: 72 },
-  CAM: { x: 27, y: 50 },
+  CAM: { x: 34, y: 50 },
   RM:  { x: 31, y: 17 },
   LM:  { x: 31, y: 83 },
   ST:  { x:  3, y: 50 },
   CF:  { x: 10, y: 50 },
-  SS:  { x: 17, y: 50 },
+  SS:  { x: 22, y: 50 },
   WR:  { x: 20, y: 22 },
   WL:  { x: 20, y: 78 },
 }
