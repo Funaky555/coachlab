@@ -202,7 +202,7 @@ export function SquadPlanTab() {
           ctx.fillStyle = color + "dd"
           ctx.fill()
           ctx.font = "bold 18px Arial"
-          ctx.fillStyle = "#fff"
+          ctx.fillStyle = pos === "GK" ? "#000" : "#fff"
           ctx.textAlign = "center"
           ctx.textBaseline = "middle"
           ctx.fillText(pos, cx, cy - CIRCLE_R - 15)
