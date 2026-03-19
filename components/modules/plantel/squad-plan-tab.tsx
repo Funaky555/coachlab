@@ -205,9 +205,9 @@ export function SquadPlanTab() {
           } else if (pos === "LWB") {
             py = 95 - i * 8
           } else if (pos === "RB") {
-            py = 16 + i * 10
+            py = 6 + i * 10
           } else if (pos === "LB") {
-            py = 84 - i * 10
+            py = 95 - i * 10
           } else if (CENTER_AXIS.includes(pos)) {
             py = 50 + (i - (count - 1) / 2) * 10
           } else if (["CB","CBR","CBL"].includes(pos)) {
@@ -298,9 +298,9 @@ export function SquadPlanTab() {
             } else if (pos === "LWB") {
               py2 = 95 - i * 8
             } else if (pos === "RB") {
-              py2 = 16 + i * 10
+              py2 = 6 + i * 10
             } else if (pos === "LB") {
-              py2 = 84 - i * 10
+              py2 = 95 - i * 10
             } else if (CENTER_AXIS.includes(pos)) {
               py2 = 50 + (i - (count - 1) / 2) * 10
             } else if (["CB","CBR","CBL"].includes(pos)) {
