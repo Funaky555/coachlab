@@ -25,8 +25,8 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   RM:  { x: 31, y: 17 },
   LM:  { x: 31, y: 83 },
   ST:  { x:  3, y: 50 },
-  CF:  { x: 10, y: 50 },
-  SS:  { x: 22, y: 50 },
+  CF:  { x: 22, y: 50 },
+  SS:  { x: 11, y: 50 },
   WR:  { x: 20, y: 22 },
   WL:  { x: 20, y: 78 },
 }
