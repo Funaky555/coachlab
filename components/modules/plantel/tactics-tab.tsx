@@ -922,23 +922,23 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
         className="flex items-center gap-1.5 py-0.5 px-1.5 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5"
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
-        <div className="relative shrink-0" style={{ width: 26, height: 26 }}>
+        <div className="relative shrink-0" style={{ width: 32, height: 32 }}>
           {j.foto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={j.foto} alt={nick} className="rounded-full object-cover w-full h-full"
               style={{ border: tk.circleBorder, boxShadow: tk.circleGlow }} />
           ) : (
             <div className="rounded-full w-full h-full flex items-center justify-center font-black"
-              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 9 }}>
+              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 11 }}>
               {j.numero}
             </div>
           )}
           <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 font-black rounded-sm px-0.5"
-            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 5, lineHeight: "9px", minWidth: 12, textAlign: "center" }}>
+            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 6, lineHeight: "11px", minWidth: 14, textAlign: "center" }}>
             {j.posicoes[0]}
           </div>
         </div>
-        <span className="text-[8px] font-semibold leading-tight truncate flex-1"
+        <span className="text-[10px] font-semibold leading-tight truncate flex-1"
           style={{ color: tk.nameColor }}>{nick}</span>
       </div>
     )
@@ -965,23 +965,23 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
         className="flex items-center gap-1.5 py-0.5 px-1.5 rounded cursor-grab active:cursor-grabbing select-none transition-all hover:bg-white/5 group"
         title={`${nickOf(j)} · ${j.posicoes[0]}`}
       >
-        <div className="relative shrink-0" style={{ width: 26, height: 26 }}>
+        <div className="relative shrink-0" style={{ width: 32, height: 32 }}>
           {j.foto ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={j.foto} alt={nick} className="rounded-full object-cover w-full h-full"
               style={{ border: tk.circleBorder, boxShadow: tk.circleGlow }} />
           ) : (
             <div className="rounded-full w-full h-full flex items-center justify-center font-black"
-              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 9 }}>
+              style={{ background: tk.circleBg, border: tk.circleBorder, boxShadow: tk.circleGlow, color: tk.numColor, fontSize: 11 }}>
               {j.numero}
             </div>
           )}
           <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 font-black rounded-sm px-0.5"
-            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 5, lineHeight: "9px", minWidth: 12, textAlign: "center" }}>
+            style={{ background: tk.badgeBg, color: tk.badgeText, fontSize: 6, lineHeight: "11px", minWidth: 14, textAlign: "center" }}>
             {j.posicoes[0]}
           </div>
         </div>
-        <span className="text-[8px] font-semibold leading-tight truncate flex-1"
+        <span className="text-[10px] font-semibold leading-tight truncate flex-1"
           style={{ color: tk.nameColor }}>{nick}</span>
         {onRowExclude && (
           <button onClick={e => { e.stopPropagation(); onRowExclude() }}
@@ -1010,7 +1010,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
     <div className="flex h-full overflow-hidden" style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.18) 0%,rgba(0,0,0,0.04) 100%)" }}>
 
       {/* ── XI INICIAL — coluna única, preenche altura ── */}
-      <div className="w-[128px] shrink-0 overflow-hidden p-2 flex flex-col">
+      <div className="w-[160px] shrink-0 overflow-hidden p-2 flex flex-col">
         <div className="flex items-center gap-1.5 mb-1.5 pb-1 shrink-0" style={{ borderBottom: "1px solid rgba(0,214,108,0.22)" }}>
           <div className="w-1 h-3 rounded-full bg-[#00D66C]" style={{ boxShadow: "0 0 6px #00D66C" }} />
           <span className="text-[7px] font-black uppercase tracking-[0.22em] text-[#00D66C]/80">Starting XI</span>
@@ -1033,7 +1033,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
 
       {/* ── BANCO — 1 coluna, drop zone ── */}
       <div
-        className="w-[128px] shrink-0 overflow-hidden p-1.5 flex flex-col"
+        className="w-[160px] shrink-0 overflow-hidden p-1.5 flex flex-col"
         onDrop={e => handleColDrop(e, "bench")}
         onDragOver={e => e.preventDefault()}
       >
@@ -1057,7 +1057,7 @@ function BenchPanel({ jogadores, tatica, onUnassign, onExclude, onInclude }: {
 
       {/* ── NOT SELECTED — 3 colunas, drop zone ── */}
       <div
-        className="w-[255px] shrink-0 overflow-hidden p-1.5 flex flex-col"
+        className="w-[320px] shrink-0 overflow-hidden p-1.5 flex flex-col"
         onDrop={e => handleColDrop(e, "notSelected")}
         onDragOver={e => e.preventDefault()}
       >
@@ -1994,7 +1994,7 @@ export function TacticsTab() {
               />
             </div>
             {/* Campo */}
-            <div ref={fieldRef} className="w-[320px] flex-1">
+            <div ref={fieldRef} className="w-[420px] flex-1">
               <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
                 selectedArrowType={arrowType}
                 slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
