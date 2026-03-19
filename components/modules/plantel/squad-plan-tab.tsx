@@ -356,7 +356,7 @@ export function SquadPlanTab() {
   })
 
   const totalPins = activePins.length
-  const SCREEN_PIN_SIZE = Math.round(Math.max(22, Math.min(42, 42 - (totalPins - 1) * 1.05)))
+  const SCREEN_PIN_SIZE = Math.round(Math.max(22, Math.min(52, 52 - (totalPins - 1) * 1.58)))
 
   const assignedIds = new Set(
     Object.entries(assignments)
