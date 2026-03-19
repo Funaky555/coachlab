@@ -17,7 +17,7 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   RWB: { x: 48, y: 13 },
   LB:  { x: 68, y: 87 },
   LWB: { x: 48, y: 87 },
-  DM:  { x: 66, y: 50 },
+  DM:  { x: 63, y: 50 },
   CM:  { x: 50, y: 50 },
   CMR: { x: 40, y: 28 },
   CML: { x: 40, y: 72 },
@@ -26,7 +26,7 @@ const POSITION_COORDS: Record<string, { x: number; y: number }> = {
   LM:  { x: 31, y: 83 },
   ST:  { x:  3, y: 50 },
   CF:  { x: 11, y: 50 },
-  SS:  { x: 22, y: 50 },
+  SS:  { x: 19, y: 50 },
   WR:  { x: 20, y: 22 },
   WL:  { x: 20, y: 78 },
 }
@@ -204,12 +204,12 @@ export function SquadPlanTab() {
           } else if (pos === "LWB") {
             py = 95 - i * 8
           } else if (CENTER_AXIS.includes(pos)) {
-            py = 50 + (i - (count - 1) / 2) * 12
+            py = 50 + (i - (count - 1) / 2) * 5
           } else if (["CB","CBR","CBL"].includes(pos)) {
             px = coords.x + (i - (count - 1) / 2) * 5
             py = getBaseY(pos)
           } else {
-            py = getBaseY(pos) + (i - (count - 1) / 2) * 9
+            py = getBaseY(pos) + (i - (count - 1) / 2) * 5
           }
           const cx = px / 100 * W
           const cy = py / 100 * H
@@ -293,12 +293,12 @@ export function SquadPlanTab() {
             } else if (pos === "LWB") {
               py2 = 95 - i * 8
             } else if (CENTER_AXIS.includes(pos)) {
-              py2 = 50 + (i - (count - 1) / 2) * 12
+              py2 = 50 + (i - (count - 1) / 2) * 5
             } else if (["CB","CBR","CBL"].includes(pos)) {
               px2 = coords.x + (i - (count - 1) / 2) * 5
               py2 = getBaseY(pos)
             } else {
-              py2 = getBaseY(pos) + (i - (count - 1) / 2) * 9
+              py2 = getBaseY(pos) + (i - (count - 1) / 2) * 5
             }
             const cx = px2 / 100 * W
             const cy = py2 / 100 * H
@@ -342,32 +342,32 @@ export function SquadPlanTab() {
     if (pos === "WR") {
       return Array.from({ length: count }, (_, i) => ({
         key: `WR_${i}`, pos, x: coords.x,
-        y: 5 + i * 8,
+        y: 5 + i * 5,
       }))
     }
     if (pos === "WL") {
       return Array.from({ length: count }, (_, i) => ({
         key: `WL_${i}`, pos, x: coords.x,
-        y: 95 - i * 8,
+        y: 95 - i * 5,
       }))
     }
     if (pos === "RWB") {
       return Array.from({ length: count }, (_, i) => ({
         key: `RWB_${i}`, pos, x: coords.x,
-        y: 5 + i * 8,
+        y: 5 + i * 5,
       }))
     }
     if (pos === "LWB") {
       return Array.from({ length: count }, (_, i) => ({
         key: `LWB_${i}`, pos, x: coords.x,
-        y: 95 - i * 8,
+        y: 95 - i * 5,
       }))
     }
     if (CENTER_AXIS.includes(pos)) {
       return Array.from({ length: count }, (_, i) => ({
         key: `${pos}_${i}`, pos,
         x: coords.x,
-        y: 50 + (i - (count - 1) / 2) * 12,
+        y: 50 + (i - (count - 1) / 2) * 5,
       }))
     }
     if (CB_LINE.includes(pos)) {
@@ -382,7 +382,7 @@ export function SquadPlanTab() {
       key: `${pos}_${i}`,
       pos,
       x: coords.x,
-      y: getBaseY(pos) + (i - (count - 1) / 2) * 9,
+      y: getBaseY(pos) + (i - (count - 1) / 2) * 5,
     }))
   })
 
@@ -420,7 +420,7 @@ export function SquadPlanTab() {
       </div>
 
       {/* ── Field + Sidebar ── */}
-      <div className="flex gap-2 px-2 items-start">
+      <div className="flex gap-2 px-2 items-center">
 
         {/* ── Position Sidebar ── */}
         <div
