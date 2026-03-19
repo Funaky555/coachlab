@@ -1977,7 +1977,7 @@ export function TacticsTab() {
       {/* ── OVERVIEW ── Formation + Players ── */}
       {activeTab === "overview" && (
         <div className="flex flex-1 min-h-0 overflow-x-auto">
-          <div className="flex m-auto min-w-fit items-stretch">
+          <div className="flex flex-1 min-h-0 items-stretch">
           {/* Campo + controlos acima */}
           <div className="shrink-0 flex flex-col">
             {/* Barra de controlos */}
@@ -1994,7 +1994,7 @@ export function TacticsTab() {
               />
             </div>
             {/* Campo */}
-            <div ref={fieldRef} className="w-[420px] flex-1">
+            <div ref={fieldRef} className="flex-1 min-h-0" style={{ aspectRatio: "510/780" }}>
               <PitchSVG tatica={tatica} jogadores={jogadores} onUpdate={update} mode="ip"
                 selectedArrowType={arrowType}
                 slotOverridesForMode={tatica.ipSlotOverrides ?? {}}
@@ -2004,7 +2004,7 @@ export function TacticsTab() {
             </div>
           </div>
           {/* Painéis XI / Bench / Not Selected — pt-9 alinha com topo do campo */}
-          <div className="shrink-0 flex flex-col overflow-hidden ml-20 pt-9">
+          <div className="flex flex-col min-h-0 ml-4 pt-9">
             <BenchPanel jogadores={jogadores} tatica={tatica}
               onUnassign={handleUnassign} onExclude={handleExclude} onInclude={handleInclude} />
           </div>
