@@ -1289,16 +1289,25 @@ function FormationPickerDialog({ value, onChange, sidebar = false }: {
 
 // ─── Mini Pitch SVG (Construction Phases) ─────────────────────────────────────
 
-function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formacaoOverride, mentalidadeOverride }: {
+type MiniArrow = { id: string; x1: number; y1: number; x2: number; y2: number }
+
+function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formacaoOverride, mentalidadeOverride, ball, onUpdateBall, arrows, onUpdateArrows }: {
   tatica: TacticaConfig
   jogadores: Jogador[]
   overrides: Record<string, { x: number; y: number }>
   onUpdateOverrides: (o: Record<string, { x: number; y: number }>) => void
   formacaoOverride?: string
   mentalidadeOverride?: TacticaConfig["mentalidade"]
+  ball?: { x: number; y: number }
+  onUpdateBall?: (b: { x: number; y: number }) => void
+  arrows?: MiniArrow[]
+  onUpdateArrows?: (a: MiniArrow[]) => void
 }) {
   const svgRef = useRef<SVGSVGElement>(null)
-  const draggingRef = useRef<string | null>(null)
+  const draggingRef = useRef<string | null>(null)  // pin key, "__ball__", or "__arrow_start__"
+  const arrowStartRef = useRef<{ x: number; y: number } | null>(null)
+  const [arrowMode, setArrowMode] = useState(false)
+  const [previewArrow, setPreviewArrow] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
   const slotPositions = computeSlotPositions(
     formacaoOverride ?? tatica.formacao,
     mentalidadeOverride ?? tatica.mentalidade,
@@ -1306,6 +1315,8 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
     overrides
   )
   const scale = 1.0
+  const ballX = ball ? ball.x / 100 * 510 : 255
+  const ballY = ball ? ball.y / 100 * 780 : 390
 
   function svgCoords(e: React.PointerEvent): { x: number; y: number } {
     const svg = svgRef.current
@@ -1319,11 +1330,35 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
 
   return (
     <div className="relative w-full h-full">
+      {/* Toggle arrow mode button */}
+      <button
+        className="absolute top-1 right-1 z-10 w-5 h-5 rounded flex items-center justify-center text-[9px]"
+        style={{ background: arrowMode ? "#FFD700" : "rgba(0,0,0,0.5)", color: arrowMode ? "#000" : "#FFD700", border: "1px solid #FFD700" }}
+        onPointerDown={e => e.stopPropagation()}
+        onClick={() => { setArrowMode(m => !m); setPreviewArrow(null) }}
+        title={arrowMode ? "Exit arrow mode" : "Draw movement arrows"}
+      >→</button>
+
       <svg ref={svgRef} viewBox="0 0 510 780" className="w-full h-full"
         style={{ touchAction: "none", display: "block" }}
         onPointerDown={e => {
           const pos = svgCoords(e)
+          if (arrowMode) {
+            e.preventDefault()
+            arrowStartRef.current = pos
+            draggingRef.current = "__arrow_start__"
+            e.currentTarget.setPointerCapture(e.pointerId)
+            setPreviewArrow({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y })
+            return
+          }
           const pinR = (20 * scale) + 8
+          // Check ball hit
+          if (Math.sqrt((pos.x - ballX) ** 2 + (pos.y - ballY) ** 2) < 18) {
+            e.preventDefault()
+            draggingRef.current = "__ball__"
+            e.currentTarget.setPointerCapture(e.pointerId)
+            return
+          }
           const hit = slotPositions.find(s => Math.sqrt((pos.x - s.x) ** 2 + (pos.y - s.y) ** 2) < pinR)
           if (hit) {
             e.preventDefault()
@@ -1334,14 +1369,80 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
         onPointerMove={e => {
           if (!draggingRef.current) return
           const pos = svgCoords(e)
+          if (draggingRef.current === "__arrow_start__" && arrowStartRef.current) {
+            setPreviewArrow({ x1: arrowStartRef.current.x, y1: arrowStartRef.current.y, x2: pos.x, y2: pos.y })
+            return
+          }
+          if (draggingRef.current === "__ball__") {
+            const cx = Math.max(15, Math.min(495, pos.x))
+            const cy = Math.max(15, Math.min(765, pos.y))
+            onUpdateBall?.({ x: cx / 510 * 100, y: cy / 780 * 100 })
+            return
+          }
           const clamped = { x: Math.max(30, Math.min(480, pos.x)), y: Math.max(30, Math.min(750, pos.y)) }
           onUpdateOverrides({ ...overrides, [draggingRef.current]: clamped })
         }}
-        onPointerUp={() => { draggingRef.current = null }}>
-        {/* Imagem dentro do SVG — campo completo */}
+        onPointerUp={e => {
+          if (draggingRef.current === "__arrow_start__" && arrowStartRef.current && previewArrow) {
+            const pos = svgCoords(e)
+            const dx = pos.x - arrowStartRef.current.x
+            const dy = pos.y - arrowStartRef.current.y
+            if (Math.sqrt(dx * dx + dy * dy) > 15) {
+              const newArrow: MiniArrow = {
+                id: Math.random().toString(36).slice(2),
+                x1: arrowStartRef.current.x / 510 * 100,
+                y1: arrowStartRef.current.y / 780 * 100,
+                x2: pos.x / 510 * 100,
+                y2: pos.y / 780 * 100,
+              }
+              onUpdateArrows?.([...(arrows ?? []), newArrow])
+            }
+            setPreviewArrow(null)
+            arrowStartRef.current = null
+          }
+          draggingRef.current = null
+        }}>
+
+        <defs>
+          <marker id="arrowYellow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#FFD700" />
+          </marker>
+          <marker id="arrowYellowPreview" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#FFD70088" />
+          </marker>
+        </defs>
+
+        {/* Campo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <image href="/23.png" x="0" y="0" width="510" height="780" preserveAspectRatio="xMidYMid meet" />
         <rect x="0" y="0" width="510" height="780" fill="rgba(0,0,0,0.06)" />
+
+        {/* Setas guardadas */}
+        {arrows?.map(a => (
+          <line key={a.id}
+            x1={a.x1 / 100 * 510} y1={a.y1 / 100 * 780}
+            x2={a.x2 / 100 * 510} y2={a.y2 / 100 * 780}
+            stroke="#FFD700" strokeWidth={3.5}
+            markerEnd="url(#arrowYellow)"
+            strokeDasharray="14 5"
+            style={{ cursor: "pointer" }}
+            onDoubleClick={() => onUpdateArrows?.((arrows ?? []).filter(x => x.id !== a.id))}
+          />
+        ))}
+
+        {/* Seta preview (enquanto arrasta) */}
+        {previewArrow && (
+          <line
+            x1={previewArrow.x1} y1={previewArrow.y1}
+            x2={previewArrow.x2} y2={previewArrow.y2}
+            stroke="#FFD70088" strokeWidth={3}
+            markerEnd="url(#arrowYellowPreview)"
+            strokeDasharray="14 5"
+            style={{ pointerEvents: "none" }}
+          />
+        )}
+
+        {/* Pinos dos jogadores */}
         {slotPositions.map(slot => {
           const color = sectorColorByRow(slot.row)
           const isGK = slot.row === 5
@@ -1349,7 +1450,7 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
           const jogador = titular?.jogadorId ? jogadores.find(j => j.id === titular.jogadorId) ?? null : null
           const R = 24 * scale
           return (
-            <g key={slot.slotKey} transform={`translate(${slot.x},${slot.y})`} style={{ cursor: "grab" }}>
+            <g key={slot.slotKey} transform={`translate(${slot.x},${slot.y})`} style={{ cursor: arrowMode ? "crosshair" : "grab" }}>
               <circle r={R} fill={isGK ? "#111111" : color + "99"} stroke={color} strokeWidth={2} />
               <text textAnchor="middle" dominantBaseline="central"
                 fill="white" fontSize={jogador?.alcunha ? 17 * scale : 18 * scale} fontWeight="900"
@@ -1370,6 +1471,14 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
             </g>
           )
         })}
+
+        {/* Bola de futebol */}
+        <image
+          href="/ball.svg"
+          x={ballX - 14} y={ballY - 14}
+          width={28} height={28}
+          style={{ cursor: arrowMode ? "crosshair" : "grab" }}
+        />
       </svg>
     </div>
   )
@@ -1800,24 +1909,50 @@ function StrategyPanel({ strat, onUpdate }: {
 const OFFENSIVE_PHASES = [
   {
     key: "phase1Overrides" as const,
-    emoji: "🟢", label: "1ª Fase", subtitle: "Build-up", color: "#00D66C",
-    objetivo: "Sair da pressão e criar superioridade numérica",
-    principios: ["Criar superioridade numérica (3v2, 4v3)", "Atrair pressão adversária", "Fixar 1ª linha adversária"],
-    comportamentos: ["GK como apoio na saída", "CBs abertos a dar largura", "DM como referência central/entre-linhas"],
+    emoji: "🟢", label: "1st Phase", subtitle: "Build-up", color: "#00D66C",
+    objetivo: "Break pressure and create numerical superiority",
+    principios: ["Create numerical superiority (3v2, 4v3)", "Attract opponent's pressure", "Fix opponent's first line"],
+    comportamentos: ["GK as passing support", "CBs wide apart", "DM as reference between lines"],
   },
   {
     key: "phase2Overrides" as const,
-    emoji: "🟡", label: "2ª Fase", subtitle: "Progression", color: "#F59E0B",
-    objetivo: "Ligar setores e encontrar o homem livre",
-    principios: ["Criar linhas de passe interiores", "Alternar corredor central/lateral", "Encontrar o homem livre"],
-    comportamentos: ["Duplo pivot ou esquema 6+8", "Laterais projetados no corredor", "Extremos a dar largura máxima"],
+    emoji: "🟡", label: "2nd Phase", subtitle: "Progression", color: "#F59E0B",
+    objetivo: "Connect sectors and find the free man",
+    principios: ["Create interior passing lines", "Switch between central/wide corridors", "Find the free player"],
+    comportamentos: ["Double pivot or 6+8 scheme", "Full-backs projected in corridors", "Wingers providing maximum width"],
   },
   {
     key: "phase3Overrides" as const,
-    emoji: "🔴", label: "3ª Fase", subtitle: "Final Third", color: "#EF4444",
-    objetivo: "Criar e finalizar no último terço",
-    principios: ["Ocupação racional da área", "Ataque à profundidade", "Explorar half-spaces"],
-    comportamentos: ["5 linhas ofensivas (largura + profundidade)", "Chegadas de médios à área", "Cruzamentos e combinações interiores"],
+    emoji: "🔴", label: "3rd Phase", subtitle: "Final Third", color: "#EF4444",
+    objetivo: "Create and finish in the final third",
+    principios: ["Rational box occupation", "Runs in behind", "Exploit half-spaces"],
+    comportamentos: ["5 offensive lines (width + depth)", "Midfield runners into the box", "Crosses and interior combinations"],
+  },
+]
+
+// ─── Defensive Organization Data ──────────────────────────────────────────────
+
+const DEFENSIVE_PHASES = [
+  {
+    key: "oop_phase1Overrides" as const,
+    emoji: "🔴", label: "1st Phase", subtitle: "High Press", color: "#EF4444",
+    objetivo: "Win the ball high and transition immediately",
+    principios: ["Immediate pressure after losing possession", "Block passing lanes from defense", "Force play towards the wings"],
+    comportamentos: ["Forwards as first pressing trigger", "Mids close central gaps", "Defenders step up in high block"],
+  },
+  {
+    key: "oop_phase2Overrides" as const,
+    emoji: "🟡", label: "2nd Phase", subtitle: "Mid Block", color: "#F59E0B",
+    objetivo: "Organize shape and control mid-field space",
+    principios: ["Maintain compact 4-4-2 / 4-5-1 shape", "Force play into congested zones", "Protect central channels"],
+    comportamentos: ["Double pivot screens the backline", "Wingers track fullbacks", "CBs hold the defensive line"],
+  },
+  {
+    key: "oop_phase3Overrides" as const,
+    emoji: "🟢", label: "3rd Phase", subtitle: "Low Block", color: "#00D66C",
+    objetivo: "Defend deep and deny space in the final third",
+    principios: ["Compact defensive block", "Win second balls", "Protect the penalty area"],
+    comportamentos: ["All players behind the ball", "Restrict shooting angles", "Win headers and clear danger"],
   },
 ]
 
@@ -1841,6 +1976,56 @@ export function TacticsTab() {
     const next = { ...ipEdits, [key]: val }
     setIPEdits(next)
     localStorage.setItem("coachlab_ip_edits", JSON.stringify(next))
+  }
+  const [oopEdits, setOOPEdits] = useState<Record<string, string>>(() => {
+    if (typeof window === "undefined") return {}
+    try { return JSON.parse(localStorage.getItem("coachlab_oop_edits") ?? "{}") }
+    catch { return {} }
+  })
+  function saveOOPEdit(key: string, val: string) {
+    const next = { ...oopEdits, [key]: val }
+    setOOPEdits(next)
+    localStorage.setItem("coachlab_oop_edits", JSON.stringify(next))
+  }
+  const [ipBalls, setIPBalls] = useState<Record<string, { x: number; y: number }>>(() => {
+    if (typeof window === "undefined") return {}
+    try { return JSON.parse(localStorage.getItem("coachlab_ip_balls") ?? "{}") }
+    catch { return {} }
+  })
+  function saveIPBall(key: string, b: { x: number; y: number }) {
+    const next = { ...ipBalls, [key]: b }
+    setIPBalls(next)
+    localStorage.setItem("coachlab_ip_balls", JSON.stringify(next))
+  }
+  const [oopBalls, setOOPBalls] = useState<Record<string, { x: number; y: number }>>(() => {
+    if (typeof window === "undefined") return {}
+    try { return JSON.parse(localStorage.getItem("coachlab_oop_balls") ?? "{}") }
+    catch { return {} }
+  })
+  function saveOOPBall(key: string, b: { x: number; y: number }) {
+    const next = { ...oopBalls, [key]: b }
+    setOOPBalls(next)
+    localStorage.setItem("coachlab_oop_balls", JSON.stringify(next))
+  }
+  const [ipArrows, setIPArrows] = useState<Record<string, MiniArrow[]>>(() => {
+    if (typeof window === "undefined") return {}
+    try { return JSON.parse(localStorage.getItem("coachlab_ip_arrows") ?? "{}") }
+    catch { return {} }
+  })
+  function saveIPArrows(key: string, a: MiniArrow[]) {
+    const next = { ...ipArrows, [key]: a }
+    setIPArrows(next)
+    localStorage.setItem("coachlab_ip_arrows", JSON.stringify(next))
+  }
+  const [oopArrows, setOOPArrows] = useState<Record<string, MiniArrow[]>>(() => {
+    if (typeof window === "undefined") return {}
+    try { return JSON.parse(localStorage.getItem("coachlab_oop_arrows") ?? "{}") }
+    catch { return {} }
+  })
+  function saveOOPArrows(key: string, a: MiniArrow[]) {
+    const next = { ...oopArrows, [key]: a }
+    setOOPArrows(next)
+    localStorage.setItem("coachlab_oop_arrows", JSON.stringify(next))
   }
 
   useEffect(() => {
@@ -2066,12 +2251,16 @@ export function TacticsTab() {
                 <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
-                    onUpdateOverrides={o => update({ [phase.key]: o })} />
+                    onUpdateOverrides={o => update({ [phase.key]: o })}
+                    ball={ipBalls[`p${phaseIdx}`] ?? { x: 50, y: 50 }}
+                    onUpdateBall={b => saveIPBall(`p${phaseIdx}`, b)}
+                    arrows={ipArrows[`p${phaseIdx}`] ?? []}
+                    onUpdateArrows={a => saveIPArrows(`p${phaseIdx}`, a)} />
                 </div>
 
                 {/* Objetivo — editável */}
                 <div className="rounded-md p-2 shrink-0" style={{ background: `${phase.color}11`, border: `1px solid ${phase.color}22` }}>
-                  <div className="text-[7px] font-black uppercase tracking-widest mb-0.5" style={{ color: phase.color }}>Objetivo</div>
+                  <div className="text-[7px] font-black uppercase tracking-widest mb-0.5" style={{ color: phase.color }}>Objective</div>
                   <div
                     contentEditable suppressContentEditableWarning
                     className="outline-none text-[9px] leading-tight focus:opacity-80"
@@ -2081,9 +2270,9 @@ export function TacticsTab() {
                   />
                 </div>
 
-                {/* Princípios — editáveis */}
+                {/* Principles — editáveis */}
                 <div className="shrink-0">
-                  <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Princípios</div>
+                  <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Principles</div>
                   <ul className="space-y-0.5">
                     {phase.principios.map((p, j) => (
                       <li key={j} className="flex items-start gap-1.5">
@@ -2101,9 +2290,9 @@ export function TacticsTab() {
                   </ul>
                 </div>
 
-                {/* Comportamentos — editáveis */}
+                {/* Key Behaviors — editáveis */}
                 <div className="shrink-0">
-                  <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Comportamentos-chave</div>
+                  <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Key Behaviors</div>
                   <ul className="space-y-0.5">
                     {phase.comportamentos.map((c, j) => (
                       <li key={j} className="flex items-start gap-1.5">
@@ -2175,32 +2364,130 @@ export function TacticsTab() {
         </div>
       )}
 
-      {/* ── DEFENSIVE ORGANIZATION ── 3 Defensive Construction Phases ── */}
+      {/* ── DEFENSIVE ORGANIZATION ── */}
       {activeTab === "oop" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden">
-          <div className="flex flex-col p-4">
-            <div className="shrink-0 mb-2 text-center">
-              <span className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#0066FF" }}>
-                Defensive Organization · Construction Phases
-              </span>
-            </div>
-            <div className="flex gap-4 items-start">
-              {(["oop_phase1Overrides", "oop_phase2Overrides", "oop_phase3Overrides"] as const).map((key, i) => (
-                <div key={key} className="shrink-0 w-[175px] flex flex-col">
-                  <div className="shrink-0 py-1 text-center">
-                    <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#0066FF" }}>
-                      {i === 0 ? <>1<sup>st</sup></> : i === 1 ? <>2<sup>nd</sup></> : <>3<sup>rd</sup></>} Phase
-                    </span>
-                  </div>
-                  <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
-                    <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                      overrides={tatica[key] ?? {}}
-                      onUpdateOverrides={o => update({ [key]: o })}
-                      formacaoOverride={tatica.formacao_oop ?? tatica.formacao}
-                      mentalidadeOverride={tatica.mentalidade_oop ?? tatica.mentalidade} />
+        <div className="flex flex-1 min-h-0 overflow-hidden p-4 gap-6">
+          {/* LEFT: 3 fases defensivas */}
+          <div className="shrink-0 flex gap-4 overflow-x-auto">
+            {DEFENSIVE_PHASES.map((phase, phaseIdx) => (
+              <div key={phase.key} className="shrink-0 w-[200px] flex flex-col gap-2"
+                style={{ borderLeft: `2px solid ${phase.color}33`, paddingLeft: "10px" }}>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-sm">{phase.emoji}</span>
+                  <div className="text-[9px] font-black uppercase tracking-widest" style={{ color: phase.color }}>
+                    {phase.label} – {phase.subtitle}
                   </div>
                 </div>
-              ))}
+
+                <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded-md shrink-0">
+                  <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                    overrides={tatica[phase.key] ?? {}}
+                    onUpdateOverrides={o => update({ [phase.key]: o })}
+                    formacaoOverride={tatica.formacao_oop ?? tatica.formacao}
+                    mentalidadeOverride={tatica.mentalidade_oop ?? tatica.mentalidade}
+                    ball={oopBalls[`p${phaseIdx}`] ?? { x: 50, y: 50 }}
+                    onUpdateBall={b => saveOOPBall(`p${phaseIdx}`, b)}
+                    arrows={oopArrows[`p${phaseIdx}`] ?? []}
+                    onUpdateArrows={a => saveOOPArrows(`p${phaseIdx}`, a)} />
+                </div>
+
+                <div className="rounded-md p-2 shrink-0" style={{ background: `${phase.color}11`, border: `1px solid ${phase.color}22` }}>
+                  <div className="text-[7px] font-black uppercase tracking-widest mb-0.5" style={{ color: phase.color }}>Objective</div>
+                  <div
+                    contentEditable suppressContentEditableWarning
+                    className="outline-none text-[9px] leading-tight focus:opacity-80"
+                    style={{ color: "rgba(255,255,255,0.75)" }}
+                    onBlur={e => saveOOPEdit(`p${phaseIdx}.objetivo`, e.currentTarget.textContent ?? "")}
+                    dangerouslySetInnerHTML={{ __html: oopEdits[`p${phaseIdx}.objetivo`] ?? phase.objetivo }}
+                  />
+                </div>
+
+                <div className="shrink-0">
+                  <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Principles</div>
+                  <ul className="space-y-0.5">
+                    {phase.principios.map((p, j) => (
+                      <li key={j} className="flex items-start gap-1.5">
+                        <span className="mt-0.5 w-3 h-3 rounded-full shrink-0 flex items-center justify-center text-[6px] font-black"
+                          style={{ background: phase.color, color: "#000" }}>{j + 1}</span>
+                        <div
+                          contentEditable suppressContentEditableWarning
+                          className="outline-none text-[9px] leading-tight focus:opacity-80 flex-1"
+                          style={{ color: "rgba(255,255,255,0.65)" }}
+                          onBlur={e => saveOOPEdit(`p${phaseIdx}.princpio${j}`, e.currentTarget.textContent ?? "")}
+                          dangerouslySetInnerHTML={{ __html: oopEdits[`p${phaseIdx}.princpio${j}`] ?? p }}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="shrink-0">
+                  <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Key Behaviors</div>
+                  <ul className="space-y-0.5">
+                    {phase.comportamentos.map((c, j) => (
+                      <li key={j} className="flex items-start gap-1.5">
+                        <span className="text-[10px] shrink-0 leading-tight" style={{ color: phase.color }}>›</span>
+                        <div
+                          contentEditable suppressContentEditableWarning
+                          className="outline-none text-[9px] leading-tight focus:opacity-80 flex-1"
+                          style={{ color: "rgba(255,255,255,0.55)" }}
+                          onBlur={e => saveOOPEdit(`p${phaseIdx}.comp${j}`, e.currentTarget.textContent ?? "")}
+                          dangerouslySetInnerHTML={{ __html: oopEdits[`p${phaseIdx}.comp${j}`] ?? c }}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* RIGHT: 4 cards em 2×2 */}
+          <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-hidden">
+            <div className="flex gap-3 flex-1 min-h-0">
+              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(0,102,255,0.06)", border: "1px solid rgba(0,102,255,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#0066FF" }}>🧠 Coaching Focus</div>
+                {["Compactness and shape", "Pressure triggers", "Cover shadows", "Line of engagement"].map((point, i) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
+                    <div className="w-1 h-1 rounded-full shrink-0" style={{ background: "#0066FF" }} />
+                    <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.65)" }}>{point}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#EF4444" }}>🎯 Common Problems</div>
+                <div className="rounded-lg p-2" style={{ background: "rgba(239,68,68,0.08)" }}>
+                  <div className="text-[8px] font-bold mb-1" style={{ color: "#EF4444" }}>Team cannot maintain defensive shape</div>
+                  {["Drop into mid-block and reorganize", "Use pressing triggers to time pressure", "Maintain double pivot to protect center"].map((s, i) => (
+                    <div key={i} className="flex items-start gap-1.5 py-0.5">
+                      <span className="text-[10px] shrink-0" style={{ color: "#0066FF" }}>✓</span>
+                      <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.55)" }}>{s}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 flex-1 min-h-0">
+              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Defensive Variations</div>
+                {[["High press", "Mid block"], ["Zonal marking", "Man marking"], ["Single pivot", "Double pivot"]].map(([a, b], i) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
+                    <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.65)" }}>{a}</span>
+                    <span className="text-[8px]" style={{ color: "rgba(255,255,255,0.2)" }}>vs</span>
+                    <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.65)" }}>{b}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>🧬 Key Principles</div>
+                {["Collective compactness", "Immediate pressure after loss", "Positional discipline in block"].map((p, i) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
+                    <div className="w-1 h-1 rounded-full shrink-0" style={{ background: "#8B5CF6" }} />
+                    <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.65)" }}>{p}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

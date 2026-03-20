@@ -220,6 +220,7 @@ export function SquadPlanTab() {
           if (jogador?.foto) {
             const p = new Promise<void>(resolve => {
               const photoImg = new Image()
+              photoImg.crossOrigin = "anonymous"
               photoImg.onload = () => {
                 ctx.save()
                 ctx.beginPath()
@@ -274,10 +275,15 @@ export function SquadPlanTab() {
             ctx.textAlign = "center"
             ctx.fillText(name, cx, cy + CIRCLE_R + 22)
         }
-        const link = document.createElement("a")
-        link.download = "team-plan.png"
-        link.href = canvas.toDataURL("image/png", 1.0)
-        link.click()
+        try {
+          const link = document.createElement("a")
+          link.download = "team-plan.png"
+          link.href = canvas.toDataURL("image/png", 1.0)
+          link.click()
+        } catch (err) {
+          console.warn("PNG export blocked (CORS):", err)
+          alert("Export blocked by browser security. Try uploading player photos via HTTPS.")
+        }
       })
     }
     bgImg.src = "/23.png"
