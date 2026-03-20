@@ -2009,6 +2009,19 @@ export function TacticsTab() {
     if (!raw) return defaults
     try { return JSON.parse(raw) } catch { return defaults }
   }
+  function focusListItem(container: Element | null | undefined, idx: number, toEnd = false) {
+    setTimeout(() => {
+      const items = container?.querySelectorAll('[contenteditable]')
+      const el = items?.[idx] as HTMLElement | undefined
+      if (!el) return
+      el.focus()
+      const range = document.createRange()
+      range.selectNodeContents(el)
+      range.collapse(!toEnd)
+      window.getSelection()?.removeAllRanges()
+      window.getSelection()?.addRange(range)
+    }, 30)
+  }
 
   const [ipBalls, setIPBalls] = useState<Record<string, { x: number; y: number }>>(() => {
     if (typeof window === "undefined") return {}
@@ -2384,7 +2397,7 @@ export function TacticsTab() {
                 </div>
 
                 {/* Mini Pitch */}
-                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "200px" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "240px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
@@ -2454,6 +2467,7 @@ export function TacticsTab() {
               {/* Coaching Focus */}
               <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#00D66C" }}>🧠 Coaching Focus</div>
+                <div data-listcard>
                 {getList(ipEdits, "card.coaching", ["Movement timing", "Body orientation", "First touch quality", "Reading the press"]).map((item, i, arr) => (
                   <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#00D66C" }} />
@@ -2461,13 +2475,14 @@ export function TacticsTab() {
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
                       onKeyDown={e => {
-                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveIPEdit("card.coaching", JSON.stringify(n)) }
-                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveIPEdit("card.coaching", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveIPEdit("card.coaching", JSON.stringify(n)); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), i + 1) }
+                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveIPEdit("card.coaching", JSON.stringify(arr.filter((_, j) => j !== i))); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), Math.max(0, i - 1), true) }
                       }}
                       onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveIPEdit("card.coaching", JSON.stringify(n)) }}
                       dangerouslySetInnerHTML={{ __html: item }} />
                   </div>
                 ))}
+                </div>
               </div>
               {/* Common Problems */}
               <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
@@ -2478,6 +2493,7 @@ export function TacticsTab() {
                     style={{ color: "#EF4444" }}
                     onBlur={e => saveIPEdit("card.pt", e.currentTarget.textContent ?? "")}
                     dangerouslySetInnerHTML={{ __html: ipEdits["card.pt"] ?? "Team cannot play out from the back" }} />
+                  <div data-listcard>
                   {getList(ipEdits, "card.solutions", ["Drop a midfielder between the CBs", "Build with 3 or 4 at the back", "Use GK as extra passing option"]).map((item, i, arr) => (
                     <div key={i} className="flex items-start gap-1.5 py-0.5">
                       <span className="text-[13px] shrink-0" style={{ color: "#00D66C" }}>✓</span>
@@ -2485,24 +2501,26 @@ export function TacticsTab() {
                         className="outline-none text-[11px] flex-1 focus:opacity-80"
                         style={{ color: "rgba(255,255,255,0.8)" }}
                         onKeyDown={e => {
-                          if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveIPEdit("card.solutions", JSON.stringify(n)) }
-                          if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveIPEdit("card.solutions", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                          if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveIPEdit("card.solutions", JSON.stringify(n)); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), i + 1) }
+                          if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveIPEdit("card.solutions", JSON.stringify(arr.filter((_, j) => j !== i))); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), Math.max(0, i - 1), true) }
                         }}
                         onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveIPEdit("card.solutions", JSON.stringify(n)) }}
                         dangerouslySetInnerHTML={{ __html: item }} />
                     </div>
                   ))}
+                  </div>
                 </div>
               </div>
               {/* Tactical Variations */}
               <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Tactical Variations</div>
+                <div data-listcard>
                 {getVarList(ipEdits, "card.variations", [["Build-up with 3", "Build-up with 4"], ["Single pivot", "Double pivot"], ["Inside wingers", "Wide wingers"]]).map((pair, i, arr) => (
                   <div key={i} className="flex items-center gap-2 py-0.5">
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); const n = [...arr] as [string,string][]; n.splice(i + 1, 0, ["", ""]); saveIPEdit("card.variations", JSON.stringify(n)) } }}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); const n = [...arr] as [string,string][]; n.splice(i + 1, 0, ["", ""]); saveIPEdit("card.variations", JSON.stringify(n)); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), (i + 1) * 2) } }}
                       onBlur={e => { const n = arr.map((p, j) => j === i ? [e.currentTarget.textContent ?? "", p[1]] : p) as [string,string][]; saveIPEdit("card.variations", JSON.stringify(n)) }}
                       dangerouslySetInnerHTML={{ __html: pair[0] }} />
                     <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.5)" }}>vs</span>
@@ -2513,10 +2531,12 @@ export function TacticsTab() {
                       dangerouslySetInnerHTML={{ __html: pair[1] }} />
                   </div>
                 ))}
+                </div>
               </div>
               {/* Key Principles */}
               <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>🧬 Key Principles</div>
+                <div data-listcard>
                 {getList(ipEdits, "card.principles", ["Courage to play out from the back", "Positional superiority", "Supported play + runs in behind"]).map((item, i, arr) => (
                   <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#8B5CF6" }} />
@@ -2524,13 +2544,14 @@ export function TacticsTab() {
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
                       onKeyDown={e => {
-                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveIPEdit("card.principles", JSON.stringify(n)) }
-                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveIPEdit("card.principles", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveIPEdit("card.principles", JSON.stringify(n)); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), i + 1) }
+                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveIPEdit("card.principles", JSON.stringify(arr.filter((_, j) => j !== i))); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), Math.max(0, i - 1), true) }
                       }}
                       onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveIPEdit("card.principles", JSON.stringify(n)) }}
                       dangerouslySetInnerHTML={{ __html: item }} />
                   </div>
                 ))}
+                </div>
               </div>
           </div>
         </div>
@@ -2553,7 +2574,7 @@ export function TacticsTab() {
                   </div>
                 </div>
 
-                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "200px" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "240px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
@@ -2622,6 +2643,7 @@ export function TacticsTab() {
               {/* Coaching Focus */}
               <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,102,255,0.06)", border: "1px solid rgba(0,102,255,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#0066FF" }}>🧠 Coaching Focus</div>
+                <div data-listcard>
                 {getList(oopEdits, "card.coaching", ["Compactness and shape", "Pressure triggers", "Cover shadows", "Line of engagement"]).map((item, i, arr) => (
                   <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#0066FF" }} />
@@ -2629,13 +2651,14 @@ export function TacticsTab() {
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
                       onKeyDown={e => {
-                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveOOPEdit("card.coaching", JSON.stringify(n)) }
-                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveOOPEdit("card.coaching", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveOOPEdit("card.coaching", JSON.stringify(n)); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), i + 1) }
+                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveOOPEdit("card.coaching", JSON.stringify(arr.filter((_, j) => j !== i))); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), Math.max(0, i - 1), true) }
                       }}
                       onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveOOPEdit("card.coaching", JSON.stringify(n)) }}
                       dangerouslySetInnerHTML={{ __html: item }} />
                   </div>
                 ))}
+                </div>
               </div>
               {/* Common Problems */}
               <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
@@ -2646,6 +2669,7 @@ export function TacticsTab() {
                     style={{ color: "#EF4444" }}
                     onBlur={e => saveOOPEdit("card.pt", e.currentTarget.textContent ?? "")}
                     dangerouslySetInnerHTML={{ __html: oopEdits["card.pt"] ?? "Team cannot maintain defensive shape" }} />
+                  <div data-listcard>
                   {getList(oopEdits, "card.solutions", ["Drop into mid-block and reorganize", "Use pressing triggers to time pressure", "Maintain double pivot to protect center"]).map((item, i, arr) => (
                     <div key={i} className="flex items-start gap-1.5 py-0.5">
                       <span className="text-[13px] shrink-0" style={{ color: "#0066FF" }}>✓</span>
@@ -2653,24 +2677,26 @@ export function TacticsTab() {
                         className="outline-none text-[11px] flex-1 focus:opacity-80"
                         style={{ color: "rgba(255,255,255,0.8)" }}
                         onKeyDown={e => {
-                          if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveOOPEdit("card.solutions", JSON.stringify(n)) }
-                          if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveOOPEdit("card.solutions", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                          if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveOOPEdit("card.solutions", JSON.stringify(n)); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), i + 1) }
+                          if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveOOPEdit("card.solutions", JSON.stringify(arr.filter((_, j) => j !== i))); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), Math.max(0, i - 1), true) }
                         }}
                         onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveOOPEdit("card.solutions", JSON.stringify(n)) }}
                         dangerouslySetInnerHTML={{ __html: item }} />
                     </div>
                   ))}
+                  </div>
                 </div>
               </div>
               {/* Defensive Variations */}
               <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Defensive Variations</div>
+                <div data-listcard>
                 {getVarList(oopEdits, "card.variations", [["High press", "Mid block"], ["Zonal marking", "Man marking"], ["Single pivot", "Double pivot"]]).map((pair, i, arr) => (
                   <div key={i} className="flex items-center gap-2 py-0.5">
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); const n = [...arr] as [string,string][]; n.splice(i + 1, 0, ["", ""]); saveOOPEdit("card.variations", JSON.stringify(n)) } }}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); const n = [...arr] as [string,string][]; n.splice(i + 1, 0, ["", ""]); saveOOPEdit("card.variations", JSON.stringify(n)); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), (i + 1) * 2) } }}
                       onBlur={e => { const n = arr.map((p, j) => j === i ? [e.currentTarget.textContent ?? "", p[1]] : p) as [string,string][]; saveOOPEdit("card.variations", JSON.stringify(n)) }}
                       dangerouslySetInnerHTML={{ __html: pair[0] }} />
                     <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.5)" }}>vs</span>
@@ -2681,10 +2707,12 @@ export function TacticsTab() {
                       dangerouslySetInnerHTML={{ __html: pair[1] }} />
                   </div>
                 ))}
+                </div>
               </div>
               {/* Key Principles */}
               <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>🧬 Key Principles</div>
+                <div data-listcard>
                 {getList(oopEdits, "card.principles", ["Collective compactness", "Immediate pressure after loss", "Positional discipline in block"]).map((item, i, arr) => (
                   <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#8B5CF6" }} />
@@ -2692,13 +2720,14 @@ export function TacticsTab() {
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
                       onKeyDown={e => {
-                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveOOPEdit("card.principles", JSON.stringify(n)) }
-                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveOOPEdit("card.principles", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveOOPEdit("card.principles", JSON.stringify(n)); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), i + 1) }
+                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveOOPEdit("card.principles", JSON.stringify(arr.filter((_, j) => j !== i))); focusListItem((e.currentTarget as HTMLElement).closest('[data-listcard]'), Math.max(0, i - 1), true) }
                       }}
                       onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveOOPEdit("card.principles", JSON.stringify(n)) }}
                       dangerouslySetInnerHTML={{ __html: item }} />
                   </div>
                 ))}
+                </div>
               </div>
           </div>
         </div>
