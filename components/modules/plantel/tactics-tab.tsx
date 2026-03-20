@@ -1330,6 +1330,16 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
 
   return (
     <div className="relative w-full h-full">
+      {/* Reset arrows button */}
+      {(arrows?.length ?? 0) > 0 && (
+        <button
+          className="absolute top-1 right-7 z-10 w-5 h-5 rounded flex items-center justify-center text-[9px]"
+          style={{ background: "rgba(0,0,0,0.5)", color: "#EF4444", border: "1px solid #EF4444" }}
+          onPointerDown={e => e.stopPropagation()}
+          onClick={() => onUpdateArrows?.([])}
+          title="Clear all arrows"
+        >✕</button>
+      )}
       {/* Toggle arrow mode button */}
       <button
         className="absolute top-1 right-1 z-10 w-5 h-5 rounded flex items-center justify-center text-[9px]"
@@ -1426,7 +1436,7 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
             markerEnd="url(#arrowYellow)"
             strokeDasharray="14 5"
             style={{ cursor: "pointer" }}
-            onDoubleClick={() => onUpdateArrows?.((arrows ?? []).filter(x => x.id !== a.id))}
+            onClick={() => onUpdateArrows?.((arrows ?? []).filter(x => x.id !== a.id))}
           />
         ))}
 
@@ -1987,6 +1997,19 @@ export function TacticsTab() {
     setOOPEdits(next)
     localStorage.setItem("coachlab_oop_edits", JSON.stringify(next))
   }
+
+  // ── Dynamic list helpers ──────────────────────────────────────────────────
+  function getList(edits: Record<string, string>, key: string, defaults: string[]): string[] {
+    const raw = edits[key]
+    if (!raw) return defaults
+    try { return JSON.parse(raw) } catch { return defaults }
+  }
+  function getVarList(edits: Record<string, string>, key: string, defaults: [string, string][]): [string, string][] {
+    const raw = edits[key]
+    if (!raw) return defaults
+    try { return JSON.parse(raw) } catch { return defaults }
+  }
+
   const [ipBalls, setIPBalls] = useState<Record<string, { x: number; y: number }>>(() => {
     if (typeof window === "undefined") return {}
     try { return JSON.parse(localStorage.getItem("coachlab_ip_balls") ?? "{}") }
@@ -2361,7 +2384,7 @@ export function TacticsTab() {
                 </div>
 
                 {/* Mini Pitch */}
-                <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "200px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
@@ -2428,19 +2451,25 @@ export function TacticsTab() {
 
           {/* RIGHT: 4 cards em coluna */}
           <div className="flex flex-col gap-3 w-[280px] shrink-0">
+              {/* Coaching Focus */}
               <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#00D66C" }}>🧠 Coaching Focus</div>
-                {(["Movement timing", "Body orientation", "First touch quality", "Reading the press"] as const).map((def, i) => (
-                  <div key={i} className="flex items-center gap-2 py-1">
+                {getList(ipEdits, "card.coaching", ["Movement timing", "Body orientation", "First touch quality", "Reading the press"]).map((item, i, arr) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#00D66C" }} />
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onBlur={e => saveIPEdit(`card.c${i}`, e.currentTarget.textContent ?? "")}
-                      dangerouslySetInnerHTML={{ __html: ipEdits[`card.c${i}`] ?? def }} />
+                      onKeyDown={e => {
+                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveIPEdit("card.coaching", JSON.stringify(n)) }
+                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveIPEdit("card.coaching", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                      }}
+                      onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveIPEdit("card.coaching", JSON.stringify(n)) }}
+                      dangerouslySetInnerHTML={{ __html: item }} />
                   </div>
                 ))}
               </div>
+              {/* Common Problems */}
               <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#EF4444" }}>🎯 Common Problems</div>
                 <div className="rounded-lg p-2" style={{ background: "rgba(239,68,68,0.08)" }}>
@@ -2449,46 +2478,57 @@ export function TacticsTab() {
                     style={{ color: "#EF4444" }}
                     onBlur={e => saveIPEdit("card.pt", e.currentTarget.textContent ?? "")}
                     dangerouslySetInnerHTML={{ __html: ipEdits["card.pt"] ?? "Team cannot play out from the back" }} />
-                  {(["Drop a midfielder between the CBs", "Build with 3 or 4 at the back", "Use GK as extra passing option"] as const).map((def, i) => (
+                  {getList(ipEdits, "card.solutions", ["Drop a midfielder between the CBs", "Build with 3 or 4 at the back", "Use GK as extra passing option"]).map((item, i, arr) => (
                     <div key={i} className="flex items-start gap-1.5 py-0.5">
                       <span className="text-[13px] shrink-0" style={{ color: "#00D66C" }}>✓</span>
                       <div contentEditable suppressContentEditableWarning
                         className="outline-none text-[11px] flex-1 focus:opacity-80"
                         style={{ color: "rgba(255,255,255,0.8)" }}
-                        onBlur={e => saveIPEdit(`card.s${i}`, e.currentTarget.textContent ?? "")}
-                        dangerouslySetInnerHTML={{ __html: ipEdits[`card.s${i}`] ?? def }} />
+                        onKeyDown={e => {
+                          if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveIPEdit("card.solutions", JSON.stringify(n)) }
+                          if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveIPEdit("card.solutions", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                        }}
+                        onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveIPEdit("card.solutions", JSON.stringify(n)) }}
+                        dangerouslySetInnerHTML={{ __html: item }} />
                     </div>
                   ))}
                 </div>
               </div>
+              {/* Tactical Variations */}
               <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Tactical Variations</div>
-                {([["Build-up with 3", "Build-up with 4"], ["Single pivot", "Double pivot"], ["Inside wingers", "Wide wingers"]] as const).map((pair, i) => (
-                  <div key={i} className="flex items-center gap-2 py-1">
+                {getVarList(ipEdits, "card.variations", [["Build-up with 3", "Build-up with 4"], ["Single pivot", "Double pivot"], ["Inside wingers", "Wide wingers"]]).map((pair, i, arr) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onBlur={e => saveIPEdit(`card.va${i}`, e.currentTarget.textContent ?? "")}
-                      dangerouslySetInnerHTML={{ __html: ipEdits[`card.va${i}`] ?? pair[0] }} />
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); const n = [...arr] as [string,string][]; n.splice(i + 1, 0, ["", ""]); saveIPEdit("card.variations", JSON.stringify(n)) } }}
+                      onBlur={e => { const n = arr.map((p, j) => j === i ? [e.currentTarget.textContent ?? "", p[1]] : p) as [string,string][]; saveIPEdit("card.variations", JSON.stringify(n)) }}
+                      dangerouslySetInnerHTML={{ __html: pair[0] }} />
                     <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.5)" }}>vs</span>
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onBlur={e => saveIPEdit(`card.vb${i}`, e.currentTarget.textContent ?? "")}
-                      dangerouslySetInnerHTML={{ __html: ipEdits[`card.vb${i}`] ?? pair[1] }} />
+                      onBlur={e => { const n = arr.map((p, j) => j === i ? [p[0], e.currentTarget.textContent ?? ""] : p) as [string,string][]; saveIPEdit("card.variations", JSON.stringify(n)) }}
+                      dangerouslySetInnerHTML={{ __html: pair[1] }} />
                   </div>
                 ))}
               </div>
+              {/* Key Principles */}
               <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>🧬 Key Principles</div>
-                {(["Courage to play out from the back", "Positional superiority", "Supported play + runs in behind"] as const).map((def, i) => (
-                  <div key={i} className="flex items-center gap-2 py-1">
+                {getList(ipEdits, "card.principles", ["Courage to play out from the back", "Positional superiority", "Supported play + runs in behind"]).map((item, i, arr) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#8B5CF6" }} />
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onBlur={e => saveIPEdit(`card.pr${i}`, e.currentTarget.textContent ?? "")}
-                      dangerouslySetInnerHTML={{ __html: ipEdits[`card.pr${i}`] ?? def }} />
+                      onKeyDown={e => {
+                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveIPEdit("card.principles", JSON.stringify(n)) }
+                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveIPEdit("card.principles", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                      }}
+                      onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveIPEdit("card.principles", JSON.stringify(n)) }}
+                      dangerouslySetInnerHTML={{ __html: item }} />
                   </div>
                 ))}
               </div>
@@ -2513,7 +2553,7 @@ export function TacticsTab() {
                   </div>
                 </div>
 
-                <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "200px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
@@ -2579,19 +2619,25 @@ export function TacticsTab() {
 
           {/* RIGHT: 4 cards em coluna */}
           <div className="flex flex-col gap-3 w-[280px] shrink-0">
+              {/* Coaching Focus */}
               <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,102,255,0.06)", border: "1px solid rgba(0,102,255,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#0066FF" }}>🧠 Coaching Focus</div>
-                {(["Compactness and shape", "Pressure triggers", "Cover shadows", "Line of engagement"] as const).map((def, i) => (
-                  <div key={i} className="flex items-center gap-2 py-1">
+                {getList(oopEdits, "card.coaching", ["Compactness and shape", "Pressure triggers", "Cover shadows", "Line of engagement"]).map((item, i, arr) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#0066FF" }} />
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onBlur={e => saveOOPEdit(`card.c${i}`, e.currentTarget.textContent ?? "")}
-                      dangerouslySetInnerHTML={{ __html: oopEdits[`card.c${i}`] ?? def }} />
+                      onKeyDown={e => {
+                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveOOPEdit("card.coaching", JSON.stringify(n)) }
+                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveOOPEdit("card.coaching", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                      }}
+                      onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveOOPEdit("card.coaching", JSON.stringify(n)) }}
+                      dangerouslySetInnerHTML={{ __html: item }} />
                   </div>
                 ))}
               </div>
+              {/* Common Problems */}
               <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#EF4444" }}>🎯 Common Problems</div>
                 <div className="rounded-lg p-2" style={{ background: "rgba(239,68,68,0.08)" }}>
@@ -2600,46 +2646,57 @@ export function TacticsTab() {
                     style={{ color: "#EF4444" }}
                     onBlur={e => saveOOPEdit("card.pt", e.currentTarget.textContent ?? "")}
                     dangerouslySetInnerHTML={{ __html: oopEdits["card.pt"] ?? "Team cannot maintain defensive shape" }} />
-                  {(["Drop into mid-block and reorganize", "Use pressing triggers to time pressure", "Maintain double pivot to protect center"] as const).map((def, i) => (
+                  {getList(oopEdits, "card.solutions", ["Drop into mid-block and reorganize", "Use pressing triggers to time pressure", "Maintain double pivot to protect center"]).map((item, i, arr) => (
                     <div key={i} className="flex items-start gap-1.5 py-0.5">
                       <span className="text-[13px] shrink-0" style={{ color: "#0066FF" }}>✓</span>
                       <div contentEditable suppressContentEditableWarning
                         className="outline-none text-[11px] flex-1 focus:opacity-80"
                         style={{ color: "rgba(255,255,255,0.8)" }}
-                        onBlur={e => saveOOPEdit(`card.s${i}`, e.currentTarget.textContent ?? "")}
-                        dangerouslySetInnerHTML={{ __html: oopEdits[`card.s${i}`] ?? def }} />
+                        onKeyDown={e => {
+                          if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveOOPEdit("card.solutions", JSON.stringify(n)) }
+                          if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveOOPEdit("card.solutions", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                        }}
+                        onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveOOPEdit("card.solutions", JSON.stringify(n)) }}
+                        dangerouslySetInnerHTML={{ __html: item }} />
                     </div>
                   ))}
                 </div>
               </div>
+              {/* Defensive Variations */}
               <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Defensive Variations</div>
-                {([["High press", "Mid block"], ["Zonal marking", "Man marking"], ["Single pivot", "Double pivot"]] as const).map((pair, i) => (
-                  <div key={i} className="flex items-center gap-2 py-1">
+                {getVarList(oopEdits, "card.variations", [["High press", "Mid block"], ["Zonal marking", "Man marking"], ["Single pivot", "Double pivot"]]).map((pair, i, arr) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onBlur={e => saveOOPEdit(`card.va${i}`, e.currentTarget.textContent ?? "")}
-                      dangerouslySetInnerHTML={{ __html: oopEdits[`card.va${i}`] ?? pair[0] }} />
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); const n = [...arr] as [string,string][]; n.splice(i + 1, 0, ["", ""]); saveOOPEdit("card.variations", JSON.stringify(n)) } }}
+                      onBlur={e => { const n = arr.map((p, j) => j === i ? [e.currentTarget.textContent ?? "", p[1]] : p) as [string,string][]; saveOOPEdit("card.variations", JSON.stringify(n)) }}
+                      dangerouslySetInnerHTML={{ __html: pair[0] }} />
                     <span className="text-[10px] shrink-0" style={{ color: "rgba(255,255,255,0.5)" }}>vs</span>
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onBlur={e => saveOOPEdit(`card.vb${i}`, e.currentTarget.textContent ?? "")}
-                      dangerouslySetInnerHTML={{ __html: oopEdits[`card.vb${i}`] ?? pair[1] }} />
+                      onBlur={e => { const n = arr.map((p, j) => j === i ? [p[0], e.currentTarget.textContent ?? ""] : p) as [string,string][]; saveOOPEdit("card.variations", JSON.stringify(n)) }}
+                      dangerouslySetInnerHTML={{ __html: pair[1] }} />
                   </div>
                 ))}
               </div>
+              {/* Key Principles */}
               <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>🧬 Key Principles</div>
-                {(["Collective compactness", "Immediate pressure after loss", "Positional discipline in block"] as const).map((def, i) => (
-                  <div key={i} className="flex items-center gap-2 py-1">
+                {getList(oopEdits, "card.principles", ["Collective compactness", "Immediate pressure after loss", "Positional discipline in block"]).map((item, i, arr) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#8B5CF6" }} />
                     <div contentEditable suppressContentEditableWarning
                       className="outline-none text-[11px] flex-1 focus:opacity-80"
                       style={{ color: "rgba(255,255,255,0.85)" }}
-                      onBlur={e => saveOOPEdit(`card.pr${i}`, e.currentTarget.textContent ?? "")}
-                      dangerouslySetInnerHTML={{ __html: oopEdits[`card.pr${i}`] ?? def }} />
+                      onKeyDown={e => {
+                        if (e.key === "Enter") { e.preventDefault(); const n = [...arr]; n.splice(i + 1, 0, ""); saveOOPEdit("card.principles", JSON.stringify(n)) }
+                        if (e.key === "Backspace" && e.currentTarget.textContent === "" && arr.length > 1) { e.preventDefault(); saveOOPEdit("card.principles", JSON.stringify(arr.filter((_, j) => j !== i))) }
+                      }}
+                      onBlur={e => { const n = [...arr]; n[i] = e.currentTarget.textContent ?? ""; saveOOPEdit("card.principles", JSON.stringify(n)) }}
+                      dangerouslySetInnerHTML={{ __html: item }} />
                   </div>
                 ))}
               </div>
