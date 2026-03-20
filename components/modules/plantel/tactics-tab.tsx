@@ -1832,6 +1832,16 @@ export function TacticsTab() {
   const [arrowType] = useState<TacticArrowType>("run")
   const fieldRef = useRef<HTMLDivElement>(null)
   const uid = useId()
+  const [ipEdits, setIPEdits] = useState<Record<string, string>>(() => {
+    if (typeof window === "undefined") return {}
+    try { return JSON.parse(localStorage.getItem("coachlab_ip_edits") ?? "{}") }
+    catch { return {} }
+  })
+  function saveIPEdit(key: string, val: string) {
+    const next = { ...ipEdits, [key]: val }
+    setIPEdits(next)
+    localStorage.setItem("coachlab_ip_edits", JSON.stringify(next))
+  }
 
   useEffect(() => {
     setJogadores(getJogadores())
@@ -2037,95 +2047,88 @@ export function TacticsTab() {
 
       {/* ── OFFENSIVE ORGANIZATION ── */}
       {activeTab === "ip" && (
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4" style={{ scrollbarWidth: "thin" }}>
-          <div className="space-y-5">
-            {/* Header */}
-            <div className="flex items-center gap-2">
-              <span className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
-                Offensive Organization
-              </span>
-              <span className="text-[8px] font-thin" style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
-              <span className="text-[8px] font-thin uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.4)" }}>
-                Construction Phases
-              </span>
-            </div>
+        <div className="flex flex-1 min-h-0 overflow-hidden p-4 gap-6">
+          {/* LEFT: 3 fases de construção */}
+          <div className="shrink-0 flex gap-4 overflow-x-auto">
+            {OFFENSIVE_PHASES.map((phase, phaseIdx) => (
+              <div key={phase.key} className="shrink-0 w-[200px] flex flex-col gap-2"
+                style={{ borderLeft: `2px solid ${phase.color}33`, paddingLeft: "10px" }}>
 
-            {/* 3 Fases */}
-            <div className="flex gap-5 overflow-x-auto pb-1">
-              {OFFENSIVE_PHASES.map((phase) => (
-                <div key={phase.key} className="shrink-0 w-[220px] flex flex-col gap-2"
-                  style={{ borderLeft: `2px solid ${phase.color}33`, paddingLeft: "10px" }}>
-
-                  {/* Phase header */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm">{phase.emoji}</span>
-                    <div>
-                      <div className="text-[9px] font-black uppercase tracking-widest" style={{ color: phase.color }}>
-                        {phase.label} – {phase.subtitle}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mini Pitch */}
-                  <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded-md">
-                    <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                      overrides={tatica[phase.key] ?? {}}
-                      onUpdateOverrides={o => update({ [phase.key]: o })} />
-                  </div>
-
-                  {/* Objetivo */}
-                  <div className="rounded-md p-2" style={{ background: `${phase.color}11`, border: `1px solid ${phase.color}22` }}>
-                    <div className="text-[7px] font-black uppercase tracking-widest mb-0.5" style={{ color: phase.color }}>
-                      Objetivo
-                    </div>
-                    <div className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.75)" }}>
-                      {phase.objetivo}
-                    </div>
-                  </div>
-
-                  {/* Princípios */}
-                  <div>
-                    <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>
-                      Princípios
-                    </div>
-                    <ul className="space-y-0.5">
-                      {phase.principios.map((p, j) => (
-                        <li key={j} className="flex items-start gap-1.5">
-                          <span className="mt-0.5 w-3 h-3 rounded-full shrink-0 flex items-center justify-center text-[6px] font-black"
-                            style={{ background: phase.color, color: "#000" }}>{j + 1}</span>
-                          <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.65)" }}>{p}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Comportamentos */}
-                  <div>
-                    <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>
-                      Comportamentos-chave
-                    </div>
-                    <ul className="space-y-0.5">
-                      {phase.comportamentos.map((c, j) => (
-                        <li key={j} className="flex items-start gap-1.5">
-                          <span className="text-[10px] shrink-0 leading-tight" style={{ color: phase.color }}>›</span>
-                          <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.55)" }}>{c}</span>
-                        </li>
-                      ))}
-                    </ul>
+                {/* Phase header */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-sm">{phase.emoji}</span>
+                  <div className="text-[9px] font-black uppercase tracking-widest" style={{ color: phase.color }}>
+                    {phase.label} – {phase.subtitle}
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Separador */}
-            <div style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
-
-            {/* Coaching Focus + Problemas */}
-            <div className="flex gap-4">
-              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
-                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#00D66C" }}>
-                  🧠 Coaching Focus
+                {/* Mini Pitch */}
+                <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded-md shrink-0">
+                  <MiniPitchSVG tatica={tatica} jogadores={jogadores}
+                    overrides={tatica[phase.key] ?? {}}
+                    onUpdateOverrides={o => update({ [phase.key]: o })} />
                 </div>
+
+                {/* Objetivo — editável */}
+                <div className="rounded-md p-2 shrink-0" style={{ background: `${phase.color}11`, border: `1px solid ${phase.color}22` }}>
+                  <div className="text-[7px] font-black uppercase tracking-widest mb-0.5" style={{ color: phase.color }}>Objetivo</div>
+                  <div
+                    contentEditable suppressContentEditableWarning
+                    className="outline-none text-[9px] leading-tight focus:opacity-80"
+                    style={{ color: "rgba(255,255,255,0.75)" }}
+                    onBlur={e => saveIPEdit(`p${phaseIdx}.objetivo`, e.currentTarget.textContent ?? "")}
+                    dangerouslySetInnerHTML={{ __html: ipEdits[`p${phaseIdx}.objetivo`] ?? phase.objetivo }}
+                  />
+                </div>
+
+                {/* Princípios — editáveis */}
+                <div className="shrink-0">
+                  <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Princípios</div>
+                  <ul className="space-y-0.5">
+                    {phase.principios.map((p, j) => (
+                      <li key={j} className="flex items-start gap-1.5">
+                        <span className="mt-0.5 w-3 h-3 rounded-full shrink-0 flex items-center justify-center text-[6px] font-black"
+                          style={{ background: phase.color, color: "#000" }}>{j + 1}</span>
+                        <div
+                          contentEditable suppressContentEditableWarning
+                          className="outline-none text-[9px] leading-tight focus:opacity-80 flex-1"
+                          style={{ color: "rgba(255,255,255,0.65)" }}
+                          onBlur={e => saveIPEdit(`p${phaseIdx}.princpio${j}`, e.currentTarget.textContent ?? "")}
+                          dangerouslySetInnerHTML={{ __html: ipEdits[`p${phaseIdx}.princpio${j}`] ?? p }}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Comportamentos — editáveis */}
+                <div className="shrink-0">
+                  <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Comportamentos-chave</div>
+                  <ul className="space-y-0.5">
+                    {phase.comportamentos.map((c, j) => (
+                      <li key={j} className="flex items-start gap-1.5">
+                        <span className="text-[10px] shrink-0 leading-tight" style={{ color: phase.color }}>›</span>
+                        <div
+                          contentEditable suppressContentEditableWarning
+                          className="outline-none text-[9px] leading-tight focus:opacity-80 flex-1"
+                          style={{ color: "rgba(255,255,255,0.55)" }}
+                          onBlur={e => saveIPEdit(`p${phaseIdx}.comp${j}`, e.currentTarget.textContent ?? "")}
+                          dangerouslySetInnerHTML={{ __html: ipEdits[`p${phaseIdx}.comp${j}`] ?? c }}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* RIGHT: 4 cards em 2×2 */}
+          <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-hidden">
+            {/* Row 1 */}
+            <div className="flex gap-3 flex-1 min-h-0">
+              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#00D66C" }}>🧠 Coaching Focus</div>
                 {["Timing de movimentos", "Orientação corporal", "Qualidade do primeiro toque", "Leitura da pressão"].map((point, i) => (
                   <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1 h-1 rounded-full shrink-0" style={{ background: "#00D66C" }} />
@@ -2133,36 +2136,23 @@ export function TacticsTab() {
                   </div>
                 ))}
               </div>
-
-              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
-                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#EF4444" }}>
-                  🎯 Problemas Comuns
-                </div>
+              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#EF4444" }}>🎯 Problemas Comuns</div>
                 <div className="rounded-lg p-2" style={{ background: "rgba(239,68,68,0.08)" }}>
-                  <div className="text-[8px] font-bold mb-1" style={{ color: "#EF4444" }}>
-                    Equipa não consegue sair na 1ª fase
-                  </div>
-                  <ul className="space-y-0.5">
-                    {["Baixar um médio entre centrais", "Criar saída a 3 ou 4", "Usar GK como apoio extra"].map((s, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
-                        <span className="text-[10px] shrink-0" style={{ color: "#00D66C" }}>✓</span>
-                        <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.55)" }}>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="text-[8px] font-bold mb-1" style={{ color: "#EF4444" }}>Equipa não consegue sair na 1ª fase</div>
+                  {["Baixar um médio entre centrais", "Criar saída a 3 ou 4", "Usar GK como apoio extra"].map((s, i) => (
+                    <div key={i} className="flex items-start gap-1.5 py-0.5">
+                      <span className="text-[10px] shrink-0" style={{ color: "#00D66C" }}>✓</span>
+                      <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.55)" }}>{s}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-
-            {/* Separador */}
-            <div style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
-
-            {/* Variações + Princípios-chave */}
-            <div className="flex gap-4">
-              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
-                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>
-                  📊 Variações Táticas
-                </div>
+            {/* Row 2 */}
+            <div className="flex gap-3 flex-1 min-h-0">
+              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Variações Táticas</div>
                 {[["Saída a 3", "Saída a 4"], ["Pivot único", "Duplo pivot"], ["Extremos por dentro", "Largura máxima"]].map(([a, b], i) => (
                   <div key={i} className="flex items-center gap-2 py-0.5">
                     <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.65)" }}>{a}</span>
@@ -2171,11 +2161,8 @@ export function TacticsTab() {
                   </div>
                 ))}
               </div>
-
-              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
-                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>
-                  🧬 Princípios-chave
-                </div>
+              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>🧬 Princípios-chave</div>
                 {["Coragem para sair a jogar", "Superioridade posicional", "Jogo apoiado + ataque à profundidade"].map((p, i) => (
                   <div key={i} className="flex items-center gap-2 py-0.5">
                     <div className="w-1 h-1 rounded-full shrink-0" style={{ background: "#8B5CF6" }} />
@@ -2183,13 +2170,6 @@ export function TacticsTab() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Frase de identidade */}
-            <div className="rounded-xl p-3 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <span className="text-[8px] italic" style={{ color: "rgba(255,255,255,0.35)" }}>
-                &ldquo;Estas fases estão alinhadas com o modelo de jogo baseado em posse, progressão apoiada e ocupação racional dos espaços.&rdquo;
-              </span>
             </div>
           </div>
         </div>
