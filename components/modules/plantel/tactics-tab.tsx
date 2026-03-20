@@ -1978,7 +1978,7 @@ export function TacticsTab() {
       {activeTab === "overview" && (
         <div className="flex flex-1 min-h-0 overflow-x-auto justify-center items-stretch gap-6 px-4">
           {/* Campo com controlos sobrepostos no topo */}
-          <div className="shrink-0 relative" style={{ aspectRatio: "510/780" }}>
+          <div className="shrink-0 relative overflow-hidden" style={{ aspectRatio: "510/780" }}>
             {/* Mentality + Formation — flutuam sobre o campo */}
             <div className="absolute top-0 left-0 right-0 h-9 z-10 flex items-center justify-center gap-1"
               style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }}>
