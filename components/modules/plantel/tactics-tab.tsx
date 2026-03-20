@@ -2346,21 +2346,16 @@ export function TacticsTab() {
       {activeTab === "ip" && (
         <div className="flex flex-1 min-h-0 overflow-hidden p-4 gap-4">
           {/* LEFT: 3 fases de construção */}
-          <div className="shrink-0 flex flex-col gap-2">
-            <button onClick={() => exportOrgPNG(OFFENSIVE_PHASES, ipBalls, ipArrows, tatica.formacao)}
-              className="shrink-0 self-start flex items-center gap-1 px-2 py-1 rounded border border-[#00D66C]/40 text-[#00D66C] hover:bg-[#00D66C]/10 transition-all">
-              <Camera className="w-3.5 h-3.5" />
-              <span className="text-[10px] font-semibold">Export PNG</span>
-            </button>
-          <div className="flex gap-4 overflow-x-auto">
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col gap-2">
+          <div className="flex gap-4 overflow-hidden flex-1">
             {OFFENSIVE_PHASES.map((phase, phaseIdx) => (
-              <div key={phase.key} className="shrink-0 w-[270px] flex flex-col gap-2"
+              <div key={phase.key} className="flex-1 min-w-0 flex flex-col gap-2"
                 style={{ borderLeft: `2px solid ${phase.color}33`, paddingLeft: "10px" }}>
 
                 {/* Phase header */}
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-sm">{phase.emoji}</span>
-                  <div className="text-[11px] font-black uppercase tracking-widest" style={{ color: phase.color }}>
+                  <span className="text-xs">{phase.emoji}</span>
+                  <div className="text-[9px] font-black uppercase tracking-widest" style={{ color: phase.color }}>
                     {phase.label} – {phase.subtitle}
                   </div>
                 </div>
@@ -2505,20 +2500,15 @@ export function TacticsTab() {
       {activeTab === "oop" && (
         <div className="flex flex-1 min-h-0 overflow-hidden p-4 gap-4">
           {/* LEFT: 3 fases defensivas */}
-          <div className="shrink-0 flex flex-col gap-2">
-            <button onClick={() => exportOrgPNG(DEFENSIVE_PHASES, oopBalls, oopArrows, tatica.formacao_oop ?? tatica.formacao)}
-              className="shrink-0 self-start flex items-center gap-1 px-2 py-1 rounded border border-[#0066FF]/40 text-[#0066FF] hover:bg-[#0066FF]/10 transition-all">
-              <Camera className="w-3.5 h-3.5" />
-              <span className="text-[10px] font-semibold">Export PNG</span>
-            </button>
-          <div className="flex gap-4 overflow-x-auto">
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col gap-2">
+          <div className="flex gap-4 overflow-hidden flex-1">
             {DEFENSIVE_PHASES.map((phase, phaseIdx) => (
-              <div key={phase.key} className="shrink-0 w-[270px] flex flex-col gap-2"
+              <div key={phase.key} className="flex-1 min-w-0 flex flex-col gap-2"
                 style={{ borderLeft: `2px solid ${phase.color}33`, paddingLeft: "10px" }}>
 
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-sm">{phase.emoji}</span>
-                  <div className="text-[11px] font-black uppercase tracking-widest" style={{ color: phase.color }}>
+                  <span className="text-xs">{phase.emoji}</span>
+                  <div className="text-[9px] font-black uppercase tracking-widest" style={{ color: phase.color }}>
                     {phase.label} – {phase.subtitle}
                   </div>
                 </div>
