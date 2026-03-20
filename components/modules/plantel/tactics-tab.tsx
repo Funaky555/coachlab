@@ -1332,8 +1332,8 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
     <div className="relative w-full h-full">
       {/* Toggle arrow mode button */}
       <button
-        className="absolute top-1 right-1 z-10 w-5 h-5 rounded flex items-center justify-center text-[9px]"
-        style={{ background: arrowMode ? "#FFD700" : "rgba(0,0,0,0.5)", color: arrowMode ? "#000" : "#FFD700", border: "1px solid #FFD700" }}
+        className="absolute top-2 right-2 z-10 w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold"
+        style={{ background: arrowMode ? "#FFD700" : "rgba(0,0,0,0.65)", color: arrowMode ? "#000" : "#FFD700", border: "1.5px solid #FFD700" }}
         onPointerDown={e => e.stopPropagation()}
         onClick={() => { setArrowMode(m => !m); setPreviewArrow(null) }}
         title={arrowMode ? "Exit arrow mode" : "Draw movement arrows"}
@@ -2387,7 +2387,7 @@ export function TacticsTab() {
                 </div>
 
                 {/* Mini Pitch */}
-                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "480px" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "380px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
@@ -2453,7 +2453,7 @@ export function TacticsTab() {
           </div>
 
           {/* RIGHT: 4 cards em coluna */}
-          <div className="flex flex-col gap-3 w-[280px] shrink-0 overflow-y-auto">
+          <div className="flex flex-col gap-2 w-[280px] shrink-0 overflow-y-auto self-start">
               {/* Coaching Focus */}
               <div className="rounded-xl p-3" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#00D66C" }}>🧠 Coaching Focus</div>
@@ -2564,7 +2564,7 @@ export function TacticsTab() {
                   </div>
                 </div>
 
-                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "480px" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "380px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
@@ -2629,7 +2629,7 @@ export function TacticsTab() {
           </div>
 
           {/* RIGHT: 4 cards em coluna */}
-          <div className="flex flex-col gap-3 w-[280px] shrink-0 overflow-y-auto">
+          <div className="flex flex-col gap-2 w-[280px] shrink-0 overflow-y-auto self-start">
               {/* Coaching Focus */}
               <div className="rounded-xl p-3" style={{ background: "rgba(0,102,255,0.06)", border: "1px solid rgba(0,102,255,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#0066FF" }}>🧠 Coaching Focus</div>
