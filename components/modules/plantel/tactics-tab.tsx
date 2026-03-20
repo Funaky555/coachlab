@@ -1795,6 +1795,32 @@ function StrategyPanel({ strat, onUpdate }: {
   )
 }
 
+// ─── Offensive Organization Data ──────────────────────────────────────────────
+
+const OFFENSIVE_PHASES = [
+  {
+    key: "phase1Overrides" as const,
+    emoji: "🟢", label: "1ª Fase", subtitle: "Build-up", color: "#00D66C",
+    objetivo: "Sair da pressão e criar superioridade numérica",
+    principios: ["Criar superioridade numérica (3v2, 4v3)", "Atrair pressão adversária", "Fixar 1ª linha adversária"],
+    comportamentos: ["GK como apoio na saída", "CBs abertos a dar largura", "DM como referência central/entre-linhas"],
+  },
+  {
+    key: "phase2Overrides" as const,
+    emoji: "🟡", label: "2ª Fase", subtitle: "Progression", color: "#F59E0B",
+    objetivo: "Ligar setores e encontrar o homem livre",
+    principios: ["Criar linhas de passe interiores", "Alternar corredor central/lateral", "Encontrar o homem livre"],
+    comportamentos: ["Duplo pivot ou esquema 6+8", "Laterais projetados no corredor", "Extremos a dar largura máxima"],
+  },
+  {
+    key: "phase3Overrides" as const,
+    emoji: "🔴", label: "3ª Fase", subtitle: "Final Third", color: "#EF4444",
+    objetivo: "Criar e finalizar no último terço",
+    principios: ["Ocupação racional da área", "Ataque à profundidade", "Explorar half-spaces"],
+    comportamentos: ["5 linhas ofensivas (largura + profundidade)", "Chegadas de médios à área", "Cruzamentos e combinações interiores"],
+  },
+]
+
 // ─── Main TacticsTab ──────────────────────────────────────────────────────────
 
 type TabMode = "overview" | "ip" | "oop" | "strategy"
@@ -2009,30 +2035,161 @@ export function TacticsTab() {
         </div>
       )}
 
-      {/* ── OFFENSIVE ORGANIZATION ── 3 Offensive Construction Phases ── */}
+      {/* ── OFFENSIVE ORGANIZATION ── */}
       {activeTab === "ip" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden">
-          <div className="flex flex-col p-4">
-            <div className="shrink-0 mb-2 text-center">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4" style={{ scrollbarWidth: "thin" }}>
+          <div className="space-y-5">
+            {/* Header */}
+            <div className="flex items-center gap-2">
               <span className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
-                Offensive Organization · Construction Phases
+                Offensive Organization
+              </span>
+              <span className="text-[8px] font-thin" style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
+              <span className="text-[8px] font-thin uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.4)" }}>
+                Construction Phases
               </span>
             </div>
-            <div className="flex gap-4 items-start">
-              {(["phase1Overrides", "phase2Overrides", "phase3Overrides"] as const).map((key, i) => (
-                <div key={key} className="shrink-0 w-[175px] flex flex-col">
-                  <div className="shrink-0 py-1 text-center">
-                    <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: "#00D66C" }}>
-                      {i === 0 ? <>1<sup>st</sup></> : i === 1 ? <>2<sup>nd</sup></> : <>3<sup>rd</sup></>} Phase
-                    </span>
+
+            {/* 3 Fases */}
+            <div className="flex gap-5 overflow-x-auto pb-1">
+              {OFFENSIVE_PHASES.map((phase) => (
+                <div key={phase.key} className="shrink-0 w-[220px] flex flex-col gap-2"
+                  style={{ borderLeft: `2px solid ${phase.color}33`, paddingLeft: "10px" }}>
+
+                  {/* Phase header */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">{phase.emoji}</span>
+                    <div>
+                      <div className="text-[9px] font-black uppercase tracking-widest" style={{ color: phase.color }}>
+                        {phase.label} – {phase.subtitle}
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded">
+
+                  {/* Mini Pitch */}
+                  <div style={{ width: "100%", aspectRatio: "510/780" }} className="relative overflow-hidden rounded-md">
                     <MiniPitchSVG tatica={tatica} jogadores={jogadores}
-                      overrides={tatica[key] ?? {}}
-                      onUpdateOverrides={o => update({ [key]: o })} />
+                      overrides={tatica[phase.key] ?? {}}
+                      onUpdateOverrides={o => update({ [phase.key]: o })} />
+                  </div>
+
+                  {/* Objetivo */}
+                  <div className="rounded-md p-2" style={{ background: `${phase.color}11`, border: `1px solid ${phase.color}22` }}>
+                    <div className="text-[7px] font-black uppercase tracking-widest mb-0.5" style={{ color: phase.color }}>
+                      Objetivo
+                    </div>
+                    <div className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.75)" }}>
+                      {phase.objetivo}
+                    </div>
+                  </div>
+
+                  {/* Princípios */}
+                  <div>
+                    <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      Princípios
+                    </div>
+                    <ul className="space-y-0.5">
+                      {phase.principios.map((p, j) => (
+                        <li key={j} className="flex items-start gap-1.5">
+                          <span className="mt-0.5 w-3 h-3 rounded-full shrink-0 flex items-center justify-center text-[6px] font-black"
+                            style={{ background: phase.color, color: "#000" }}>{j + 1}</span>
+                          <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.65)" }}>{p}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Comportamentos */}
+                  <div>
+                    <div className="text-[7px] font-black uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      Comportamentos-chave
+                    </div>
+                    <ul className="space-y-0.5">
+                      {phase.comportamentos.map((c, j) => (
+                        <li key={j} className="flex items-start gap-1.5">
+                          <span className="text-[10px] shrink-0 leading-tight" style={{ color: phase.color }}>›</span>
+                          <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.55)" }}>{c}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Separador */}
+            <div style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
+
+            {/* Coaching Focus + Problemas */}
+            <div className="flex gap-4">
+              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#00D66C" }}>
+                  🧠 Coaching Focus
+                </div>
+                {["Timing de movimentos", "Orientação corporal", "Qualidade do primeiro toque", "Leitura da pressão"].map((point, i) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
+                    <div className="w-1 h-1 rounded-full shrink-0" style={{ background: "#00D66C" }} />
+                    <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.65)" }}>{point}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#EF4444" }}>
+                  🎯 Problemas Comuns
+                </div>
+                <div className="rounded-lg p-2" style={{ background: "rgba(239,68,68,0.08)" }}>
+                  <div className="text-[8px] font-bold mb-1" style={{ color: "#EF4444" }}>
+                    Equipa não consegue sair na 1ª fase
+                  </div>
+                  <ul className="space-y-0.5">
+                    {["Baixar um médio entre centrais", "Criar saída a 3 ou 4", "Usar GK como apoio extra"].map((s, i) => (
+                      <li key={i} className="flex items-start gap-1.5">
+                        <span className="text-[10px] shrink-0" style={{ color: "#00D66C" }}>✓</span>
+                        <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.55)" }}>{s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Separador */}
+            <div style={{ height: "1px", background: "rgba(255,255,255,0.06)" }} />
+
+            {/* Variações + Princípios-chave */}
+            <div className="flex gap-4">
+              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>
+                  📊 Variações Táticas
+                </div>
+                {[["Saída a 3", "Saída a 4"], ["Pivot único", "Duplo pivot"], ["Extremos por dentro", "Largura máxima"]].map(([a, b], i) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
+                    <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.65)" }}>{a}</span>
+                    <span className="text-[8px]" style={{ color: "rgba(255,255,255,0.2)" }}>vs</span>
+                    <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.65)" }}>{b}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
+                <div className="text-[8px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>
+                  🧬 Princípios-chave
+                </div>
+                {["Coragem para sair a jogar", "Superioridade posicional", "Jogo apoiado + ataque à profundidade"].map((p, i) => (
+                  <div key={i} className="flex items-center gap-2 py-0.5">
+                    <div className="w-1 h-1 rounded-full shrink-0" style={{ background: "#8B5CF6" }} />
+                    <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.65)" }}>{p}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Frase de identidade */}
+            <div className="rounded-xl p-3 text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <span className="text-[8px] italic" style={{ color: "rgba(255,255,255,0.35)" }}>
+                &ldquo;Estas fases estão alinhadas com o modelo de jogo baseado em posse, progressão apoiada e ocupação racional dos espaços.&rdquo;
+              </span>
             </div>
           </div>
         </div>
