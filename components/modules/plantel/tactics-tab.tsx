@@ -2387,7 +2387,7 @@ export function TacticsTab() {
                 </div>
 
                 {/* Mini Pitch */}
-                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "300px" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "380px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
@@ -2564,7 +2564,7 @@ export function TacticsTab() {
                   </div>
                 </div>
 
-                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "300px" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "380px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
