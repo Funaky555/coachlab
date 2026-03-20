@@ -2344,7 +2344,7 @@ export function TacticsTab() {
 
       {/* ── OFFENSIVE ORGANIZATION ── */}
       {activeTab === "ip" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden p-4 gap-6">
+        <div className="flex flex-1 min-h-0 overflow-hidden p-4 gap-4">
           {/* LEFT: 3 fases de construção */}
           <div className="shrink-0 flex flex-col gap-2">
             <button onClick={() => exportOrgPNG(OFFENSIVE_PHASES, ipBalls, ipArrows, tatica.formacao)}
@@ -2354,7 +2354,7 @@ export function TacticsTab() {
             </button>
           <div className="flex gap-4 overflow-x-auto">
             {OFFENSIVE_PHASES.map((phase, phaseIdx) => (
-              <div key={phase.key} className="shrink-0 w-[200px] flex flex-col gap-2"
+              <div key={phase.key} className="shrink-0 w-[270px] flex flex-col gap-2"
                 style={{ borderLeft: `2px solid ${phase.color}33`, paddingLeft: "10px" }}>
 
                 {/* Phase header */}
@@ -2382,7 +2382,7 @@ export function TacticsTab() {
                   <div
                     contentEditable suppressContentEditableWarning
                     className="outline-none text-[11px] leading-tight focus:opacity-80"
-                    style={{ color: "rgba(255,255,255,0.75)" }}
+                    style={{ color: "rgba(255,255,255,0.9)" }}
                     onBlur={e => saveIPEdit(`p${phaseIdx}.objetivo`, e.currentTarget.textContent ?? "")}
                     dangerouslySetInnerHTML={{ __html: ipEdits[`p${phaseIdx}.objetivo`] ?? phase.objetivo }}
                   />
@@ -2399,7 +2399,7 @@ export function TacticsTab() {
                         <div
                           contentEditable suppressContentEditableWarning
                           className="outline-none text-[11px] leading-tight focus:opacity-80 flex-1"
-                          style={{ color: "rgba(255,255,255,0.65)" }}
+                          style={{ color: "rgba(255,255,255,0.9)" }}
                           onBlur={e => saveIPEdit(`p${phaseIdx}.princpio${j}`, e.currentTarget.textContent ?? "")}
                           dangerouslySetInnerHTML={{ __html: ipEdits[`p${phaseIdx}.princpio${j}`] ?? p }}
                         />
@@ -2418,7 +2418,7 @@ export function TacticsTab() {
                         <div
                           contentEditable suppressContentEditableWarning
                           className="outline-none text-[11px] leading-tight focus:opacity-80 flex-1"
-                          style={{ color: "rgba(255,255,255,0.55)" }}
+                          style={{ color: "rgba(255,255,255,0.9)" }}
                           onBlur={e => saveIPEdit(`p${phaseIdx}.comp${j}`, e.currentTarget.textContent ?? "")}
                           dangerouslySetInnerHTML={{ __html: ipEdits[`p${phaseIdx}.comp${j}`] ?? c }}
                         />
@@ -2431,11 +2431,9 @@ export function TacticsTab() {
           </div>
           </div>
 
-          {/* RIGHT: 4 cards em 2×2 — editáveis */}
-          <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-hidden">
-            {/* Row 1 */}
-            <div className="flex gap-3 flex-1 min-h-0">
-              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
+          {/* RIGHT: 4 cards em coluna */}
+          <div className="flex flex-col gap-3 w-[280px] shrink-0">
+              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#00D66C" }}>🧠 Coaching Focus</div>
                 {(["Movement timing", "Body orientation", "First touch quality", "Reading the press"] as const).map((def, i) => (
                   <div key={i} className="flex items-center gap-2 py-1">
@@ -2468,10 +2466,7 @@ export function TacticsTab() {
                   ))}
                 </div>
               </div>
-            </div>
-            {/* Row 2 */}
-            <div className="flex gap-3 flex-1 min-h-0">
-              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
+              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Tactical Variations</div>
                 {([["Build-up with 3", "Build-up with 4"], ["Single pivot", "Double pivot"], ["Inside wingers", "Wide wingers"]] as const).map((pair, i) => (
                   <div key={i} className="flex items-center gap-2 py-1">
@@ -2502,14 +2497,13 @@ export function TacticsTab() {
                   </div>
                 ))}
               </div>
-            </div>
           </div>
         </div>
       )}
 
       {/* ── DEFENSIVE ORGANIZATION ── */}
       {activeTab === "oop" && (
-        <div className="flex flex-1 min-h-0 overflow-hidden p-4 gap-6">
+        <div className="flex flex-1 min-h-0 overflow-hidden p-4 gap-4">
           {/* LEFT: 3 fases defensivas */}
           <div className="shrink-0 flex flex-col gap-2">
             <button onClick={() => exportOrgPNG(DEFENSIVE_PHASES, oopBalls, oopArrows, tatica.formacao_oop ?? tatica.formacao)}
@@ -2519,7 +2513,7 @@ export function TacticsTab() {
             </button>
           <div className="flex gap-4 overflow-x-auto">
             {DEFENSIVE_PHASES.map((phase, phaseIdx) => (
-              <div key={phase.key} className="shrink-0 w-[200px] flex flex-col gap-2"
+              <div key={phase.key} className="shrink-0 w-[270px] flex flex-col gap-2"
                 style={{ borderLeft: `2px solid ${phase.color}33`, paddingLeft: "10px" }}>
 
                 <div className="flex items-center gap-1.5 shrink-0">
@@ -2546,7 +2540,7 @@ export function TacticsTab() {
                   <div
                     contentEditable suppressContentEditableWarning
                     className="outline-none text-[11px] leading-tight focus:opacity-80"
-                    style={{ color: "rgba(255,255,255,0.75)" }}
+                    style={{ color: "rgba(255,255,255,0.9)" }}
                     onBlur={e => saveOOPEdit(`p${phaseIdx}.objetivo`, e.currentTarget.textContent ?? "")}
                     dangerouslySetInnerHTML={{ __html: oopEdits[`p${phaseIdx}.objetivo`] ?? phase.objetivo }}
                   />
@@ -2562,7 +2556,7 @@ export function TacticsTab() {
                         <div
                           contentEditable suppressContentEditableWarning
                           className="outline-none text-[11px] leading-tight focus:opacity-80 flex-1"
-                          style={{ color: "rgba(255,255,255,0.65)" }}
+                          style={{ color: "rgba(255,255,255,0.9)" }}
                           onBlur={e => saveOOPEdit(`p${phaseIdx}.princpio${j}`, e.currentTarget.textContent ?? "")}
                           dangerouslySetInnerHTML={{ __html: oopEdits[`p${phaseIdx}.princpio${j}`] ?? p }}
                         />
@@ -2580,7 +2574,7 @@ export function TacticsTab() {
                         <div
                           contentEditable suppressContentEditableWarning
                           className="outline-none text-[11px] leading-tight focus:opacity-80 flex-1"
-                          style={{ color: "rgba(255,255,255,0.55)" }}
+                          style={{ color: "rgba(255,255,255,0.9)" }}
                           onBlur={e => saveOOPEdit(`p${phaseIdx}.comp${j}`, e.currentTarget.textContent ?? "")}
                           dangerouslySetInnerHTML={{ __html: oopEdits[`p${phaseIdx}.comp${j}`] ?? c }}
                         />
@@ -2593,10 +2587,9 @@ export function TacticsTab() {
           </div>
           </div>
 
-          {/* RIGHT: 4 cards em 2×2 — editáveis */}
-          <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-hidden">
-            <div className="flex gap-3 flex-1 min-h-0">
-              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(0,102,255,0.06)", border: "1px solid rgba(0,102,255,0.12)" }}>
+          {/* RIGHT: 4 cards em coluna */}
+          <div className="flex flex-col gap-3 w-[280px] shrink-0">
+              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,102,255,0.06)", border: "1px solid rgba(0,102,255,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#0066FF" }}>🧠 Coaching Focus</div>
                 {(["Compactness and shape", "Pressure triggers", "Cover shadows", "Line of engagement"] as const).map((def, i) => (
                   <div key={i} className="flex items-center gap-2 py-1">
@@ -2629,9 +2622,7 @@ export function TacticsTab() {
                   ))}
                 </div>
               </div>
-            </div>
-            <div className="flex gap-3 flex-1 min-h-0">
-              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
+              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Defensive Variations</div>
                 {([["High press", "Mid block"], ["Zonal marking", "Man marking"], ["Single pivot", "Double pivot"]] as const).map((pair, i) => (
                   <div key={i} className="flex items-center gap-2 py-1">
@@ -2662,7 +2653,6 @@ export function TacticsTab() {
                   </div>
                 ))}
               </div>
-            </div>
           </div>
         </div>
       )}
