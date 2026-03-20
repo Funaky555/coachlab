@@ -1330,16 +1330,6 @@ function MiniPitchSVG({ tatica, jogadores, overrides, onUpdateOverrides, formaca
 
   return (
     <div className="relative w-full h-full">
-      {/* Reset arrows button */}
-      {(arrows?.length ?? 0) > 0 && (
-        <button
-          className="absolute top-1 right-7 z-10 w-5 h-5 rounded flex items-center justify-center text-[9px]"
-          style={{ background: "rgba(0,0,0,0.5)", color: "#EF4444", border: "1px solid #EF4444" }}
-          onPointerDown={e => e.stopPropagation()}
-          onClick={() => onUpdateArrows?.([])}
-          title="Clear all arrows"
-        >✕</button>
-      )}
       {/* Toggle arrow mode button */}
       <button
         className="absolute top-1 right-1 z-10 w-5 h-5 rounded flex items-center justify-center text-[9px]"
@@ -2397,7 +2387,7 @@ export function TacticsTab() {
                 </div>
 
                 {/* Mini Pitch */}
-                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "240px" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "300px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
@@ -2463,9 +2453,9 @@ export function TacticsTab() {
           </div>
 
           {/* RIGHT: 4 cards em coluna */}
-          <div className="flex flex-col gap-3 w-[280px] shrink-0">
+          <div className="flex flex-col gap-3 w-[280px] shrink-0 overflow-y-auto">
               {/* Coaching Focus */}
-              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
+              <div className="rounded-xl p-3" style={{ background: "rgba(0,214,108,0.06)", border: "1px solid rgba(0,214,108,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#00D66C" }}>🧠 Coaching Focus</div>
                 <div data-listcard>
                 {getList(ipEdits, "card.coaching", ["Movement timing", "Body orientation", "First touch quality", "Reading the press"]).map((item, i, arr) => (
@@ -2485,7 +2475,7 @@ export function TacticsTab() {
                 </div>
               </div>
               {/* Common Problems */}
-              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
+              <div className="rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#EF4444" }}>🎯 Common Problems</div>
                 <div className="rounded-lg p-2" style={{ background: "rgba(239,68,68,0.08)" }}>
                   <div contentEditable suppressContentEditableWarning
@@ -2512,7 +2502,7 @@ export function TacticsTab() {
                 </div>
               </div>
               {/* Tactical Variations */}
-              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
+              <div className="rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Tactical Variations</div>
                 <div data-listcard>
                 {getVarList(ipEdits, "card.variations", [["Build-up with 3", "Build-up with 4"], ["Single pivot", "Double pivot"], ["Inside wingers", "Wide wingers"]]).map((pair, i, arr) => (
@@ -2534,7 +2524,7 @@ export function TacticsTab() {
                 </div>
               </div>
               {/* Key Principles */}
-              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
+              <div className="rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>🧬 Key Principles</div>
                 <div data-listcard>
                 {getList(ipEdits, "card.principles", ["Courage to play out from the back", "Positional superiority", "Supported play + runs in behind"]).map((item, i, arr) => (
@@ -2574,7 +2564,7 @@ export function TacticsTab() {
                   </div>
                 </div>
 
-                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "240px" }} className="relative overflow-hidden rounded-md shrink-0">
+                <div style={{ width: "100%", aspectRatio: "510/780", maxHeight: "300px" }} className="relative overflow-hidden rounded-md shrink-0">
                   <MiniPitchSVG tatica={tatica} jogadores={jogadores}
                     overrides={tatica[phase.key] ?? {}}
                     onUpdateOverrides={o => update({ [phase.key]: o })}
@@ -2639,9 +2629,9 @@ export function TacticsTab() {
           </div>
 
           {/* RIGHT: 4 cards em coluna */}
-          <div className="flex flex-col gap-3 w-[280px] shrink-0">
+          <div className="flex flex-col gap-3 w-[280px] shrink-0 overflow-y-auto">
               {/* Coaching Focus */}
-              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(0,102,255,0.06)", border: "1px solid rgba(0,102,255,0.12)" }}>
+              <div className="rounded-xl p-3" style={{ background: "rgba(0,102,255,0.06)", border: "1px solid rgba(0,102,255,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#0066FF" }}>🧠 Coaching Focus</div>
                 <div data-listcard>
                 {getList(oopEdits, "card.coaching", ["Compactness and shape", "Pressure triggers", "Cover shadows", "Line of engagement"]).map((item, i, arr) => (
@@ -2661,7 +2651,7 @@ export function TacticsTab() {
                 </div>
               </div>
               {/* Common Problems */}
-              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
+              <div className="rounded-xl p-3 overflow-hidden" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#EF4444" }}>🎯 Common Problems</div>
                 <div className="rounded-lg p-2" style={{ background: "rgba(239,68,68,0.08)" }}>
                   <div contentEditable suppressContentEditableWarning
@@ -2688,7 +2678,7 @@ export function TacticsTab() {
                 </div>
               </div>
               {/* Defensive Variations */}
-              <div className="flex-1 rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
+              <div className="rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#F59E0B" }}>📊 Defensive Variations</div>
                 <div data-listcard>
                 {getVarList(oopEdits, "card.variations", [["High press", "Mid block"], ["Zonal marking", "Man marking"], ["Single pivot", "Double pivot"]]).map((pair, i, arr) => (
@@ -2710,7 +2700,7 @@ export function TacticsTab() {
                 </div>
               </div>
               {/* Key Principles */}
-              <div className="flex-1 rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
+              <div className="rounded-xl p-3 overflow-hidden" style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)" }}>
                 <div className="text-[11px] font-black uppercase tracking-widest mb-2" style={{ color: "#8B5CF6" }}>🧬 Key Principles</div>
                 <div data-listcard>
                 {getList(oopEdits, "card.principles", ["Collective compactness", "Immediate pressure after loss", "Positional discipline in block"]).map((item, i, arr) => (
